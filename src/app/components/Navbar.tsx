@@ -171,7 +171,7 @@ export default function App() {
         ) : (
           <>
             {/* Desktop Menu */}
-            <NavbarContent className="hidden gap-10 text-xl lg:flex">
+            <NavbarContent className="hidden gap-10 text-lg lg:flex">
               <NavbarItem>
                 <Link
                   href="#"

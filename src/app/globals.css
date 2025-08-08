@@ -23,3 +23,33 @@ body {
   font-family: var(--font-line-regular); 
   scroll-behavior: smooth;
 }
+
+.gradient-text {
+  background: linear-gradient(90deg, #4568DC, #B06AB3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-animated {
+  background: linear-gradient(
+    90deg,
+    #4568DC,
+    #B06AB3,
+    #4568DC,
+    #B06AB3
+  );
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 8s linear infinite;
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
