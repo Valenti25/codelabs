@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* โหลดฟอนต์ */
+@font-face {
+  font-family: "LINE Seed Sans TH App-Regular";
+  src: url("/fonts/LINESeedSansTH_W_Rg.woff2") format("woff2");
+  font-weight: 400;
+}
+
+/* ตัวแปรฟอนต์ */
+:root {
+  --font-line-regular: "LINE Seed Sans TH App-Regular", Helvetica, sans-serif;
+}
+
+/* ใช้ฟอนต์ทั้งเว็บ */
+html,
+body {
+  background-color: black;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-line-regular); 
+  scroll-behavior: smooth;
+}
