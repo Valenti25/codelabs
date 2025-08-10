@@ -12,7 +12,7 @@ export default function ChatSaleByAISection() {
           Chat sale by AI
         </h1>
 
-        <div className="mt-8 flex w-full items-center justify-center lg:mt-16">
+        <div className="mt-8 flex w-full items-center justify-center">
           <div className="aspect-[1/1] w-full max-w-2xl">
             <ModelBrain />
           </div>

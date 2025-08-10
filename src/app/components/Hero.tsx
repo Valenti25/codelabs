@@ -40,7 +40,7 @@ export default function Hero() {
           AI Innovation
         </h2>
         
-        <h1 className="mb-3 mt-10 text-xl text-white lg:text-[40px]">
+        <h1 className="mb-3 mt-4 text-xl text-white lg:mt-10 lg:text-[40px]">
           From Raw Data to Real-World Impact
         </h1>
         <div className="text-sm text-[#7E7E7E] space-y-2 lg:text-xl">
