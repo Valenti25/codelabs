@@ -1,80 +1,145 @@
 "use client";
-import ModelCanvas from "./ThreeJs/ModelCanvas";
-import { Image } from "@nextui-org/react";
 
-const logos = [
-  { src: "/IconLogo/chatgpt-logo.png", alt: "chatgpt-logo" },
-  { src: "/IconLogo/gemini-logo.png", alt: "gemini-logo" },
-  { src: "/IconLogo/poe-logo.png", alt: "poe-logo" },
-  { src: "/IconLogo/apple-intelligent-logo.png", alt: "apple-intelligent-logo" },
-  { src: "/IconLogo/mistral-ai-logo.png", alt: "mistral-ai-logo" },
-  { src: "/IconLogo/qwen-logo.png", alt: "qwen-logo" },
-  { src: "/IconLogo/union-logo.png", alt: "union-logo" },
-  { src: "/IconLogo/deepseek-logo.png", alt: "deepseek-logo" },
-  { src: "/IconLogo/claude-logo.png", alt: "claude-logo" },
-  { src: "/IconLogo/perplexity-logo.png", alt: "perplexity-logo" },
-  { src: "/IconLogo/microsoft-copilot-logo.png", alt: "microsoft-copilot-logo" },
+import React, { useEffect, useRef, useCallback } from "react";
+import { Image } from "@nextui-org/react";
+import ModelCanvas from "./ThreeJs/ModelCanvas";
+
+interface Logo {
+  src: string;
+  alt: string;
+}
+
+interface InfiniteMarqueeProps {
+  children: React.ReactNode;
+  speed?: number;
+  className?: string;
+}
+
+const LOGO_DATA: Logo[] = [
+  { src: "/IconLogo/chatgpt-logo.png", alt: "ChatGPT" },
+  { src: "/IconLogo/gemini-logo.png", alt: "Google Gemini" },
+  { src: "/IconLogo/poe-logo.png", alt: "Poe" },
+  { src: "/IconLogo/apple-intelligent-logo.png", alt: "Apple Intelligence" },
+  { src: "/IconLogo/mistral-ai-logo.png", alt: "Mistral AI" },
+  { src: "/IconLogo/qwen-logo.png", alt: "Qwen" },
+  { src: "/IconLogo/union-logo.png", alt: "Union" },
+  { src: "/IconLogo/deepseek-logo.png", alt: "DeepSeek" },
+  { src: "/IconLogo/claude-logo.png", alt: "Claude" },
+  { src: "/IconLogo/perplexity-logo.png", alt: "Perplexity" },
+  { src: "/IconLogo/microsoft-copilot-logo.png", alt: "Microsoft Copilot" },
 ];
 
-export default function Hero() {
-  const scrollingKeyframes = `
-    @keyframes scroll {
-      to {
-        transform: translateX(calc(-100% - 3rem));
-      }
-    }
-  `;
-  
-  return (
-    <section className="flex flex-col items-center justify-center px-4 text-center">
-      <style>{scrollingKeyframes}</style>
+const DUPLICATE_COUNT = 3;
+const DEFAULT_SPEED = 1.5;
 
-      <div className="absolute inset-0 z-0 m-auto">
+function InfiniteMarquee({
+  children,
+  speed = DEFAULT_SPEED,
+  className = "",
+}: InfiniteMarqueeProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<number | null>(null);
+  const positionRef = useRef<number>(0);
+
+  const animate = useCallback((): void => {
+    const content = contentRef.current;
+    if (!content) return;
+    const singleContentWidth = content.scrollWidth / DUPLICATE_COUNT;
+    positionRef.current -= speed;
+    if (Math.abs(positionRef.current) >= singleContentWidth) {
+      positionRef.current = 0;
+    }
+    content.style.transform = `translateX(${positionRef.current}px)`;
+    animationRef.current = requestAnimationFrame(animate);
+  }, [speed]);
+
+  useEffect(() => {
+    if (!containerRef.current || !contentRef.current) return;
+    animate();
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+    };
+  }, [animate]);
+
+  return (
+    <div ref={containerRef} className={`overflow-hidden ${className}`}>
+      <div ref={contentRef} className="flex" style={{ width: "max-content" }}>
+        {Array.from({ length: DUPLICATE_COUNT }, (_, index) => (
+          <React.Fragment key={index}>{children}</React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const LogoGrid: React.FC = () => (
+  <div className="mt-8 flex items-center justify-center gap-4 pr-4 lg:gap-12 lg:pr-12">
+    {LOGO_DATA.map((logo, index) => (
+      <Image
+        key={`${logo.alt}-${index}`}
+        src={logo.src}
+        alt={logo.alt}
+        className="h-9 w-9 flex-shrink-0 object-contain lg:h-[50px] lg:w-[50px]"
+        loading="lazy"
+      />
+    ))}
+  </div>
+);
+
+const GradientMask: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
+  <div
+    style={{
+      maskImage:
+        "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+      WebkitMaskImage:
+        "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+    }}
+  >
+    {children}
+  </div>
+);
+
+const HeroContent: React.FC = () => (
+  <div className="relative z-10 mx-auto w-full max-w-4xl px-4 py-14 lg:py-40">
+    <h2 className="gradient-text gradient-text-animated text-5xl font-bold tracking-tight lg:text-8xl">
+      AI Innovation
+    </h2>
+
+    <h1 className="mt-4 mb-3 text-xl leading-tight text-white lg:mt-10 lg:text-[40px]">
+      From Raw Data to Real-World Impact
+    </h1>
+
+    <div className="mx-auto max-w-2xl space-y-2 text-sm text-neutral-400 lg:text-xl">
+      <p>Next-Gen AI, from First Byte to Final Launch</p>
+      <p>End-to-End AI: From Data to Deployment, Done Right</p>
+    </div>
+  </div>
+);
+
+export default function Hero(): JSX.Element {
+  return (
+    <section className="relative flex flex-col items-center justify-center px-4 text-center">
+      {/* 3D Background */}
+      <div className="absolute inset-0 z-0">
         <ModelCanvas />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-4xl px-4 py-14 lg:py-40">
-        
-        {/* Gradient Text */}
-        <h2 className="gradient-text gradient-text-animated text-5xl font-bold tracking-tight lg:text-8xl">
-          AI Innovation
-        </h2>
-        
-        <h1 className="mb-3 mt-4 text-xl text-white lg:mt-10 lg:text-[40px]">
-          From Raw Data to Real-World Impact
-        </h1>
-        <div className="text-sm text-[#7E7E7E] space-y-2 lg:text-xl">
-          <p>Next-Gen AI, from First Byte to Final Launch</p>
-          <p>End-to-End AI: From Data to Deployment, Done Right</p>
-        </div>
-      </div>
+      {/* Hero Content */}
+      <HeroContent />
 
-      {/* Logo strip */}
-      <div
-        className="group mx-auto flex w-full max-w-5xl justify-center overflow-hidden lg:my-16"
-        style={{
-          maskImage:
-            "linear-gradient(to right, transparent 0, black 10%, black 90%, transparent 100%)",
-        }}
-      >
-        <div className="flex mt-8 w-max animate-[scroll_15s_linear_infinite] group-hover:paused lg:animate-[scroll_15s_linear_infinite]">
-          {[...Array(2)].map((_, i) => (
-            <div
-              key={i}
-              aria-hidden={i === 1}
-              className="flex min-w-full shrink-0 items-center justify-center gap-4 px-2 lg:gap-12"
-            >
-              {logos.map((logo) => (
-                <Image
-                  key={logo.alt}
-                  src={logo.src}
-                  alt={logo.alt}
-                  className="h-9 w-9 flex-shrink-0 object-contain lg:h-[50px] lg:w-[50px]"
-                />
-              ))}
-            </div>
-          ))}
-        </div>
+      {/* Logo Marquee */}
+      <div className="relative z-10 mx-auto w-full max-w-5xl lg:my-16">
+        <GradientMask>
+          <InfiniteMarquee speed={DEFAULT_SPEED}>
+            <LogoGrid />
+          </InfiniteMarquee>
+        </GradientMask>
       </div>
     </section>
   );
