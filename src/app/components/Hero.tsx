@@ -122,7 +122,7 @@ const HeroContent: React.FC = () => (
   </div>
 );
 
-export default function Hero(): JSX.Element {
+export default function Hero(): React.ReactElement {
   return (
     <section className="relative flex flex-col items-center justify-center px-4 text-center">
       {/* 3D Background */}
