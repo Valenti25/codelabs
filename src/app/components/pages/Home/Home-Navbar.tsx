@@ -10,7 +10,9 @@ import {
 } from "@nextui-org/react";
 import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
+import content from "@/locales/en/home.json";
 
+// Helper component for text with a gradient border
 const GradientBorderText = ({ children }: { children: React.ReactNode }) => (
   <div className="gradient relative inline-block rounded-lg backdrop-blur-md">
     <div className="rounded-[6px] bg-black/80">{children}</div>
@@ -27,37 +29,6 @@ export default function App() {
   const dropdownMenuRef = useRef<HTMLDivElement>(null);
   const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const dropdownData = {
-    products: {
-      "Build AI": {
-        description: "Data for training models",
-        subItems: [
-          { name: "For Enterprise", description: "Smart data platform", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "For SME, Startup", description: "Lightweight and efficient ", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "For E-commerce", description: "Boost sales with AI", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "For Sale", description: "Sell smarter, faster, and better", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "For Human Resource (HR)", description: "Simplify HR tasks ", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "For Government", description: "Smart solutions for digital", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "For Financial", description: "Manage your finances with", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "For Medical, Healthcare", description: "Manage patient data", icon: "/IconLogo/chatgpt-logo.png" }
-        ],
-      },
-      "Apply AI": {
-        description: "Data for training models",
-        subItems: [
-          { name: "Chat Platform", description: "Smart data platform", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "AI-powered E-commerce Sales", description: "Boost online", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "Smart Data Platform", description: "Boost sales with", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "Stock Management", description: "Optimize inventory", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "Dashboard", description: "Real-time insights powered", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "AI Consultant", description: "Expert who helps business", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "Promotion CRM", description: "Boost engagement with ", icon: "/IconLogo/chatgpt-logo.png" },
-          { name: "CRM System", description: "Smart system to ", icon: "/IconLogo/chatgpt-logo.png" }
-        ],
-      }
-    }
-  };
-
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 1024);
     const onClickOutside = (e: MouseEvent) => {
@@ -67,7 +38,8 @@ export default function App() {
         !dropdownContainerRef.current.contains(e.target as Node) &&
         dropdownMenuRef.current &&
         !dropdownMenuRef.current.parentElement?.contains(e.target as Node)
-      ) setActiveDropdown(null);
+      )
+        setActiveDropdown(null);
     };
 
     onResize();
@@ -87,47 +59,41 @@ export default function App() {
     leaveTimeoutRef.current = setTimeout(() => setActiveDropdown(null), 200);
   };
 
+  const dropdownData = content.dropdown;
+
   const renderDropdownContent = () => (
     <div className="pointer-events-none absolute top-[140px] left-0 right-0 z-40 flex justify-center">
-      <div className="gradient-border pointer-events-auto relative rounded-lg p-[2px] backdrop-blur-md">
+      <div className="border-2 border-black pointer-events-auto relative rounded-lg p-[2px] backdrop-blur-md">
         <div
           ref={dropdownMenuRef}
           onMouseEnter={() => handleMouseEnter("products")}
           onMouseLeave={handleMouseLeave}
-          className="relative w-[70vw] max-w-5xl max-h-[80vh] h-full rounded-[inherit] bg-black/20"
+          className="relative w-[70vw] max-w-6xl max-h-[80vh] h-full rounded-[inherit] bg-black/20"
         >
-          <div className="px-6 py-8 grid grid-cols-2 gap-8 lg:gap-12">
+          <div className="px-6 py-8 grid grid-cols-2 gap-8 lg:gap-12 items-stretch">
             {Object.entries(dropdownData.products).map(([category, data]) => (
               <div key={category} className="space-y-4">
-                <h3 className="mb-4 text-lg font-bold text-white">{category}</h3>
-                <div className="space-y-3">
-                  <div className="border-b border-[#676767] pb-3">
-                    <GradientBorderText>
-                      <h4 className="text-sm font-semibold text-cyan-400">{data.description}</h4>
-                    </GradientBorderText>
-                    <div className="text-[#676767]">svscwcwcvsvs</div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-                    {data.subItems.map(({ name, description, icon }, idx) => (
-                      <Link
-                        key={idx}
-                        href="#"
-                        className="group block rounded-md p-2 transition-colors hover:bg-gray-800/50"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="mt-0.5 h-5 w-5 flex-shrink-0">
-                            <Image src={icon} alt={name} width={20} height={20} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-xs font-medium text-white transition-colors group-hover:text-cyan-400">
-                              {name}
-                            </span>
-                            <span className="mt-0.5 line-clamp-2 text-xs text-gray-400">{description}</span>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+                <div className="border-b border-[#676767]/30 pb-3">
+                  <h3 className="text-lg font-bold text-white mb-2">{category}</h3>
+                  <GradientBorderText>
+                    <h4 className="text-sm font-semibold gradient-text-animated">{data.description}</h4>
+                  </GradientBorderText>
+                </div>
+                <div className="grid grid-cols-1 gap-y-2">
+                  {data.subItems.map(({ name, description }, idx) => (
+                    <Link
+                      key={idx}
+                      href="#"
+                      className="group block rounded-md p-2 transition-colors"
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-white transition-colors group-hover:text-cyan-400">
+                          {name}
+                        </span>
+                        <span className="mt-0.5 line-clamp font-bold-2 text-xs text-gray-400">{description}</span>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               </div>
             ))}
@@ -139,13 +105,13 @@ export default function App() {
 
   return (
     <div className="relative">
-      <Navbar className="relative z-50 px-6 py-4 lg:px-12 lg:py-10" maxWidth="full">
+      <Navbar className="relative z-50 mt-3 px-6 py-4 lg:px-12 lg:py-7" maxWidth="full">
         <NavbarContent className="mx-auto flex max-w-[1400px] w-full items-center justify-between text-white">
           <NavbarBrand>
             <Image
-              src="/IconLogo/codelabs-logo.png"
+              src="/images/codelabs-logo.png"
               alt="codelabs-logo"
-              width={isMobile ? 160 : 200}
+              width={isMobile ? 160 : 170}
               height={isMobile ? 45 : 57}
             />
           </NavbarBrand>
@@ -156,19 +122,19 @@ export default function App() {
                 ☰
               </Button>
               {isMenuOpen && (
-                <div className="absolute top-full right-0 mt-2 w-64 space-y-4 rounded-lg bg-black/85 p-4 shadow-lg backdrop-blur-md">
-                  {["Product", "Case Studies", "Pricing", "Resources"].map((label) => (
+                <div className="absolute top-full right-0 mt-2 w-54 space-y-4 rounded-lg bg-black/85 p-2 shadow-lg backdrop-blur-md">
+                  {content.navbar.menuItems.map((label) => (
                     <Link key={label} href="#" className="block text-white hover:text-cyan-400">
                       {label}
                     </Link>
                   ))}
-                  <Button className="w-full rounded-lg bg-white font-bold text-black">Book a Demo</Button>
+                  <Button className="w-full rounded-lg bg-white font-bold text-black">{content.navbar.buttonText}</Button>
                 </div>
               )}
             </div>
           ) : (
             <>
-              <NavbarContent className="hidden gap-10 text-lg lg:flex">
+              <NavbarContent className="hidden font-semibold gap-10 text-base lg:flex">
                 <div
                   ref={dropdownContainerRef}
                   className="relative rounded-lg"
@@ -190,7 +156,7 @@ export default function App() {
                   </NavbarItem>
                 </div>
 
-                {["Case Studies", "Pricing"].map((label) => (
+                {content.navbar.menuItems.filter((item) => item !== "Product").map((label) => (
                   <NavbarItem key={label}>
                     <Link href="#" className="text-white transition-colors hover:text-cyan-400">
                       {label}
@@ -211,11 +177,10 @@ export default function App() {
                 </NavbarItem>
               </NavbarContent>
 
-              <NavbarContent className="hidden lg:flex">
+              <NavbarContent className="flex text-sm">
                 <NavbarItem className="relative rounded-lg">
-                  <div className="absolute -inset-px rounded-lg bg-gradient-to-r from-[#4568DC] to-[#B06AB3] backdrop-blur-md"></div>
-                  <Button className="relative rounded-lg bg-white px-6 py-2 font-bold text-black transition-colors hover:bg-gray-100">
-                    Book a Demo
+                  <Button className="relative rounded-lg bg-white px-8 py-2 font-semibold text-black">
+                    {content.navbar.buttonText}
                   </Button>
                 </NavbarItem>
               </NavbarContent>

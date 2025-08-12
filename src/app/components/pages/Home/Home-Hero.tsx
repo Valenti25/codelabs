@@ -1,8 +1,8 @@
 "use client";
-
 import React, { useEffect, useRef, useCallback } from "react";
 import { Image } from "@nextui-org/react";
-import ModelCanvas from "./ThreeJs/ModelCanvas";
+import ModelCanvas from "../../ModelsObject/ModelStar";
+import content from "@/locales/en/home.json";
 
 interface Logo {
   src: string;
@@ -16,17 +16,17 @@ interface InfiniteMarqueeProps {
 }
 
 const LOGO_DATA: Logo[] = [
-  { src: "/IconLogo/chatgpt-logo.png", alt: "ChatGPT" },
-  { src: "/IconLogo/gemini-logo.png", alt: "Google Gemini" },
-  { src: "/IconLogo/poe-logo.png", alt: "Poe" },
-  { src: "/IconLogo/apple-intelligent-logo.png", alt: "Apple Intelligence" },
-  { src: "/IconLogo/mistral-ai-logo.png", alt: "Mistral AI" },
-  { src: "/IconLogo/qwen-logo.png", alt: "Qwen" },
-  { src: "/IconLogo/union-logo.png", alt: "Union" },
-  { src: "/IconLogo/deepseek-logo.png", alt: "DeepSeek" },
-  { src: "/IconLogo/claude-logo.png", alt: "Claude" },
-  { src: "/IconLogo/perplexity-logo.png", alt: "Perplexity" },
-  { src: "/IconLogo/microsoft-copilot-logo.png", alt: "Microsoft Copilot" },
+  { src: "/images/chatgpt-logo.png", alt: "ChatGPT" },
+  { src: "/images/gemini-logo.png", alt: "Google Gemini" },
+  { src: "/images/poe-logo.png", alt: "Poe" },
+  { src: "/images/apple-intelligent-logo.png", alt: "Apple Intelligence" },
+  { src: "/images/mistral-ai-logo.png", alt: "Mistral AI" },
+  { src: "/images/qwen-logo.png", alt: "Qwen" },
+  { src: "/images/union-logo.png", alt: "Union" },
+  { src: "/images/deepseek-logo.png", alt: "DeepSeek" },
+  { src: "/images/claude-logo.png", alt: "Claude" },
+  { src: "/images/perplexity-logo.png", alt: "Perplexity" },
+  { src: "/images/microsoft-copilot-logo.png", alt: "Microsoft Copilot" },
 ];
 
 const DUPLICATE_COUNT = 3;
@@ -105,24 +105,38 @@ const GradientMask: React.FC<{ children: React.ReactNode }> = ({
   </div>
 );
 
-const HeroContent: React.FC = () => (
+interface HeroContentProps {
+  title: string;
+  subtitle: string;
+  line1: string;
+  line2: string;
+}
+
+const HeroContent: React.FC<HeroContentProps> = ({
+  title,
+  subtitle,
+  line1,
+  line2,
+}) => (
   <div className="relative z-10 mx-auto w-full max-w-4xl px-4 py-14 lg:py-40">
     <h2 className="gradient-text gradient-text-animated text-5xl font-bold tracking-tight lg:text-8xl">
-      AI Innovation
+      {title}
     </h2>
 
     <h1 className="mt-4 mb-3 text-xl leading-tight text-white lg:mt-10 lg:text-[40px]">
-      From Raw Data to Real-World Impact
+      {subtitle}
     </h1>
 
     <div className="mx-auto max-w-2xl space-y-2 text-sm text-neutral-400 lg:text-xl">
-      <p>Next-Gen AI, from First Byte to Final Launch</p>
-      <p>End-to-End AI: From Data to Deployment, Done Right</p>
+      <p>{line1}</p>
+      <p>{line2}</p>
     </div>
   </div>
 );
 
 export default function Hero(): React.ReactElement {
+  const heroText = content.hero;
+
   return (
     <section className="relative flex flex-col items-center justify-center px-4 text-center">
       {/* 3D Background */}
@@ -131,7 +145,12 @@ export default function Hero(): React.ReactElement {
       </div>
 
       {/* Hero Content */}
-      <HeroContent />
+      <HeroContent
+        title={heroText.title}
+        subtitle={heroText.subtitle}
+        line1={heroText.line1}
+        line2={heroText.line2}
+      />
 
       {/* Logo Marquee */}
       <div className="relative z-10 mx-auto w-full max-w-5xl lg:my-16">

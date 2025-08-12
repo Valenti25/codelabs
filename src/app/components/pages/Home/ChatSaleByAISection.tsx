@@ -1,16 +1,17 @@
 "use client";
-import ModelBrain from "./ThreeJs/ModelBrain";
+import ModelBrain from "../../ModelsObject/ModelBrain";
+import content from "@/locales/en/home.json";
 
 export default function ChatSaleByAISection() {
+  const text = content.chatSaleByAI;
+
   return (
     <section className="flex w-full items-center justify-center px-4 py-16 text-white lg:py-36">
       <div className="flex w-full max-w-7xl flex-col items-center justify-center text-center">
         <p className="mb-2 text-base text-[#7E7E7E] lg:text-xl">
-          AI for the Enterprise
+          {text.smallTitle}
         </p>
-        <h1 className="text-3xl lg:text-[40px]">
-          Chat sale by AI
-        </h1>
+        <h1 className="text-3xl lg:text-[40px]">{text.mainTitle}</h1>
 
         <div className="mt-8 flex w-full items-center justify-center">
           <div className="aspect-[1/1] w-full max-w-2xl">
@@ -18,8 +19,7 @@ export default function ChatSaleByAISection() {
           </div>
         </div>
         <p className="mt-1 text-sm leading-relaxed text-[#7E7E7E]">
-          An AI-powered sales assistant that chats, qualifies, recommends, and
-          helps close deals — 24/7.
+          {text.description}
         </p>
       </div>
     </section>
