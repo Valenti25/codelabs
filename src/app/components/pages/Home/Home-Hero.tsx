@@ -155,7 +155,7 @@ export default function Hero(): React.ReactElement {
       {/* Logo Marquee */}
       <div className="relative z-10 mx-auto w-full max-w-5xl lg:my-16">
         <GradientMask>
-          <InfiniteMarquee speed={DEFAULT_SPEED}>
+          <InfiniteMarquee speed={0.9}>
             <LogoGrid />
           </InfiniteMarquee>
         </GradientMask>
