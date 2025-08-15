@@ -21,15 +21,21 @@ function ModelInstance({ position = [0, 0, 0] }) {
 
 export default function ModelBrain() {
   return (
-    <div className="w-full h-full min-h-[300px] aspect-[1/1]">
-      <Canvas
-        className="w-full h-full"
-        camera={{ position: [0, 0, 10], fov: 25 }}
-      >
-        <ModelInstance position={[0, 0.5, -6]} />
-        <Environment preset="city" />
-        <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
-      </Canvas>
-    </div>
+    <>
+      <div className="aspect-[1/1] h-full min-h-[300px] w-full">
+        <Canvas
+          className="h-full w-full"
+          camera={{ position: [0, 0, 10], fov: 25 }}
+        >
+          <ModelInstance position={[0, 0.5, -6]} />
+          <Environment preset="city" />
+          <OrbitControls
+            enableZoom={false}
+            enablePan={false}
+            enableRotate={false}
+          />
+        </Canvas>
+      </div>
+    </>
   );
 }

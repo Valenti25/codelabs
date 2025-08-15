@@ -24,7 +24,11 @@ body {
   background: linear-gradient(90deg, #4568dc, #b06ab3);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-size: 50% 50%; /* ขยายพื้นที่ไล่สี */
+  background-position: center; /* ให้สีคงอยู่ตรงกลาง */
 }
+
+
 
 .gradient-text-animated {
   background: linear-gradient(90deg, #4568dc, #b06ab3, #4568dc, #b06ab3);
@@ -88,4 +92,11 @@ body {
 .card-inner-blur {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE และ Edge */
+  scrollbar-width: none;  /* Firefox */
 }

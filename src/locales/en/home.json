@@ -5,7 +5,6 @@
     "line1": "Next-Gen AI, from First Byte to Final Launch",
     "line2": "End-to-End AI: From Data to Deployment, Done Right"
   },
-
   "landing": {
     "heading": {
       "smallTitle": "Apply AI",
@@ -28,101 +27,64 @@
       }
     ]
   },
-
   "poweringSearchEngine": {
     "smallTitle": "AI for the Enterprise",
     "mainTitle": "Powering Search engine",
     "sectionTitle": "Search engine AI",
     "description": "An AI-powered sales assistant that chats, qualifies, recommends, and helps close deals — 24/7."
   },
-
   "chatSaleByAI": {
     "smallTitle": "AI for the Enterprise",
     "mainTitle": "Chat sale by AI",
     "description": "An AI-powered sales assistant that chats, qualifies, recommends, and helps close deals — 24/7."
   },
-
   "navbar": {
-    "menuItems": ["Product", "Case Studies", "Pricing", "Resources"],
+    "menuItems": ["Product", "Pricing", "Case Studies","Resources"],
     "buttonText": "Book a Demo"
   },
-
   "dropdown": {
     "products": {
       "Build AI": {
         "description": "Data for training models",
+        "logo": "/svg/icon16.svg",
         "subItems": [
-          {
-            "name": "For Enterprise",
-            "description": "Smart data platform"
-          },
-          {
-            "name": "For SME, Startup",
-            "description": "Lightweight and efficient"
-          },
-          {
-            "name": "For E-commerce",
-            "description": "Boost sales with AI"
-          },
-          {
-            "name": "For Sale",
-            "description": "Sell smarter, faster, and better"
-          },
-          {
-            "name": "For Human Resource (HR)",
-            "description": "Simplify HR tasks"
-          },
-          {
-            "name": "For Government",
-            "description": "Smart solutions for digital"
-          },
-          {
-            "name": "For Financial",
-            "description": "Manage your finances"
-          },
-          {
-            "name": "For Medical, Healthcare",
-            "description": "Manage patient data"
-          }
+          { "name": "For Enterprise", "description": "Smart data platform", "logo": "/svg/icon1.svg" },
+          { "name": "For SME, Startup", "description": "Lightweight and efficient", "logo": "/svg/icon2.svg" },
+          { "name": "For E-commerce", "description": "Boost sales with AI", "logo": "/svg/icon3.svg" },
+          { "name": "For Sale", "description": "Sell smarter, faster, and better", "logo": "/svg/icon4.svg" },
+          { "name": "For Human Resource (HR)", "description": "Simplify HR tasks", "logo": "/svg/icon5.svg" },
+          { "name": "For Government", "description": "Smart solutions for digital", "logo": "/svg/icon6.svg" },
+          { "name": "For Financial", "description": "Manage your finances", "logo": "/svg/icon7.svg" },
+          { "name": "For Medical, Healthcare", "description": "Manage patient data", "logo": "/svg/icon8.svg" }
         ]
       },
       "Apply AI": {
         "description": "Data for training models",
+        "logo": "/svg/icon17.svg",
         "subItems": [
-          {
-            "name": "Chat Platform",
-            "description": "Smart data platform"
-          },
-          {
-            "name": "AI-powered E-commerce Sales",
-            "description": "Boost online sales"
-          },
-          {
-            "name": "Smart Data Platform",
-            "description": "Boost sales with data"
-          },
-          {
-            "name": "Stock Management",
-            "description": "Optimize inventory"
-          },
-          {
-            "name": "Dashboard",
-            "description": "Real-time insights powered"
-          },
-          {
-            "name": "AI Consultant",
-            "description": "Expert who helps business"
-          },
-          {
-            "name": "Promotion CRM",
-            "description": "Boost engagement"
-          },
-          {
-            "name": "CRM System",
-            "description": "Smart system to manage customers"
-          }
+          { "name": "Chat Platform", "description": "Smart data platform", "logo": "/svg/icon9.svg" },
+          { "name": "AI-powered E-commerce Sales", "description": "Boost online sales", "logo": "/svg/icon10.svg" },
+          { "name": "Smart Data Platform", "description": "Boost sales with data", "logo": "/svg/icon11.svg" },
+          { "name": "Stock Management", "description": "Optimize inventory", "logo": "/svg/icon12.svg" },
+          { "name": "Dashboard", "description": "Real-time insights powered", "logo": "/svg/icon13.svg" },
+          { "name": "Promotion CRM", "description": "Expert who helps business", "logo": "/svg/icon14.svg" },
+          { "name": "CRM System", "description": "Boost engagement", "logo": "/svg/icon15.svg" }
         ]
       }
+    },
+    "resources": [
+    {
+      "name": "About",
+      "logo": "/svg/icon18.svg"
+    },
+    {
+      "name": "Contact us",
+      "logo": "/svg/icon19.svg"
+    },
+    {
+      "name": "Blog",
+      "logo": "/svg/icon20.svg"
     }
+  ]
   }
 }

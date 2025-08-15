@@ -13,9 +13,20 @@ import React, { useState, useEffect, useRef } from "react";
 import content from "@/locales/en/home.json";
 
 // Helper component for text with a gradient border
-const GradientBorderText = ({ children }: { children: React.ReactNode }) => (
+const GradientBorderText = ({ children, logo }: { children: React.ReactNode; logo?: string }) => (
   <div className="gradient relative inline-block rounded-lg backdrop-blur-md">
-    <div className="rounded-[6px] bg-black/80">{children}</div>
+    <div className="flex items-center gap-1.5 p-2">
+      {logo && (
+        <Image
+          src={logo}
+          alt="Category logo"
+          width={35}
+          height={35}
+          className="object-contain flex-shrink-0"
+        />
+      )}
+      {children}
+    </div>
   </div>
 );
 
@@ -27,6 +38,8 @@ export default function App() {
   const menuRef = useRef<HTMLDivElement>(null);
   const dropdownContainerRef = useRef<HTMLDivElement>(null);
   const dropdownMenuRef = useRef<HTMLDivElement>(null);
+  const resourcesDropdownRef = useRef<HTMLDivElement>(null);
+  const resourcesMenuRef = useRef<HTMLDivElement>(null);
   const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -37,7 +50,11 @@ export default function App() {
         dropdownContainerRef.current &&
         !dropdownContainerRef.current.contains(e.target as Node) &&
         dropdownMenuRef.current &&
-        !dropdownMenuRef.current.parentElement?.contains(e.target as Node)
+        !dropdownMenuRef.current.parentElement?.contains(e.target as Node) &&
+        resourcesDropdownRef.current &&
+        !resourcesDropdownRef.current.contains(e.target as Node) &&
+        resourcesMenuRef.current &&
+        !resourcesMenuRef.current.parentElement?.contains(e.target as Node)
       )
         setActiveDropdown(null);
     };
@@ -61,35 +78,46 @@ export default function App() {
 
   const dropdownData = content.dropdown;
 
-  const renderDropdownContent = () => (
-    <div className="pointer-events-none absolute top-[140px] left-0 right-0 z-40 flex justify-center">
-      <div className="border-2 border-black pointer-events-auto relative rounded-lg p-[2px] backdrop-blur-md">
+  const renderProductsDropdownContent = () => (
+    <div className="pointer-events-none absolute top-0 pt-20 left-0 right-0 z-40 flex justify-center">
+      <div className="border-2 border-black pointer-events-auto relative rounded-lg p-[2px] backdrop-blur-md mt-1">
         <div
           ref={dropdownMenuRef}
           onMouseEnter={() => handleMouseEnter("products")}
           onMouseLeave={handleMouseLeave}
-          className="relative w-[70vw] max-w-6xl max-h-[80vh] h-full rounded-[inherit] bg-black/20"
+          className="relative w-[70vw] max-w-5xl max-h-[80vh] h-full rounded-[inherit] bg-black/20"
         >
           <div className="px-6 py-8 grid grid-cols-2 gap-8 lg:gap-12 items-stretch">
             {Object.entries(dropdownData.products).map(([category, data]) => (
               <div key={category} className="space-y-4">
                 <div className="border-b border-[#676767]/30 pb-3">
                   <h3 className="text-lg font-bold text-white mb-2">{category}</h3>
-                  <GradientBorderText>
+                  <GradientBorderText logo={data.logo}>
                     <h4 className="text-sm font-semibold gradient-text-animated">{data.description}</h4>
                   </GradientBorderText>
                 </div>
-                <div className="grid grid-cols-1 gap-y-2">
-                  {data.subItems.map(({ name, description }, idx) => (
+                <div className="grid grid-cols-2 gap-y-2">
+                  {data.subItems.map(({ name, description, logo }, idx) => (
                     <Link
                       key={idx}
                       href="#"
                       className="group block rounded-md p-2 transition-colors"
                     >
                       <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-white transition-colors group-hover:text-cyan-400">
-                          {name}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {logo && (
+                            <Image
+                              src={logo}
+                              alt={`${name} logo`}
+                              width={25}
+                              height={25}
+                              className="object-contain flex-shrink-0"
+                            />
+                          )}
+                          <span className="text-xs font-semibold text-white transition-colors group-hover:text-cyan-400">
+                            {name}
+                          </span>
+                        </div>
                         <span className="mt-0.5 line-clamp font-bold-2 text-xs text-gray-400">{description}</span>
                       </div>
                     </Link>
@@ -103,9 +131,53 @@ export default function App() {
     </div>
   );
 
+  const renderResourcesDropdownContent = () => {
+  return (
+    <div className="pointer-events-none absolute top-0 pt-20 left-0 right-0 z-40 flex justify-center">
+      {/* ใช้ relative เพื่อให้ child สามารถ position ตัวเองตาม parent */}
+      <div className="pointer-events-auto relative">
+        {/* ใช้ transform ให้ตรงกลาง */}
+        <div className="border border-black ml-20 absolute flex items-center justify-center rounded-lg p-[2px] backdrop-blur-md mt-1">
+          <div
+            ref={resourcesMenuRef}
+            onMouseEnter={() => handleMouseEnter("resources")}
+            onMouseLeave={handleMouseLeave}
+            className="relative w-48 rounded-[inherit] bg-black/20"
+          >
+            <div className="px-6 py-8 space-y-3">
+              {dropdownData.resources.map(({ name, logo }, idx) => (
+                <Link
+                  key={idx}
+                  href="#"
+                  className="block rounded-md p-3 transition-colors "
+                >
+                  <div className="flex items-center gap-3">
+                    {logo && (
+                      <Image
+                        src={logo}
+                        alt={`${name} logo`}
+                        width={25}
+                        height={25}
+                        className="object-contain flex-shrink-0"
+                      />
+                    )}
+                    <span className="text-xs font-semibold text-white transition-colors hover:text-cyan-400">
+                      {name}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
   return (
     <div className="relative">
-      <Navbar className="relative z-50 mt-3 px-6 py-4 lg:px-12 lg:py-7" maxWidth="full">
+      <Navbar className="relative z-50 px-6 py-4 lg:px-12 lg:py-10" maxWidth="full">
         <NavbarContent className="mx-auto flex max-w-[1400px] w-full items-center justify-between text-white">
           <NavbarBrand>
             <Image
@@ -142,21 +214,13 @@ export default function App() {
                   onMouseLeave={handleMouseLeave}
                 >
                   <NavbarItem className="relative">
-                    <Link href="#" className="relative z-10 flex items-center gap-1 text-white transition-colors">
+                    <div className="relative cursor-pointer z-10 flex items-center gap-1 text-white transition-colors">
                       Product
-                      <svg
-                        className={`h-4 w-4 transition-transform ${activeDropdown === "products" ? "rotate-180" : ""}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </Link>
+                    </div>
                   </NavbarItem>
                 </div>
 
-                {content.navbar.menuItems.filter((item) => item !== "Product").map((label) => (
+                {content.navbar.menuItems.filter((item) => item !== "Product" && item !== "Resources").map((label) => (
                   <NavbarItem key={label}>
                     <Link href="#" className="text-white transition-colors hover:text-cyan-400">
                       {label}
@@ -164,17 +228,20 @@ export default function App() {
                   </NavbarItem>
                 ))}
 
-                <NavbarItem>
-                  <Link
-                    href="#"
-                    className="flex items-center gap-1 text-white transition-colors hover:text-cyan-400"
-                  >
-                    Resources
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </Link>
-                </NavbarItem>
+                <div
+                  ref={resourcesDropdownRef}
+                  className="relative rounded-lg"
+                  onMouseEnter={() => handleMouseEnter("resources")}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <NavbarItem className="relative">
+                    <div
+                      className="flex cursor-pointer items-center gap-1 text-white transition-colors "
+                    >
+                      Resources
+                    </div>
+                  </NavbarItem>
+                </div>
               </NavbarContent>
 
               <NavbarContent className="flex text-sm">
@@ -189,7 +256,8 @@ export default function App() {
         </NavbarContent>
       </Navbar>
 
-      {activeDropdown === "products" && !isMobile && renderDropdownContent()}
+      {activeDropdown === "products" && !isMobile && renderProductsDropdownContent()}
+      {activeDropdown === "resources" && !isMobile && renderResourcesDropdownContent()}
     </div>
   );
 }

@@ -119,7 +119,7 @@ const HeroContent: React.FC<HeroContentProps> = ({
   line2,
 }) => (
   <div className="relative z-10 mx-auto w-full max-w-4xl px-4 py-14 lg:py-40">
-    <h2 className="gradient-text gradient-text-animated text-5xl font-bold tracking-tight lg:text-8xl">
+    <h2 className=" gradient-text-animated text-5xl font-bold tracking-tight lg:text-8xl">
       {title}
     </h2>
 

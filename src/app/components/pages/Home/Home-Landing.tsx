@@ -48,17 +48,17 @@ function HoverImage({
 }
 
 export default function LandingPage() {
-  const landingContent = content.landing; // ดึงข้อความหัวข้อและเนื้อหา
-  const imageData = data.landing.cards; // รูปภาพและ alt
+  const landingContent = content.landing; 
+  const imageData = data.landing.cards; 
 
   return (
     <section className="mx-auto max-w-[1270px] px-4 py-16 text-white lg:py-24">
       {/* Landing Heading */}
       <div className="mb-12 text-center">
-        <p className="mb-3 text-lg text-[#666666] md:text-xl">
+        <p className="mb-3 text-lg text-[#666666] lg:text-xl">
           {landingContent.heading.smallTitle}
         </p>
-        <h2 className="text-3xl md:text-4xl lg:text-[40px]">
+        <h2 className="text-3xl lg:text-[40px]">
           {landingContent.heading.mainTitle}
         </h2>
         <div className="mx-auto mt-4 max-w-4xl space-y-2 px-2 text-sm text-[#666666] md:text-xl lg:text-xl">
