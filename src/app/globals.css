@@ -24,11 +24,14 @@ body {
   background: linear-gradient(90deg, #4568dc, #b06ab3);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-size: 50% 50%; /* ขยายพื้นที่ไล่สี */
+  background-size: 40% 40%; /* ขยายพื้นที่ไล่สี */
   background-position: center; /* ให้สีคงอยู่ตรงกลาง */
 }
 
-
+img {
+  -webkit-user-drag: none; 
+  user-select: none;      
+}
 
 .gradient-text-animated {
   background: linear-gradient(90deg, #4568dc, #b06ab3, #4568dc, #b06ab3);

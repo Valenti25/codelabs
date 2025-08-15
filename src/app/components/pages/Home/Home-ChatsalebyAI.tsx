@@ -74,7 +74,7 @@ export default function ChatsalebyAI() {
           {data.map((item, idx) => (
             <div
               key={idx}
-              className="flex-shrink-0 min-w-[400px] max-w-[400px]"
+              className="flex-shrink-0 max-w-[370px]"
             >
               <Card
                 isHoverable
@@ -87,15 +87,15 @@ export default function ChatsalebyAI() {
                       fill
                       src={item.image}
                       alt={item.title}
-                      className="object-contain p-10"
+                      className="object-contain pointer-events-none p-10"
                     />
                   </div>
                   {/* ส่วนข้อความ */}
                   <div className="p-6">
-                    <p className="text-sm  gradient-text mb-2">
+                    <p className="text-sm gradient-text mb-2">
                       {item.category}
                     </p>
-                    <p className="text-lg">
+                    <p className="text-sm">
                       {item.title}
                     </p>
                   </div>

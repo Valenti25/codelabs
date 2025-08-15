@@ -14,7 +14,7 @@ export default function ChatSaleByAISection() {
         <h1 className="text-3xl lg:text-[40px]">{text.mainTitle}</h1>
 
         <div className="mt-8 flex w-full items-center justify-center">
-          <div className="aspect-[1/1] w-full max-w-2xl">
+          <div className="pointer-events-none select-none aspect-[1/1] w-full max-w-2xl">
             <ModelBrain />
           </div>
         </div>

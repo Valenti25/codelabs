@@ -11,7 +11,7 @@ export default function PoweringSearchengineSelection() {
         <p className="mb-2 text-xl text-[#7E7E7E] lg:text-lg">{text.smallTitle}</p>
         <h1 className="text-3xl lg:text-[40px]">{text.mainTitle}</h1>
         <div className="mt-8 flex w-full flex-col items-center justify-center gap-12 md:mr-96 lg:flex-row">
-          <div className="flex h-full w-full max-w-xl justify-center">
+          <div className="flex h-full select-none w-full max-w-xl pointer-events-none justify-center">
             <ModelAi_Orb />
           </div>
           <div className="flex max-w-md flex-col items-center justify-center text-center lg:items-start lg:text-left">

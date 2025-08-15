@@ -86,7 +86,7 @@ const LogoGrid: React.FC = () => (
         key={`${logo.alt}-${index}`}
         src={logo.src}
         alt={logo.alt}
-        className="h-9 w-9 flex-shrink-0 object-contain lg:h-[50px] lg:w-[50px]"
+        className="h-9 w-9 flex-shrink-0 pointer-events-none object-contain lg:h-[50px] lg:w-[50px]"
         loading="lazy"
       />
     ))}
@@ -148,8 +148,8 @@ export default function Hero(): React.ReactElement {
           background="transparent"
           minSize={0.6}
           maxSize={1.4}
-          particleDensity={10} // เพิ่มความหนาแน่นเพื่อดาวที่มากขึ้น
-          speed={0.5} // ลดความเร็วลงเพื่อให้ดูนิ่งเหมือนดาวจริง
+          particleDensity={10}
+          speed={0.5}
           className="h-full w-full"
           particleColor="#FFFFFF"
         />
@@ -160,18 +160,20 @@ export default function Hero(): React.ReactElement {
         <Meteors number={15} className="opacity-70" />
       </div>
 
-      {/* 3D Background (หากมี) - ควรมี z-index มากกว่าพื้นหลังดาว */}
-      <div className="absolute inset-0 z-20">
+      {/* 3D Background (แก้ไขแล้ว) - ทำให้เมาส์คลิกทะลุได้ */}
+      <div className="pointer-events-none select-none absolute inset-0 z-20">
         <ModelCanvas />
       </div>
 
-      {/* เนื้อหาหลัก */}
-      <HeroContent
-        title={heroText.title}
-        subtitle={heroText.subtitle}
-        line1={heroText.line1}
-        line2={heroText.line2}
-      />
+      {/* เนื้อหาหลัก (แก้ไขแล้ว) - จัดลำดับ Layer ให้ถูกต้อง */}
+      <div className="relative z-20">
+        <HeroContent
+          title={heroText.title}
+          subtitle={heroText.subtitle}
+          line1={heroText.line1}
+          line2={heroText.line2}
+        />
+      </div>
 
       {/* Logo Marquee */}
       <div className="relative z-30 mx-auto w-full max-w-5xl lg:my-16">
