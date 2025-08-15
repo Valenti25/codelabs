@@ -1,8 +1,11 @@
 "use client";
+
 import React, { useEffect, useRef, useCallback } from "react";
 import { Image } from "@nextui-org/react";
 import ModelCanvas from "../../ModelsObject/ModelStar";
 import content from "@/locales/en/home.json";
+import Meteors from "./meteors";
+import { SparklesCore } from "./SparklesCore";
 
 interface Logo {
   src: string;
@@ -119,7 +122,7 @@ const HeroContent: React.FC<HeroContentProps> = ({
   line2,
 }) => (
   <div className="relative z-10 mx-auto w-full max-w-4xl px-4 py-14 lg:py-40">
-    <h2 className=" gradient-text-animated text-5xl font-bold tracking-tight lg:text-8xl">
+    <h2 className="gradient-text-animated text-5xl font-bold tracking-tight lg:text-8xl">
       {title}
     </h2>
 
@@ -139,12 +142,30 @@ export default function Hero(): React.ReactElement {
 
   return (
     <section className="relative flex flex-col items-center justify-center px-4 text-center">
-      {/* 3D Background */}
+      {/* พื้นหลังดาวเต็มหน้าจอ */}
       <div className="absolute inset-0 z-0">
+        <SparklesCore
+          background="transparent"
+          minSize={0.6}
+          maxSize={1.4}
+          particleDensity={10} // เพิ่มความหนาแน่นเพื่อดาวที่มากขึ้น
+          speed={0.5} // ลดความเร็วลงเพื่อให้ดูนิ่งเหมือนดาวจริง
+          className="h-full w-full"
+          particleColor="#FFFFFF"
+        />
+      </div>
+
+      {/* เอฟเฟกต์ดาวตก */}
+      <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-full">
+        <Meteors number={15} className="opacity-70" />
+      </div>
+
+      {/* 3D Background (หากมี) - ควรมี z-index มากกว่าพื้นหลังดาว */}
+      <div className="absolute inset-0 z-20">
         <ModelCanvas />
       </div>
 
-      {/* Hero Content */}
+      {/* เนื้อหาหลัก */}
       <HeroContent
         title={heroText.title}
         subtitle={heroText.subtitle}
@@ -153,9 +174,9 @@ export default function Hero(): React.ReactElement {
       />
 
       {/* Logo Marquee */}
-      <div className="relative z-10 mx-auto w-full max-w-5xl lg:my-16">
+      <div className="relative z-30 mx-auto w-full max-w-5xl lg:my-16">
         <GradientMask>
-          <InfiniteMarquee speed={0.9}>
+          <InfiniteMarquee speed={0.8}>
             <LogoGrid />
           </InfiniteMarquee>
         </GradientMask>

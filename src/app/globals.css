@@ -46,24 +46,6 @@ body {
     background-position: 100% 50%;
   }
 }
-@layer utilities {
-  .gradient-mask {
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black 10%,
-      black 90%,
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black 10%,
-      black 90%,
-      transparent 100%
-    );
-  }
-}
 .card-outer-bg {
   background: linear-gradient(
     135deg,
@@ -100,3 +82,25 @@ body {
   -ms-overflow-style: none;  /* IE และ Edge */
   scrollbar-width: none;  /* Firefox */
 }
+@keyframes meteorEffect {
+  0% {
+    transform: rotate(215deg) translateX(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(215deg) translateX(-500px);
+    opacity: 0;
+  }
+}
+
+@layer utilities {
+  .animate-meteorEffect {
+    animation: meteorEffect 2s linear infinite;
+  }
+}
+.opacity-0 {
+    opacity: 100%;
+  }
