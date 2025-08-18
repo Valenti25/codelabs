@@ -116,17 +116,20 @@ interface HeroContentProps {
 }
 
 const HeroContent: React.FC<HeroContentProps> = ({
-  title,
   subtitle,
   line1,
   line2,
 }) => (
   <div className="relative z-10 mx-auto w-full max-w-4xl px-4 py-14 lg:py-40">
-    <h2 className="gradient-text-animated text-5xl font-bold tracking-tight lg:text-8xl">
-      {title}
-    </h2>
+    <video
+    autoPlay
+    loop
+    muted
+    className="w-32 h-24 flex items-center justify-center min-w-3xl object-cover"
+    src="/videos/AI_online-video-cutter.com.mp4"
+  ></video>
 
-    <h1 className="mt-4 mb-3 text-xl leading-tight text-white lg:mt-10 lg:text-[40px]">
+    <h1 className=" mb-3 text-xl leading-tight text-white lg:mt-10 lg:text-[40px]">
       {subtitle}
     </h1>
 

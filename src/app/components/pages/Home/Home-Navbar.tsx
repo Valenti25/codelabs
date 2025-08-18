@@ -98,17 +98,21 @@ export default function App() {
             {Object.entries(dropdownData.products).map(([category, data]) => (
               <div key={category} className="space-y-4">
                 <div className="border-b border-[#676767]/30 pb-3">
-                  <h3 className="mb-2 text-lg font-bold text-white leading-tight">
+                  <h3 className="mb-2 text-lg leading-tight font-bold text-white">
                     {category}
                   </h3>
                   <GradientBorderText logo={data.logo}>
-                    <h4 className="gradient-text-animated text-sm font-semibold leading-tight">
-                      {data.description}
-                    </h4>
+                    <div className="flex flex-col">
+                      <h4 className="gradient-text-animated flex-col text-sm leading-tight font-semibold">
+                        {data.description}
+                      </h4>
+                      <div className="text-sm leading-tight text-[#676767]">
+                        {category === "Build AI"
+                          ? "Custom AI development services"
+                          : "Ready-to-deploy AI solutions"}
+                      </div>
+                    </div>
                   </GradientBorderText>
-                  <div className="text-[#676767] text-sm mt-1 leading-tight">
-                    {category === "Build AI" ? "Custom AI development services" : "Ready-to-deploy AI solutions"}
-                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-y-2">
                   {data.subItems.map(({ name, description, logo }, idx) => (
@@ -118,7 +122,7 @@ export default function App() {
                       className="group block rounded-md p-2 transition-colors"
                     >
                       <div className="flex flex-col items-start">
-                        <div className="flex items-center gap-1.5 mb-2">
+                        <div className="mb-2 flex items-center gap-1.5">
                           {logo && (
                             <Image
                               src={logo}
@@ -128,11 +132,11 @@ export default function App() {
                               className="flex-shrink-0 object-contain"
                             />
                           )}
-                          <span className="text-xs font-semibold text-white transition-colors leading-tight">
+                          <span className="text-xs leading-tight font-semibold text-white transition-colors">
                             {name}
                           </span>
                         </div>
-                        <span className="mt-1 text-xs text-gray-400 leading-tight self-start ml-0">
+                        <span className="mt-1 ml-0 self-start text-xs leading-tight text-gray-400">
                           {description}
                         </span>
                       </div>
@@ -175,7 +179,7 @@ export default function App() {
                           className="flex-shrink-0 object-contain"
                         />
                       )}
-                      <span className="text-xs font-semibold text-white transition-colors leading-tight">
+                      <span className="text-xs leading-tight font-semibold text-white transition-colors">
                         {name}
                       </span>
                     </div>
@@ -219,7 +223,7 @@ export default function App() {
                     <Link
                       key={label}
                       href="#"
-                      className="block text-white leading-tight"
+                      className="block leading-tight text-white"
                     >
                       {label}
                     </Link>
@@ -240,7 +244,7 @@ export default function App() {
                   onMouseLeave={handleMouseLeave}
                 >
                   <NavbarItem className="relative">
-                    <div className="relative z-10 flex cursor-pointer items-center gap-1 text-white transition-colors leading-tight">
+                    <div className="relative z-10 flex cursor-pointer items-center gap-1 leading-tight text-white transition-colors">
                       Product
                     </div>
                   </NavbarItem>
@@ -252,7 +256,7 @@ export default function App() {
                     <NavbarItem key={label}>
                       <Link
                         href="#"
-                        className="text-white transition-colors leading-tight"
+                        className="leading-tight text-white transition-colors"
                       >
                         {label}
                       </Link>
@@ -266,7 +270,7 @@ export default function App() {
                   onMouseLeave={handleMouseLeave}
                 >
                   <NavbarItem className="relative">
-                    <div className="flex cursor-pointer items-center gap-1 text-white transition-colors leading-tight">
+                    <div className="flex cursor-pointer items-center gap-1 leading-tight text-white transition-colors">
                       Resources
                     </div>
                   </NavbarItem>
