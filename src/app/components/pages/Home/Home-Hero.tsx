@@ -123,9 +123,23 @@ const HeroContent: React.FC<HeroContentProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.playbackRate = 0.7;
-    }
+    const video = videoRef.current;
+    if (!video) return;
+
+    const tryPlay = async () => {
+      try {
+        video.muted = true; // ย้ำให้ชัวร์
+        video.setAttribute("playsinline", "true"); // กัน Safari เปิด fullscreen เอง
+        await video.play();
+        video.playbackRate = 0.7; // ค่อยเซ็ตหลังจากเล่นสำเร็จ
+      } catch (err) {
+        console.log("Autoplay ถูกบล็อก:", err);
+      }
+    };
+
+    // หน่วงนิดหน่อยเพื่อให้ DOM พร้อมก่อน
+    const timer = setTimeout(tryPlay, 300);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -136,6 +150,7 @@ const HeroContent: React.FC<HeroContentProps> = ({
         loop
         muted
         playsInline
+        preload="auto"
         className="mb-6 flex lg:h-[100%] lg:w-[100%] items-center m-auto justify-center object-cover lg:min-w-3xl"
         src="/videos/AI_online-video.mp4"
       ></video>
