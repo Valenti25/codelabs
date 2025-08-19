@@ -4,8 +4,8 @@ import React, { useEffect, useRef, useCallback } from "react";
 import { Image } from "@nextui-org/react";
 import ModelCanvas from "../../ModelsObject/ModelStar";
 import content from "@/locales/en/home.json";
-import Meteors from "./meteors";
-import { SparklesCore } from "./SparklesCore";
+import Meteors from "../../ui/meteors";
+import { SparklesCore } from "../../ui/SparklesCore";
 
 interface Logo {
   src: string;
@@ -86,7 +86,7 @@ const LogoGrid: React.FC = () => (
         key={`${logo.alt}-${index}`}
         src={logo.src}
         alt={logo.alt}
-        className="h-9 w-9 flex-shrink-0 pointer-events-none object-contain lg:h-[50px] lg:w-[50px]"
+        className="pointer-events-none h-9 w-9 flex-shrink-0 object-contain lg:h-[50px] lg:w-[50px]"
         loading="lazy"
       />
     ))}
@@ -119,26 +119,37 @@ const HeroContent: React.FC<HeroContentProps> = ({
   subtitle,
   line1,
   line2,
-}) => (
-  <div className="relative z-10 mx-auto w-full max-w-4xl px-4 py-14 lg:py-40">
-    <video
-    autoPlay
-    loop
-    muted
-    className="w-32 h-24 flex items-center justify-center min-w-3xl object-cover"
-    src="/videos/AI_online-video-cutter.com.mp4"
-  ></video>
+}) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-    <h1 className=" mb-3 text-xl leading-tight text-white lg:mt-10 lg:text-[40px]">
-      {subtitle}
-    </h1>
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.7;
+    }
+  }, []);
 
-    <div className="mx-auto max-w-2xl space-y-2 text-sm text-neutral-400 lg:text-xl">
-      <p>{line1}</p>
-      <p>{line2}</p>
+  return (
+    <div className="relative z-10 mx-auto w-full lg:max-w-4xl px-4 py-16 lg:py-36">
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        className="mb-6 flex h-[100%] w-[100%] items-center m-auto justify-center object-cover lg:min-w-3xl"
+        src="/videos/AI_online-video-cutter.com.mp4"
+      ></video>
+
+      <h1 className="mb-3 text-lg leading-tight text-white lg:mt-10 lg:text-[40px]">
+        {subtitle}
+      </h1>
+
+      <div className="mx-auto max-w-2xl space-y-2 text-sm text-neutral-400 lg:text-xl">
+        <p>{line1}</p>
+        <p>{line2}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function Hero(): React.ReactElement {
   const heroText = content.hero;
@@ -163,12 +174,12 @@ export default function Hero(): React.ReactElement {
         <Meteors number={15} className="opacity-70" />
       </div>
 
-      {/* 3D Background (แก้ไขแล้ว) - ทำให้เมาส์คลิกทะลุได้ */}
-      <div className="pointer-events-none select-none absolute inset-0 z-20">
+      {/* 3D Background */}
+      <div className="pointer-events-none absolute inset-0 z-20 select-none">
         <ModelCanvas />
       </div>
 
-      {/* เนื้อหาหลัก (แก้ไขแล้ว) - จัดลำดับ Layer ให้ถูกต้อง */}
+      {/* เนื้อหาหลัก */}
       <div className="relative z-20">
         <HeroContent
           title={heroText.title}
@@ -179,9 +190,9 @@ export default function Hero(): React.ReactElement {
       </div>
 
       {/* Logo Marquee */}
-      <div className="relative z-30 mx-auto w-full max-w-5xl lg:my-16">
+      <div className="relative z-30 mx-auto w-[80%] lg:max-w-5xl lg:my-16">
         <GradientMask>
-          <InfiniteMarquee speed={0.8}>
+          <InfiniteMarquee speed={0.7}>
             <LogoGrid />
           </InfiniteMarquee>
         </GradientMask>

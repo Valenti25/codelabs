@@ -45,7 +45,7 @@
   "dropdown": {
     "products": {
       "Build AI": {
-        "description": "Data for training models",
+        "description": "Codelabs Data Platform",
         "logo": "/svg/icon16.svg",
         "subItems": [
           { "name": "For Enterprise", "description": "Smart data platform", "logo": "/svg/icon1.svg" },
@@ -59,7 +59,7 @@
         ]
       },
       "Apply AI": {
-        "description": "Data for training models",
+        "description": "Codelabs Platform-AI",
         "logo": "/svg/icon17.svg",
         "subItems": [
           { "name": "Chat Platform", "description": "Smart data platform", "logo": "/svg/icon9.svg" },

@@ -8,12 +8,12 @@ export default function ChatSaleByAISection() {
   return (
     <section className="flex w-full items-center justify-center px-4 py-16 text-white lg:py-36">
       <div className="flex w-full max-w-7xl flex-col items-center justify-center text-center">
-        <p className="mb-2 text-base text-[#7E7E7E] lg:text-xl">
+        <p className="mb-2 text-sm text-[#7E7E7E] lg:text-xl">
           {text.smallTitle}
         </p>
-        <h1 className="text-3xl lg:text-[40px]">{text.mainTitle}</h1>
+        <h1 className="text-xl lg:text-[40px]">{text.mainTitle}</h1>
 
-        <div className="mt-8 flex w-full items-center justify-center">
+        <div className="mt-8 flex w-full m-auto items-center justify-center">
           <div className="pointer-events-none select-none aspect-[1/1] w-full max-w-2xl">
             <ModelBrain />
           </div>

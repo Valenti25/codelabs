@@ -53,8 +53,8 @@ export default function ChatsalebyAI() {
     <section className="bg-black text-white flex flex-col items-center m-auto py-20 max-w-7xl">
       {/* ส่วนหัวข้อ */}
       <div className="text-center mb-14 px-4">
-        <p className="mb-3 text-lg text-[#666666] lg:text-xl">AI-Driven Success Stories</p>
-        <h2 className="text-3xl lg:text-[40px]">Case Studies & Resources</h2>
+        <p className="mb-3 text-lg text-[#7E7E7E]">AI-Driven Success Stories</p>
+        <h2 className="text-xl lg:text-[40px]">Case Studies & Resources</h2>
       </div>
 
       {/* กรอบแสดงผลของ Carousel */}
@@ -82,7 +82,7 @@ export default function ChatsalebyAI() {
               >
                 <CardBody className="p-0">
                   {/* ส่วนรูปภาพ */}
-                  <div className="relative w-full h-65 bg-[#0B0B0B]">
+                  <div className="relative w-full h-65">
                     <Image
                       fill
                       src={item.image}

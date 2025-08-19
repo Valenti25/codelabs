@@ -11,6 +11,7 @@ import {
 import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
 import content from "@/locales/en/home.json";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Helper component for text with a gradient border
 const GradientBorderText = ({
@@ -102,7 +103,7 @@ export default function App() {
                     {category}
                   </h3>
                   <GradientBorderText logo={data.logo}>
-                    <div className="flex flex-col">
+                    <div className="ml-2 flex flex-col">
                       <h4 className="gradient-text-animated flex-col text-sm leading-tight font-semibold">
                         {data.description}
                       </h4>
@@ -212,27 +213,216 @@ export default function App() {
           {isMobile ? (
             <div className="relative" ref={menuRef}>
               <Button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="bg-transparent text-white"
+                onClick={() => setIsMenuOpen(true)}
+                className="bg-transparent p-2 text-white"
               >
-                ☰
+                <Image
+                  width={35}
+                  height={35}
+                  src="./svg/hamberger.svg"
+                  alt="hamberger"
+                  className="object-contain"
+                />
               </Button>
-              {isMenuOpen && (
-                <div className="absolute top-full right-0 mt-2 w-54 space-y-4 rounded-lg bg-black/85 p-2 shadow-lg backdrop-blur-md">
-                  {content.navbar.menuItems.map((label) => (
-                    <Link
-                      key={label}
-                      href="#"
-                      className="block leading-tight text-white"
+
+              {/* ===== Mobile Menu with Clip-Path Animation ===== */}
+              <AnimatePresence>
+                {isMenuOpen && (
+                  // 🔥 [แก้ไข] Container หลักสำหรับอนิเมชั่น Clip-Path
+                  <motion.div
+                    className="fixed inset-0 z-50 bg-black"
+                    initial={{
+                      clipPath: "circle(0% at calc(100% - 50px) 50px)",
+                    }}
+                    animate={{
+                      clipPath: "circle(150% at calc(100% - 50px) 50px)",
+                    }}
+                    exit={{ clipPath: "circle(0% at calc(100% - 50px) 50px)" }}
+                    transition={{ duration: 0.7, ease: "easeInOut" }}
+                  >
+                    {/* 🔥 Menu Content (ใช้ Framer Motion สำหรับ Fade In เหมือนเดิม) */}
+                    <motion.div
+                      className="relative flex h-full w-full flex-col p-6"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3, delay: 0.4 }}
                     >
-                      {label}
-                    </Link>
-                  ))}
-                  <Button className="w-full rounded-lg bg-white font-bold text-black">
-                    {content.navbar.buttonText}
-                  </Button>
-                </div>
-              )}
+                      {/* ปุ่มปิด */}
+                      <button
+                        onClick={() => setIsMenuOpen(false)}
+                        className="self-end p-1 text-white"
+                      >
+                        <Image
+                          width={20}
+                          height={20}
+                          src="./svg/x-symbol.svg"
+                          alt="close icon"
+                          className="object-contain"
+                        />
+                      </button>
+
+                      {/* เมนูหลัก */}
+                      <div className="mt-10 flex flex-col gap-6 overflow-y-auto text-white">
+                        <div>
+                          <button
+                            onClick={() =>
+                              setActiveDropdown(
+                                activeDropdown === "products"
+                                  ? null
+                                  : "products",
+                              )
+                            }
+                            className="flex w-full items-center justify-between text-left text-lg font-bold"
+                          >
+                            <span>Product</span>
+                            <span
+                              className={`transform transition-transform duration-200 ${
+                                activeDropdown === "products"
+                                  ? "rotate-180"
+                                  : ""
+                              }`}
+                            >
+                              <Image
+                                width={20}
+                                height={20}
+                                src="./svg/dropdown-arrow.svg"
+                                alt="dropdown-arrow"
+                                className="object-contain"
+                              />
+                            </span>
+                          </button>
+
+                          {activeDropdown === "products" && (
+                            <div className="mt-4 grid grid-cols-2 gap-x-3 pl-2">
+                              {Object.entries(content.dropdown.products).map(
+                                ([category, data]) => (
+                                  <div key={category} className="space-y-3">
+                                    <GradientBorderText logo={data.logo}>
+                                      <div className="ml-1 flex flex-col">
+                                        <h4 className="gradient-text-animated text-xs leading-tight font-semibold">
+                                          {data.description}
+                                        </h4>
+                                        <div className="text-xs leading-tight text-[#676767]">
+                                          {category}
+                                        </div>
+                                      </div>
+                                    </GradientBorderText>
+
+                                    <div className="flex flex-col gap-7 pl-1">
+                                      {data.subItems.map(
+                                        ({ name, logo }, idx) => (
+                                          <Link
+                                            key={idx}
+                                            href="#"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="group block rounded-md p-1"
+                                          >
+                                            <div className="flex items-center gap-2">
+                                              {logo && (
+                                                <Image
+                                                  src={logo}
+                                                  alt={`${name} logo`}
+                                                  width={20}
+                                                  height={20}
+                                                  className="flex-shrink-0 object-contain"
+                                                />
+                                              )}
+                                              <div className="flex flex-col">
+                                                <span className="text-xs font-semibold text-white">
+                                                  {name}
+                                                </span>
+                                              </div>
+                                            </div>
+                                          </Link>
+                                        ),
+                                      )}
+                                    </div>
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* ===== เมนูอื่น ๆ (แบบปกติ) ===== */}
+                        {content.navbar.menuItems
+                          .filter(
+                            (item) =>
+                              item !== "Product" && item !== "Resources",
+                          )
+                          .map((label) => (
+                            <Link
+                              key={label}
+                              href="#"
+                              onClick={() => setIsMenuOpen(false)}
+                              className="text-lg font-bold"
+                            >
+                              {label}
+                            </Link>
+                          ))}
+
+                        {/* ===== Resources (แบบปกติแถวเดียว) ===== */}
+                        <div>
+                          <button
+                            onClick={() =>
+                              setActiveDropdown(
+                                activeDropdown === "resources"
+                                  ? null
+                                  : "resources",
+                              )
+                            }
+                            className="flex w-full items-center justify-between text-left text-lg font-bold"
+                          >
+                            <span>Resources</span>
+                            <span
+                              className={`transform transition-transform duration-200 ${
+                                activeDropdown === "resources"
+                                  ? "rotate-180"
+                                  : ""
+                              }`}
+                            >
+                              <Image
+                                width={20}
+                                height={20}
+                                src="./svg/dropdown-arrow.svg"
+                                alt="dropdown-arrow"
+                                className="object-contain"
+                              />
+                            </span>
+                          </button>
+
+                          {activeDropdown === "resources" && (
+                            <div className="mt-3 ml-3 flex flex-col gap-2">
+                              {content.dropdown.resources.map(
+                                ({ name, logo }, idx) => (
+                                  <Link
+                                    key={idx}
+                                    href="#"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="flex items-center gap-3 text-sm text-white"
+                                  >
+                                    {logo && (
+                                      <Image
+                                        src={logo}
+                                        alt={`${name} logo`}
+                                        width={22}
+                                        height={22}
+                                        className="flex-shrink-0 object-contain"
+                                      />
+                                    )}
+                                    {name}
+                                  </Link>
+                                ),
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ) : (
             <>
