@@ -136,14 +136,14 @@ const HeroContent: React.FC<HeroContentProps> = ({
         loop
         muted
         className="mb-6 flex h-[100%] w-[100%] items-center m-auto justify-center object-cover lg:min-w-3xl"
-        src="/videos/AI_online-video-cutter.com.mp4"
+        src="/videos/AI_online-video.mp4"
       ></video>
 
       <h1 className="mb-3 text-lg leading-tight text-white lg:mt-10 lg:text-[40px]">
         {subtitle}
       </h1>
 
-      <div className="mx-auto max-w-2xl space-y-2 text-sm text-neutral-400 lg:text-xl">
+      <div className="mx-auto max-w-2xl space-y-2 text-xs text-neutral-400 lg:text-xl">
         <p>{line1}</p>
         <p>{line2}</p>
       </div>
