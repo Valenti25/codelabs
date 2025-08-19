@@ -123,37 +123,16 @@ const HeroContent: React.FC<HeroContentProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const tryPlay = async () => {
-      try {
-        video.muted = true; // ย้ำให้ชัวร์
-        video.setAttribute("playsinline", "true"); // กัน Safari เปิด fullscreen เอง
-        await video.play();
-        video.playbackRate = 0.7; // ค่อยเซ็ตหลังจากเล่นสำเร็จ
-      } catch (err) {
-        console.log("Autoplay ถูกบล็อก:", err);
-      }
-    };
-
-    // หน่วงนิดหน่อยเพื่อให้ DOM พร้อมก่อน
-    const timer = setTimeout(tryPlay, 300);
-    return () => clearTimeout(timer);
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.7;
+    }
   }, []);
 
   return (
-    <div className="relative z-10 mx-auto w-full lg:max-w-4xl px-4 py-16 lg:py-36">
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        className="mb-6 flex lg:h-[100%] lg:w-[100%] items-center m-auto justify-center object-cover lg:min-w-3xl"
-        src="/videos/AI_online-video.mp4"
-      ></video>
+    <div className="relative z-10 mx-auto w-full px-4 py-16 lg:max-w-4xl lg:py-36">
+      <video autoPlay loop muted playsInline className="h-auto w-full">
+        <source src="/videos/AI_online-video.mp4" type="video/mp4" />
+      </video>
 
       <h1 className="mb-3 text-lg leading-tight text-white lg:mt-10 lg:text-[40px]">
         {subtitle}
@@ -206,7 +185,7 @@ export default function Hero(): React.ReactElement {
       </div>
 
       {/* Logo Marquee */}
-      <div className="relative z-30 mx-auto w-[80%] lg:max-w-5xl lg:my-16">
+      <div className="relative z-30 mx-auto w-[80%] lg:my-16 lg:max-w-5xl">
         <GradientMask>
           <InfiniteMarquee speed={0.7}>
             <LogoGrid />
