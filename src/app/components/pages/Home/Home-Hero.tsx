@@ -151,7 +151,7 @@ const HeroContent: React.FC<HeroContentProps> = ({
         playsInline
         className="h-auto w-full"
       >
-        <source src="/videos/AI_online-video.mp4" type="video/mp4" />
+        <source src="/videos/AI-online-video-cuttercom.mp4" type="video/mp4" />
       </video>
 
       <h1 className="mb-3 text-lg leading-tight text-white lg:mt-10 lg:text-[40px]">
