@@ -135,7 +135,8 @@ const HeroContent: React.FC<HeroContentProps> = ({
         autoPlay
         loop
         muted
-        className="mb-6 flex h-[100%] w-[100%] items-center m-auto justify-center object-cover lg:min-w-3xl"
+        playsInline
+        className="mb-6 flex lg:h-[100%] lg:w-[100%] items-center m-auto justify-center object-cover lg:min-w-3xl"
         src="/videos/AI_online-video.mp4"
       ></video>
 

@@ -18,7 +18,7 @@ export default function ChatSaleByAISection() {
             <ModelBrain />
           </div>
         </div>
-        <p className="mt-1 text-sm leading-relaxed text-[#7E7E7E]">
+        <p className="mt-1 text-xs leading-relaxed text-[#7E7E7E]">
           {text.description}
         </p>
       </div>

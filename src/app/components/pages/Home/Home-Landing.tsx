@@ -61,7 +61,7 @@ export default function LandingPage() {
         <h2 className="text-xl lg:text-[40px]">
           {landingContent.heading.mainTitle}
         </h2>
-        <div className="mx-auto mt-4 max-w-4xl lg:px-2 text-sm text-[#7E7E7E] lg:text-xl">
+        <div className="mx-auto mt-4 max-w-4xl lg:px-2 text-xs text-[#7E7E7E] lg:text-xl">
           <p>{landingContent.heading.description1}</p>
           <p>{landingContent.heading.description2}</p>
         </div>

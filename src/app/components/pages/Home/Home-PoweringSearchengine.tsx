@@ -16,7 +16,7 @@ export default function PoweringSearchengineSelection() {
           </div>
           <div className="flex max-w-md flex-col m-auto items-center justify-center text-center lg:items-start lg:text-left">
             <h2 className="mb-3 text-xl lg:text-2xl">{text.sectionTitle}</h2>
-            <p className="text-sm leading-relaxed text-[#7E7E7E]">{text.description}</p>
+            <p className="text-xs leading-relaxed text-[#7E7E7E]">{text.description}</p>
           </div>
         </div>
       </div>
