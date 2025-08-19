@@ -123,14 +123,34 @@ const HeroContent: React.FC<HeroContentProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.playbackRate = 0.7;
-    }
+    const video = videoRef.current;
+    if (!video) return;
+
+    const tryPlay = async () => {
+      try {
+        video.muted = true; // สำคัญสำหรับ autoplay iOS
+        video.setAttribute("playsinline", "true");
+        await video.play();
+        video.playbackRate = 0.7;
+      } catch (err) {
+        console.log("Autoplay iOS ถูกบล็อก:", err);
+      }
+    };
+
+    const timer = setTimeout(tryPlay, 300); // รอ DOM โหลด
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className="relative z-10 mx-auto w-full px-4 py-16 lg:max-w-4xl lg:py-36">
-      <video autoPlay loop muted playsInline className="h-auto w-full">
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="h-auto w-full"
+      >
         <source src="/videos/AI_online-video.mp4" type="video/mp4" />
       </video>
 
@@ -138,7 +158,7 @@ const HeroContent: React.FC<HeroContentProps> = ({
         {subtitle}
       </h1>
 
-      <div className="mx-auto max-w-2xl space-y-2 text-xs text-neutral-400 lg:text-xl">
+      <div className="mx-auto max-w-2xl text-xs text-neutral-400 lg:text-xl">
         <p>{line1}</p>
         <p>{line2}</p>
       </div>
