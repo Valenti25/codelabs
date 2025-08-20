@@ -143,7 +143,7 @@ const HeroContent: React.FC<HeroContentProps> = ({
   }, []);
 
   return (
-    <div className="relative z-0 mx-auto w-full px-4 py-32 lg:max-w-4xl lg:py-32">
+    <div className="relative z-0 mx-auto w-full px-4 py-32 lg:max-w-4xl lg:py-48">
       <video
         ref={videoRef}
         autoPlay
@@ -178,7 +178,7 @@ export default function Hero(): React.ReactElement {
           background="transparent"
           minSize={0.6}
           maxSize={1.4}
-          particleDensity={10}
+          particleDensity={5}
           speed={0.5}
           className="h-full w-full"
           particleColor="#FFFFFF"
@@ -186,7 +186,7 @@ export default function Hero(): React.ReactElement {
       </div>
 
       <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-full">
-        <Meteors number={15} className="opacity-70" />
+        <Meteors number={5} className="opacity-70" />
       </div>
 
       <div className="pointer-events-none absolute inset-0 z-20 select-none">

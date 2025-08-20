@@ -36,7 +36,7 @@ export default function ModelCanvas() {
         )}
       </div>
 
-      <div className="absolute -top-[20%] right-0 pl-8 h-4/5 w-1/2 lg:overflow-hidden lg:-top-[10%] lg:right-0 lg:pl-96">
+      <div className="absolute -top-[20%] right-0 pl-8 h-4/5 w-1/2 lg:overflow-hidden lg:-top-[10%] lg:right-0 lg:pl-60">
         {isInView && (
           <Suspense fallback={null}>
             <Spline scene="https://prod.spline.design/Y9JlqDhMrA5yPC4o/scene.splinecode" />
