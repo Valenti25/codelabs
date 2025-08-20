@@ -28,7 +28,7 @@ export default function ModelCanvas() {
       ref={sectionRef}
       className="relative h-[25vh] w-full lg:overflow-hidden lg:min-h-[700px]"
     >
-      <div className="absolute top-[70%] -left-10 h-4/5 w-1/2 lg:overflow-hidden lg:top-[20%] lg:-left-10">
+      <div className="absolute top-[90%] -left-10 h-4/5 w-1/2 lg:overflow-hidden lg:top-[20%] lg:-left-10">
         {isInView && (
           <Suspense fallback={null}>
             <Spline scene="https://prod.spline.design/Y9JlqDhMrA5yPC4o/scene.splinecode" />
