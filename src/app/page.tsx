@@ -1,10 +1,28 @@
+'use client'
 import Navbar from "./components/pages/Home/Home-Navbar";
 import Hero from "./components/pages/Home/Home-Hero";
-import LandingPage from "./components/pages/Home/Home-Landing";
-import PoweringSearchengineSection from "./components/pages/Home/Home-PoweringSearchengine";
-import ChatSaleByAISection from "./components/pages/Home/ChatSaleByAISection";
-import ChatsalebyAI from "./components/pages/Home/Home-ChatsalebyAI";
-// import AIHeroSection from "./components/AIHeroSection";
+import dynamic from 'next/dynamic';
+
+const LandingPage = dynamic(
+  () => import('./components/pages/Home/Home-Landing').then((mod) => mod.default),
+  { ssr: false }
+);
+
+const PoweringSearchengineSection = dynamic(
+  () => import('./components/pages/Home/Home-PoweringSearchengine').then((mod) => mod.default),
+  { ssr: false }
+);
+
+const ChatSaleByAISection = dynamic(
+  () => import('./components/pages/Home/ChatSaleByAISection').then((mod) => mod.default),
+  { ssr: false }
+);
+
+const ChatsalebyAI = dynamic(
+  () => import('./components/pages/Home/Home-ChatsalebyAI').then((mod) => mod.default),
+  { ssr: false }
+);
+
 
 export default function Home() {
   return (
@@ -16,7 +34,6 @@ export default function Home() {
         <PoweringSearchengineSection />
         <ChatSaleByAISection />
         <ChatsalebyAI />
-        {/* <AIHeroSection /> */}
       </div>
     </>
   );

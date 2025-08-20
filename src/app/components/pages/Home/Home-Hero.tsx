@@ -7,6 +7,7 @@ import content from "@/locales/en/home.json";
 import Meteors from "../../ui/meteors";
 import { SparklesCore } from "../../ui/SparklesCore";
 
+
 interface Logo {
   src: string;
   alt: string;
@@ -142,19 +143,19 @@ const HeroContent: React.FC<HeroContentProps> = ({
   }, []);
 
   return (
-    <div className="relative z-10 mx-auto w-full px-4 py-16 lg:max-w-4xl lg:py-36">
+    <div className="relative z-0 mx-auto w-full px-4 py-32 lg:max-w-4xl lg:py-32">
       <video
         ref={videoRef}
         autoPlay
         loop
         muted
         playsInline
-        className="h-auto w-full"
+        className="h-auto z-10 w-full"
       >
-        <source src="/videos/AI-online-video-cuttercom.mp4" type="video/mp4" />
+        <source src="/videos/ai-real-1.mp4" type="video/mp4" />
       </video>
 
-      <h1 className="mb-3 text-lg leading-tight text-white lg:mt-10 lg:text-[40px]">
+      <h1 className="mb-3 text-lg leading-tight text-white lg:mt-7 lg:text-[40px]">
         {subtitle}
       </h1>
 
@@ -184,17 +185,14 @@ export default function Hero(): React.ReactElement {
         />
       </div>
 
-      {/* เอฟเฟกต์ดาวตก */}
       <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-full">
         <Meteors number={15} className="opacity-70" />
       </div>
 
-      {/* 3D Background */}
       <div className="pointer-events-none absolute inset-0 z-20 select-none">
         <ModelCanvas />
       </div>
 
-      {/* เนื้อหาหลัก */}
       <div className="relative z-20">
         <HeroContent
           title={heroText.title}

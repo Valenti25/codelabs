@@ -6,7 +6,7 @@ export default function ChatSaleByAISection() {
   const text = content.chatSaleByAI;
 
   return (
-    <section className="flex w-full items-center justify-center px-4 py-16 text-white lg:py-36">
+    <section className="flex w-full items-center justify-center px-4 py-16 text-white ">
       <div className="flex w-full max-w-7xl flex-col items-center justify-center text-center">
         <p className="mb-2 text-sm text-[#7E7E7E] lg:text-xl">
           {text.smallTitle}

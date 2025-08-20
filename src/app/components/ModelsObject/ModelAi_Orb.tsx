@@ -1,16 +1,12 @@
 "use client";
+import Spline from "@splinetool/react-spline";
 import React from "react";
 
-export default function ModelAi_Orb() {
+export default function ModelBrain() {
   return (
-    <div className="min-h-[350px] w-full">
-      <iframe
-        src="https://my.spline.design/aiassistanthoverandclickinteraction-5oDzxK7siCCAoUihtBJcLPxg/"
-        frameBorder="0"
-        width="100%"
-        height="100%"
-        style={{ border: "none" }}
-      />
+    <div className="aspect-[1/1] h-full w-full lg:min-h-[500px]">
+      <Spline scene="https://prod.spline.design/3sHPyUn6EqZlM6TU/scene.splinecode" />
+      
     </div>
   );
 }

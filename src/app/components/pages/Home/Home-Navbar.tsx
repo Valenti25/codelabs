@@ -12,6 +12,7 @@ import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
 import content from "@/locales/en/home.json";
 import { motion, AnimatePresence } from "framer-motion";
+import { Variants } from "framer-motion";
 
 // Helper component for text with a gradient border
 const GradientBorderText = ({
@@ -85,6 +86,32 @@ export default function App() {
   };
 
   const dropdownData = content.dropdown;
+
+  // 🔥 STEP 1: สร้าง Variants สำหรับ Container และ Item
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        // หน่วงเวลาให้ item เริ่มทำงานหลังจาก animation ของ container เสร็จ
+        delayChildren: 0.5,
+        // ให้ item แต่ละชิ้นมี animation ห่างกัน 0.1 วินาที
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        ease: "easeOut", // ✅ Framer Motion รองรับ preset easing
+        duration: 0.4,
+      },
+    },
+  };
 
   const renderProductsDropdownContent = () => (
     <div className="pointer-events-none absolute top-0 right-0 left-0 z-40 flex justify-center pt-20">
@@ -228,7 +255,6 @@ export default function App() {
               {/* ===== Mobile Menu with Clip-Path Animation ===== */}
               <AnimatePresence>
                 {isMenuOpen && (
-                  // 🔥 [แก้ไข] Container หลักสำหรับอนิเมชั่น Clip-Path
                   <motion.div
                     className="fixed inset-0 z-50 bg-black"
                     initial={{
@@ -240,17 +266,13 @@ export default function App() {
                     exit={{ clipPath: "circle(0% at calc(100% - 50px) 50px)" }}
                     transition={{ duration: 0.7, ease: "easeInOut" }}
                   >
-                    {/* 🔥 Menu Content (ใช้ Framer Motion สำหรับ Fade In เหมือนเดิม) */}
-                    <motion.div
-                      className="relative flex h-full w-full flex-col p-6"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3, delay: 0.4 }}
-                    >
+                    <div className="relative flex h-full w-full flex-col p-6">
                       {/* ปุ่มปิด */}
                       <button
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setActiveDropdown(null);
+                        }}
                         className="self-end p-1 text-white"
                       >
                         <Image
@@ -262,9 +284,14 @@ export default function App() {
                         />
                       </button>
 
-                      {/* เมนูหลัก */}
-                      <div className="mt-10 flex flex-col gap-6 overflow-y-auto text-white">
-                        <div>
+                      <motion.div
+                        className="no-scrollbar mt-10 flex flex-col gap-6 overflow-y-auto text-white"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        {/* 🔥 ИСПРАВЛЕНО: Добавлен уникальный ключ */}
+                        <motion.div key="product-menu" variants={itemVariants}>
                           <button
                             onClick={() =>
                               setActiveDropdown(
@@ -343,27 +370,31 @@ export default function App() {
                               )}
                             </div>
                           )}
-                        </div>
+                        </motion.div>
 
-                        {/* ===== เมนูอื่น ๆ (แบบปกติ) ===== */}
+                        {/* Другие пункты меню (эта часть уже была правильной) */}
                         {content.navbar.menuItems
                           .filter(
                             (item) =>
                               item !== "Product" && item !== "Resources",
                           )
                           .map((label) => (
-                            <Link
-                              key={label}
-                              href="#"
-                              onClick={() => setIsMenuOpen(false)}
-                              className="text-lg font-bold"
-                            >
-                              {label}
-                            </Link>
+                            <motion.div key={label} variants={itemVariants}>
+                              <Link
+                                href="#"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="text-lg font-bold"
+                              >
+                                {label}
+                              </Link>
+                            </motion.div>
                           ))}
 
-                        {/* ===== Resources (แบบปกติแถวเดียว) ===== */}
-                        <div>
+                        {/* 🔥 ИСПРАВЛЕНО: Добавлен уникальный ключ */}
+                        <motion.div
+                          key="resources-menu"
+                          variants={itemVariants}
+                        >
                           <button
                             onClick={() =>
                               setActiveDropdown(
@@ -417,9 +448,9 @@ export default function App() {
                               )}
                             </div>
                           )}
-                        </div>
-                      </div>
-                    </motion.div>
+                        </motion.div>
+                      </motion.div>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -481,9 +512,11 @@ export default function App() {
 
       {activeDropdown === "products" &&
         !isMobile &&
+        !isMenuOpen &&
         renderProductsDropdownContent()}
       {activeDropdown === "resources" &&
         !isMobile &&
+        !isMenuOpen &&
         renderResourcesDropdownContent()}
     </div>
   );

@@ -12,6 +12,7 @@
     "@nextui-org/react": "^2.6.11",
     "@react-three/drei": "^10.6.1",
     "@react-three/fiber": "^9.3.0",
+    "@splinetool/react-spline": "^4.1.0",
     "@tsparticles/engine": "^3.9.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
