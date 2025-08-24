@@ -50,7 +50,7 @@ export default function ChatsalebyAI() {
   }, []);
 
   return (
-    <section className="bg-black text-white flex flex-col items-center m-auto py-20 max-w-7xl">
+    <section className=" text-white flex flex-col items-center m-auto py-20 max-w-7xl">
       {/* ส่วนหัวข้อ */}
       <div className="text-center mb-14 px-4">
         <p className="mb-3 text-lg text-[#7E7E7E]">AI-Driven Success Stories</p>
@@ -60,12 +60,12 @@ export default function ChatsalebyAI() {
       {/* กรอบแสดงผลของ Carousel */}
       <motion.div
         ref={carouselRef}
-        className="w-full overflow-hidden cursor-grab px-8"
+        className="w-full overflow-hidden  cursor-grab px-8"
       >
         {/* เนื้อหา Carousel ที่สามารถลากได้ */}
         <motion.div
           ref={motionRef}
-          className="flex gap-8" // เพิ่มระยะห่างระหว่างการ์ด
+          className="flex gap-8 " // เพิ่มระยะห่างระหว่างการ์ด
           drag="x"
           dragConstraints={{ right: 0, left: width }}
           dragElastic={0.1}
@@ -74,7 +74,7 @@ export default function ChatsalebyAI() {
           {data.map((item, idx) => (
             <div
               key={idx}
-              className="flex-shrink-0 max-w-[370px]"
+              className="flex-shrink-0  max-w-[370px]"
             >
               <Card
                 isHoverable
@@ -82,7 +82,7 @@ export default function ChatsalebyAI() {
               >
                 <CardBody className="p-0">
                   {/* ส่วนรูปภาพ */}
-                  <div className="relative w-full h-65">
+                  <div className="relative bg-[#0B0B0B] w-full h-65">
                     <Image
                       fill
                       src={item.image}

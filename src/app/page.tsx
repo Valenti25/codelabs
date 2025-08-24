@@ -1,5 +1,5 @@
 'use client'
-import Navbar from "./components/pages/Home/Home-Navbar";
+import Navbar from "./components/Navbar/AppNavbar";
 import Hero from "./components/pages/Home/Home-Hero";
 import dynamic from 'next/dynamic';
 

@@ -1,4 +1,3 @@
-"use client";
 import React, { Suspense, useRef, useState, useEffect } from "react";
 
 export default function ModelCanvas() {
@@ -9,37 +8,42 @@ export default function ModelCanvas() {
   useEffect(() => {
     if (!sectionRef.current) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      });
-    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsInView(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
 
     observer.observe(sectionRef.current);
-
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    import("@splinetool/react-spline");
   }, []);
 
   return (
     <div
       ref={sectionRef}
-      className="relative h-[25vh] w-full lg:overflow-hidden lg:min-h-[700px]"
+      className="relative h-[25vh] w-full lg:min-h-[600px] lg:overflow-hidden"
     >
-      <div className="absolute top-[90%] -left-10 h-4/5 w-1/2 lg:overflow-hidden lg:top-[20%] lg:-left-10">
+      <div className="absolute top-[90%] -left-10 h-4/5 w-1/2 lg:top-[30%] lg:-left-24">
         {isInView && (
-          <Suspense fallback={null}>
-            <Spline scene="https://prod.spline.design/Y9JlqDhMrA5yPC4o/scene.splinecode" />
+          <Suspense>
+            <Spline scene="https://prod.spline.design/dIHvXSNd1BJQN7MA/scene.splinecode" />
           </Suspense>
         )}
       </div>
-
-      <div className="absolute -top-[20%] right-0 pl-8 h-4/5 w-1/2 lg:overflow-hidden lg:-top-[10%] lg:right-0 lg:pl-60">
+      <div className="absolute -top-[20%] right-0 pl-8 h-4/5 w-1/2 lg:-top-[5%] lg:right-0 lg:pl-52">
         {isInView && (
-          <Suspense fallback={null}>
-            <Spline scene="https://prod.spline.design/Y9JlqDhMrA5yPC4o/scene.splinecode" />
+          <Suspense>
+            <Spline scene="https://prod.spline.design/dIHvXSNd1BJQN7MA/scene.splinecode" />
           </Suspense>
         )}
       </div>
