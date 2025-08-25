@@ -1,11 +1,18 @@
 "use client";
 
-import React, { Suspense, useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Image } from "@nextui-org/react";
+import { motion, useMotionValue, useSpring } from "framer-motion"; // <-- NEW IMPORT
+
+// FIX: Reverted import paths to your original structure
 import ModelCanvas from "../../ModelsObject/ModelStar";
 import content from "@/locales/en/home.json";
 import Meteors from "../../ui/meteors";
 import { SparklesCore } from "../../ui/SparklesCore";
+import { Canvas, ShaderParams } from "../../Canvas/glass";
+import { parseLogoImage } from "../../Canvas/parse-logo-image";
+
+import { toast } from "sonner";
 
 interface Logo {
   src: string;
@@ -19,21 +26,21 @@ interface InfiniteMarqueeProps {
 }
 
 const LOGO_DATA: Logo[] = [
-  { src: "/images/chatgpt-logo.png", alt: "ChatGPT" },
-  { src: "/images/gemini-logo.png", alt: "Google Gemini" },
-  { src: "/images/poe-logo.png", alt: "Poe" },
-  { src: "/images/apple-intelligent-logo.png", alt: "Apple Intelligence" },
-  { src: "/images/mistral-ai-logo.png", alt: "Mistral AI" },
-  { src: "/images/qwen-logo.png", alt: "Qwen" },
-  { src: "/images/union-logo.png", alt: "Union" },
-  { src: "/images/deepseek-logo.png", alt: "DeepSeek" },
-  { src: "/images/claude-logo.png", alt: "Claude" },
-  { src: "/images/perplexity-logo.png", alt: "Perplexity" },
-  { src: "/images/microsoft-copilot-logo.png", alt: "Microsoft Copilot" },
+    { src: "/images/chatgpt-logo.png", alt: "ChatGPT" },
+    { src: "/images/gemini-logo.png", alt: "Google Gemini" },
+    { src: "/images/poe-logo.png", alt: "Poe" },
+    { src: "/images/apple-intelligent-logo.png", alt: "Apple Intelligence" },
+    { src: "/images/mistral-ai-logo.png", alt: "Mistral AI" },
+    { src: "/images/qwen-logo.png", alt: "Qwen" },
+    { src: "/images/union-logo.png", alt: "Union" },
+    { src: "/images/deepseek-logo.png", alt: "DeepSeek" },
+    { src: "/images/claude-logo.png", alt: "Claude" },
+    { src: "/images/perplexity-logo.png", alt: "Perplexity" },
+    { src: "/images/microsoft-copilot-logo.png", alt: "Microsoft Copilot" },
 ];
 
 const DUPLICATE_COUNT = 2;
-const DEFAULT_SPEED = 0.4; // ลด speed จาก 0.5 เพื่อลดภาระ GPU
+const DEFAULT_SPEED = 0.4;
 
 function InfiniteMarquee({
   children,
@@ -42,31 +49,38 @@ function InfiniteMarquee({
 }: InfiniteMarqueeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
+  const [isHovered, setIsHovered] = useState(false); // <-- NEW STATE
 
   useEffect(() => {
     if (!containerRef.current) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           setIsInView(entry.isIntersecting);
         });
       },
-      { threshold: 0.3 } // เพิ่ม threshold เพื่อเริ่มอนิเมชันช้าลง
+      { threshold: 0.3 }
     );
-
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <div ref={containerRef} className={`overflow-hidden ${className}`}>
+    <div
+      ref={containerRef}
+      className={`overflow-hidden ${className}`}
+      onMouseEnter={() => setIsHovered(true)} // <-- ADD MOUSE EVENTS
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div
         className="flex"
         style={{
           width: "max-content",
-          animation: isInView ? `marquee ${30 / speed}s linear infinite` : "none",
+          animation: isInView
+            ? `marquee ${30 / speed}s linear infinite`
+            : "none",
           willChange: "transform",
+          animationPlayState: isHovered ? "paused" : "running", // <-- CONDITIONALLY PAUSE ANIMATION
         }}
       >
         {Array.from({ length: DUPLICATE_COUNT }, (_, index) => (
@@ -90,18 +104,25 @@ function InfiniteMarquee({
 const LogoGrid: React.FC = () => (
   <div className="mt-8 flex items-center justify-center gap-4 pr-4 lg:gap-12 lg:pr-12">
     {LOGO_DATA.map((logo, index) => (
-      <Image
+      <motion.div // <-- WRAP IN MOTION.DIV
         key={`${logo.alt}-${index}`}
-        src={logo.src}
-        alt={logo.alt}
-        className="pointer-events-none h-9 w-9 flex-shrink-0 object-contain lg:h-[50px] lg:w-[50px]" // คงขนาดเดิม
-        loading="lazy"
-      />
+        whileHover={{ scale: 1.25 }} // <-- SCALE UP ON HOVER
+        transition={{ type: "spring", stiffness: 300, damping: 20 }} // <-- SMOOTH SPRING EFFECT
+      >
+        <Image
+          src={logo.src}
+          alt={logo.alt}
+          className="pointer-events-none h-9 w-9 flex-shrink-0 object-contain lg:h-[50px] lg:w-[50px]"
+          loading="lazy"
+        />
+      </motion.div>
     ))}
   </div>
 );
 
-const GradientMask: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+const GradientMask: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
   <div
     style={{
       maskImage:
@@ -115,7 +136,6 @@ const GradientMask: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 );
 
 interface HeroContentProps {
-  title: string;
   subtitle: string;
   line1: string;
   line2: string;
@@ -126,62 +146,77 @@ const HeroContent: React.FC<HeroContentProps> = ({
   line1,
   line2,
 }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(true);
+  const [imageData, setImageData] = useState<ImageData | null>(null);
 
   useEffect(() => {
     if (!sectionRef.current) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           setIsInView(entry.isIntersecting);
         });
       },
-      { threshold: 0.3 } // เพิ่ม threshold เพื่อเริ่มโหลดช้าลง
+      { threshold: 0.3 }
     );
-
     observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !isInView) return;
+    if (isInView) {
+      const imagePath = "/images/AI_Innovation.webp";
+      setIsProcessing(true);
 
-    const tryPlay = async () => {
-      try {
-        video.muted = true;
-        video.setAttribute("playsinline", "true");
-        await video.play();
-        video.playbackRate = 0.5; // ลดจาก 0.6
-      } catch (err) {
-        console.log("Autoplay iOS blocked:", err);
-      }
-    };
+      const processImage = async () => {
+        try {
+          const response = await fetch(imagePath);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch image: ${response.statusText}`);
+          }
+          const blob = await response.blob();
+          const file = new File([blob], "AI_Innovation.webp", { type: "image/webp" });
+          const { imageData: processedImageData } = await parseLogoImage(file);
+          setImageData(processedImageData);
+        } catch (error) {
+          console.error("Error processing image:", error);
+          toast.error("Failed to process logo image for shader.");
+        } finally {
+          setIsProcessing(false);
+        }
+      };
 
-    const timer = setTimeout(tryPlay, 700); // เพิ่ม delay จาก 500ms เป็น 700ms
-    return () => clearTimeout(timer);
+      processImage();
+    }
   }, [isInView]);
 
+  const params: ShaderParams = {
+    patternScale: 4.5,
+    refraction: 0.025,
+    edge: 0.35,
+    patternBlur: 0.003,
+    liquid: 0.07,
+    speed: 0.35,
+  };
   return (
     <div
       ref={sectionRef}
-      className="relative z-0 mx-auto w-full px-4 py-24 lg:max-w-4xl lg:py-40"
+      className="relative z-[-1] mx-auto w-full px-28 py-24 mt-28 lg:py-52"
     >
       {isInView && (
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="/images/video-poster.jpg"
-          className="h-auto z-10 w-full"
-        >
-          <source src="/videos/ai-real-1.mp4" type="video/mp4" />
-        </video>
+        <div className=" flex w-full m-auto items-center justify-center">
+          <div className="w-full max-w-5xl mx-auto mb-32 h-[70vh] absolute">
+            <div className="w-[80vh] h-full">
+              {isProcessing ? (
+                <div className="text-white text-center">Processing Image...</div>
+              ) : (
+                imageData && <Canvas imageData={imageData} params={params} />
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       <h1 className="mb-3 text-lg leading-tight text-white lg:mt-6 lg:text-[36px]">
@@ -204,22 +239,19 @@ export default function Hero(): React.ReactElement {
 
   useEffect(() => {
     if (!sectionRef.current) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           setIsInView(entry.isIntersecting);
           if (entry.isIntersecting) {
-            // หน่วงการโหลด ModelCanvas เป็น 1500ms
             setTimeout(() => setIsModelLoaded(true), 1500);
           } else {
-            setIsModelLoaded(false); // หยุดโหลด ModelCanvas เมื่อออกจาก viewport
+            setIsModelLoaded(false);
           }
         });
       },
-      { threshold: 0.3 } // เพิ่ม threshold
+      { threshold: 0.3 }
     );
-
     observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
@@ -234,37 +266,32 @@ export default function Hero(): React.ReactElement {
           <div className="absolute inset-0 z-0">
             <SparklesCore
               background="transparent"
-              minSize={0.2} // ลดจาก 0.3
-              maxSize={0.6} // ลดจาก 0.8
-              particleDensity={1} // คงไว้
-              speed={0.15} // ลดจาก 0.2
+              minSize={0.2}
+              maxSize={0.6}
+              particleDensity={1}
+              speed={0.15}
               className="h-full w-full"
               particleColor="#FFFFFF"
             />
           </div>
-
           <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-full">
-            <Meteors number={1} className="opacity-40" /> {/* ลด opacity จาก 0.5 */}
+            <Meteors number={1} className="opacity-40" />
           </div>
         </>
       )}
-
       {isModelLoaded && (
         <div className="pointer-events-none absolute inset-0 z-20 select-none">
           <ModelCanvas />
         </div>
       )}
-
       <div className="relative z-20">
         <HeroContent
-          title={heroText.title}
           subtitle={heroText.subtitle}
           line1={heroText.line1}
           line2={heroText.line2}
         />
       </div>
-
-      <div className="relative z-30 mx-auto w-[80%] lg:my-12 lg:max-w-5xl">
+      <div className="relative z-30 mx-auto w-[80%] mb-28 lg:max-w-5xl">
         <GradientMask>
           <InfiniteMarquee speed={0.7}>
             <LogoGrid />

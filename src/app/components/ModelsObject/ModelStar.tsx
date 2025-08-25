@@ -33,7 +33,7 @@ export default function ModelCanvas() {
       ref={sectionRef}
       className="relative h-[25vh] w-full lg:min-h-[600px] lg:overflow-hidden"
     >
-      <div className="absolute top-[90%] -left-10 h-4/5 w-1/2 lg:top-[30%] lg:-left-24">
+      <div className="absolute top-[90%] z-50 -left-10 h-4/5 w-1/2 lg:top-[30%] lg:-left-24">
         {isInView && (
           <Suspense>
             <Spline scene="https://prod.spline.design/dIHvXSNd1BJQN7MA/scene.splinecode" />

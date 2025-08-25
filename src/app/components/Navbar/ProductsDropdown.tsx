@@ -25,7 +25,7 @@ export default function ProductsDropdown({
           ref={dropdownMenuRef}
           onMouseEnter={() => handleMouseEnter("products")}
           onMouseLeave={handleMouseLeave}
-          className="relative h-full max-h-[80vh] w-[70vw] max-w-5xl rounded-[inherit] bg-black/20"
+          className="relative h-full max-h-[80vh] w-[70vw] max-w-5xl rounded-[inherit] bg-black/40"
         >
           <div className="grid grid-cols-2 items-start gap-8 px-6 py-8 lg:gap-12">
             {Object.entries(dropdownData).map(([category, data]) => (
