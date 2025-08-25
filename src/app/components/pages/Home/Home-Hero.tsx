@@ -2,9 +2,8 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { Image } from "@nextui-org/react";
-import { motion, useMotionValue, useSpring } from "framer-motion"; // <-- NEW IMPORT
+import { motion } from "framer-motion";
 
-// FIX: Reverted import paths to your original structure
 import ModelCanvas from "../../ModelsObject/ModelStar";
 import content from "@/locales/en/home.json";
 import Meteors from "../../ui/meteors";
@@ -49,7 +48,7 @@ function InfiniteMarquee({
 }: InfiniteMarqueeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
-  const [isHovered, setIsHovered] = useState(false); // <-- NEW STATE
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -65,22 +64,29 @@ function InfiniteMarquee({
     return () => observer.disconnect();
   }, []);
 
+  const animationProps = isInView
+    ? {
+        animationName: 'marquee',
+        animationDuration: `${30 / speed}s`,
+        animationTimingFunction: 'linear',
+        animationIterationCount: 'infinite',
+        animationPlayState: isHovered ? "paused" : "running",
+      }
+    : {};
+
   return (
     <div
       ref={containerRef}
       className={`overflow-hidden ${className}`}
-      onMouseEnter={() => setIsHovered(true)} // <-- ADD MOUSE EVENTS
+      onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
         className="flex"
         style={{
           width: "max-content",
-          animation: isInView
-            ? `marquee ${30 / speed}s linear infinite`
-            : "none",
           willChange: "transform",
-          animationPlayState: isHovered ? "paused" : "running", // <-- CONDITIONALLY PAUSE ANIMATION
+          ...animationProps,
         }}
       >
         {Array.from({ length: DUPLICATE_COUNT }, (_, index) => (
@@ -104,10 +110,10 @@ function InfiniteMarquee({
 const LogoGrid: React.FC = () => (
   <div className="mt-8 flex items-center justify-center gap-4 pr-4 lg:gap-12 lg:pr-12">
     {LOGO_DATA.map((logo, index) => (
-      <motion.div // <-- WRAP IN MOTION.DIV
+      <motion.div
         key={`${logo.alt}-${index}`}
-        whileHover={{ scale: 1.25 }} // <-- SCALE UP ON HOVER
-        transition={{ type: "spring", stiffness: 300, damping: 20 }} // <-- SMOOTH SPRING EFFECT
+        whileHover={{ scale: 1.25 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
         <Image
           src={logo.src}
