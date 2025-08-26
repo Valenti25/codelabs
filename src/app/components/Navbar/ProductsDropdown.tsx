@@ -20,12 +20,12 @@ export default function ProductsDropdown({
 }: Props) {
   return (
     <div className="pointer-events-none absolute top-0 right-0 left-0 z-40 flex justify-center pt-20">
-      <div className="pointer-events-auto relative mt-1 rounded-lg border-2 border-black p-[2px] backdrop-blur-md">
+      <div className="pointer-events-auto relative mt-5 rounded-lg border-2 bg-black/30 border-black p-[2px] backdrop-blur-md">
         <div
           ref={dropdownMenuRef}
           onMouseEnter={() => handleMouseEnter("products")}
           onMouseLeave={handleMouseLeave}
-          className="relative h-full max-h-[80vh] w-[70vw] max-w-5xl rounded-[inherit] bg-black/40"
+          className="relative h-full max-h-[80vh] w-[70vw] max-w-5xl rounded-[inherit] "
         >
           <div className="grid grid-cols-2 items-start gap-8 px-6 py-8 lg:gap-12">
             {Object.entries(dropdownData).map(([category, data]) => (

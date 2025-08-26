@@ -204,17 +204,17 @@ const HeroContent: React.FC<HeroContentProps> = ({
     edge: 0.35,
     patternBlur: 0.003,
     liquid: 0.07,
-    speed: 0.35,
+    speed: 0.25,
   };
   return (
     <div
       ref={sectionRef}
-      className="relative z-[-1] mx-auto w-full px-28 py-24 mt-28 lg:py-52"
+      className="relative z-10 mx-auto w-full px-4 sm:px-8 lg:px-28 py-20 lg:py-52 mt-16"
     >
       {isInView && (
         <div className=" flex w-full m-auto items-center justify-center">
-          <div className="w-full max-w-5xl mx-auto mb-32 h-[70vh] absolute">
-            <div className="w-[80vh] h-full">
+          <div className="w-full max-w-5xl mx-auto mb-32 lg:h-[70vh] absolute">
+            <div className="lg:w-[80vh] lg:h-full">
               {isProcessing ? (
                 <div className="text-white text-center">Processing Image...</div>
               ) : (
@@ -224,12 +224,12 @@ const HeroContent: React.FC<HeroContentProps> = ({
           </div>
         </div>
       )}
-
+  
       <h1 className="mb-3 text-lg leading-tight text-white lg:mt-6 lg:text-[36px]">
         {subtitle}
       </h1>
 
-      <div className="mx-auto max-w-2xl text-xs text-neutral-400 lg:text-lg">
+      <div className="mx-auto max-w-6xl text-xs text-neutral-400 lg:text-lg">
         <p>{line1}</p>
         <p>{line2}</p>
       </div>
@@ -290,14 +290,14 @@ export default function Hero(): React.ReactElement {
           <ModelCanvas />
         </div>
       )}
-      <div className="relative z-20">
+      <div className="relative z-20 ">
         <HeroContent
           subtitle={heroText.subtitle}
           line1={heroText.line1}
           line2={heroText.line2}
         />
       </div>
-      <div className="relative z-30 mx-auto w-[80%] mb-28 lg:max-w-5xl">
+      <div className="relative z-30 mx-auto w-[80%] lg:mb-28 lg:max-w-5xl">
         <GradientMask>
           <InfiniteMarquee speed={0.7}>
             <LogoGrid />

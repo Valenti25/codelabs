@@ -19,6 +19,7 @@
     "@types/three": "^0.179.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.12",
+    "gsap": "^3.13.0",
     "liquidjs": "^10.21.1",
     "next": "^15.4.2-canary.44",
     "ogl": "^1.0.11",

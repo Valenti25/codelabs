@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardBody, Image } from "@nextui-org/react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import content from "@/locales/en/home.json";
 
 const data = {
@@ -25,31 +25,70 @@ const data = {
   },
 };
 
-function HoverImage({
-  defaultSrc,
-  hoverSrc,
-  alt,
-}: {
-  defaultSrc: string;
-  hoverSrc: string;
-  alt: string;
-}) {
-  const [hovered, setHovered] = useState(false);
+const CardComponent = ({ title, description, image }) => {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+  const cardRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setMousePos({ x, y });
+  };
+
   return (
-    <Image
-      src={hovered ? hoverSrc : defaultSrc}
-      alt={alt}
-      className="h-[160px] w-[160px] lg:h-[170px] lg:w-[170px]"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={() => setHovered(!hovered)}
-    />
+    <div
+      ref={cardRef}
+      className="group card-outer-bg card-outer-shadow relative overflow-hidden rounded-[25px] p-[1px] transition-all duration-300"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setMousePos({ x: 0, y: 0 });
+      }}
+    >
+      {/* แสงตามเมาส์ - แก้ไขแล้ว */}
+      <div 
+        className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background: `radial-gradient(
+            circle 180px at ${mousePos.x}px ${mousePos.y}px,
+            rgba(255, 255, 255, 0.15),
+            transparent 50%
+          )`
+        }}
+      />
+      
+      <Card className="card-inner-bg card-inner-blur relative z-10 h-full rounded-[24px] border-0">
+        <CardBody className="flex h-full flex-col justify-between p-6 text-center lg:p-8 lg:text-left">
+          <div>
+            <div className="mb-3 lg:mb-6 flex justify-center">
+              <Image
+                src={isHovered ? image.hoverSrc : image.defaultSrc}
+                alt={image.alt}
+                className="h-[160px] w-[160px] lg:h-[170px] lg:w-[170px] transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+            <h3 className="mb-3 text-lg lg:text-2xl transition-colors duration-300 group-hover:text-white">
+              {title}
+            </h3>
+          </div>
+          <p className="text-sm leading-relaxed text-[#7E7E7E] transition-colors duration-300 group-hover:text-white/90">
+            {description}
+          </p>
+        </CardBody>
+      </Card>
+    </div>
   );
-}
+};
 
 export default function LandingPage() {
-  const landingContent = content.landing; 
-  const imageData = data.landing.cards; 
+  const landingContent = content.landing;
+  const imageData = data.landing.cards;
 
   return (
     <section className="mx-auto max-w-[1270px] px-8 lg:px-4 py-16 text-white lg:py-24">
@@ -68,28 +107,14 @@ export default function LandingPage() {
       </div>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 gap-8  lg:px-6 pt-8 lg:grid-cols-3 lg:pt-12">
+      <div className="grid grid-cols-1 gap-8 lg:px-6 pt-8 lg:grid-cols-3 lg:pt-12">
         {landingContent.cards.map(({ title, description }, i) => (
-          <div
+          <CardComponent
             key={i}
-            className="group card-outer-bg card-outer-shadow relative overflow-hidden rounded-[25px] p-[1px]"
-          >
-            <Card className="card-inner-bg card-inner-blur relative h-full rounded-[24px] border-0">
-              <CardBody className="flex h-full flex-col justify-between p-6 text-center lg:p-8 lg:text-left">
-                <div>
-                  <div className="mb-3 lg:mb-6 flex justify-center">
-                    <HoverImage
-                      defaultSrc={imageData[i]?.defaultSrc || ""}
-                      hoverSrc={imageData[i]?.hoverSrc || ""}
-                      alt={imageData[i]?.alt || ""}
-                    />
-                  </div>
-                  <h3 className="mb-3 text-lg lg:text-2xl">{title}</h3>
-                </div>
-                <p className="text-sm leading-relaxed text-[#7E7E7E]">{description}</p>
-              </CardBody>
-            </Card>
-          </div>
+            title={title}
+            description={description}
+            image={imageData[i]}
+          />
         ))}
       </div>
     </section>
