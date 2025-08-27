@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  codelab-ai-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: codelab-ai-container
+    ports:
+      - "5500:3000"
+    environment:
+      # - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+    networks:
+      - codelab-network
+
+networks:
+  codelab-network:
+    driver: bridge
