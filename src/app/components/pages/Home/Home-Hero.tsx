@@ -25,58 +25,40 @@ interface InfiniteMarqueeProps {
 }
 
 const LOGO_DATA: Logo[] = [
-    { src: "/images/chatgpt-logo.png", alt: "ChatGPT" },
-    { src: "/images/gemini-logo.png", alt: "Google Gemini" },
-    { src: "/images/poe-logo.png", alt: "Poe" },
-    { src: "/images/apple-intelligent-logo.png", alt: "Apple Intelligence" },
-    { src: "/images/mistral-ai-logo.png", alt: "Mistral AI" },
-    { src: "/images/qwen-logo.png", alt: "Qwen" },
-    { src: "/images/union-logo.png", alt: "Union" },
-    { src: "/images/deepseek-logo.png", alt: "DeepSeek" },
-    { src: "/images/claude-logo.png", alt: "Claude" },
-    { src: "/images/perplexity-logo.png", alt: "Perplexity" },
-    { src: "/images/microsoft-copilot-logo.png", alt: "Microsoft Copilot" },
+  { src: "/images/chatgpt-logo.png", alt: "ChatGPT" },
+  { src: "/images/gemini-logo.png", alt: "Google Gemini" },
+  { src: "/images/poe-logo.png", alt: "Poe" },
+  { src: "/images/apple-intelligent-logo.png", alt: "Apple Intelligence" },
+  { src: "/images/mistral-ai-logo.png", alt: "Mistral AI" },
+  { src: "/images/qwen-logo.png", alt: "Qwen" },
+  { src: "/images/union-logo.png", alt: "Union" },
+  { src: "/images/deepseek-logo.png", alt: "DeepSeek" },
+  { src: "/images/claude-logo.png", alt: "Claude" },
+  { src: "/images/perplexity-logo.png", alt: "Perplexity" },
+  { src: "/images/microsoft-copilot-logo.png", alt: "Microsoft Copilot" },
 ];
 
 const DUPLICATE_COUNT = 2;
 const DEFAULT_SPEED = 0.4;
 
+/* -------------------- InfiniteMarquee (no inView) -------------------- */
 function InfiniteMarquee({
   children,
   speed = DEFAULT_SPEED,
   className = "",
 }: InfiniteMarqueeProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isInView, setIsInView] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          setIsInView(entry.isIntersecting);
-        });
-      },
-      { threshold: 0.3 }
-    );
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  const animationProps = isInView
-    ? {
-        animationName: 'marquee',
-        animationDuration: `${30 / speed}s`,
-        animationTimingFunction: 'linear',
-        animationIterationCount: 'infinite',
-        animationPlayState: isHovered ? "paused" : "running",
-      }
-    : {};
+  const animationProps: React.CSSProperties = {
+    animationName: "marquee",
+    animationDuration: `${30 / speed}s`,
+    animationTimingFunction: "linear",
+    animationIterationCount: "infinite",
+    animationPlayState: isHovered ? "paused" : "running",
+  };
 
   return (
     <div
-      ref={containerRef}
       className={`overflow-hidden ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -107,6 +89,7 @@ function InfiniteMarquee({
   );
 }
 
+/* ------------------------- LogoGrid ------------------------- */
 const LogoGrid: React.FC = () => (
   <div className="mt-8 flex items-center justify-center gap-4 pr-4 lg:gap-12 lg:pr-12">
     {LOGO_DATA.map((logo, index) => (
@@ -126,9 +109,8 @@ const LogoGrid: React.FC = () => (
   </div>
 );
 
-const GradientMask: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => (
+/* ---------------------- GradientMask ---------------------- */
+const GradientMask: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div
     style={{
       maskImage:
@@ -141,62 +123,46 @@ const GradientMask: React.FC<{ children: React.ReactNode }> = ({
   </div>
 );
 
+/* ---------------------- HeroContent (no inView) ---------------------- */
 interface HeroContentProps {
   subtitle: string;
   line1: string;
   line2: string;
 }
 
-const HeroContent: React.FC<HeroContentProps> = ({
-  subtitle,
-  line1,
-  line2,
-}) => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [isInView, setIsInView] = useState(false);
+const HeroContent: React.FC<HeroContentProps> = ({ subtitle, line1, line2 }) => {
   const [isProcessing, setIsProcessing] = useState(true);
   const [imageData, setImageData] = useState<ImageData | null>(null);
 
   useEffect(() => {
-    if (!sectionRef.current) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          setIsInView(entry.isIntersecting);
-        });
-      },
-      { threshold: 0.3 }
-    );
-    observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
+    // process image once on mount (no inView gating)
+    const imagePath = "/images/AI_Innovation.webp";
+    let cancelled = false;
 
-  useEffect(() => {
-    if (isInView) {
-      const imagePath = "/images/AI_Innovation.webp";
-      setIsProcessing(true);
-
-      const processImage = async () => {
-        try {
-          const response = await fetch(imagePath);
-          if (!response.ok) {
-            throw new Error(`Failed to fetch image: ${response.statusText}`);
-          }
-          const blob = await response.blob();
-          const file = new File([blob], "AI_Innovation.webp", { type: "image/webp" });
-          const { imageData: processedImageData } = await parseLogoImage(file);
-          setImageData(processedImageData);
-        } catch (error) {
-          console.error("Error processing image:", error);
-          toast.error("Failed to process logo image for shader.");
-        } finally {
-          setIsProcessing(false);
+    const processImage = async () => {
+      try {
+        setIsProcessing(true);
+        const response = await fetch(imagePath);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.statusText}`);
         }
-      };
+        const blob = await response.blob();
+        const file = new File([blob], "AI_Innovation.webp", { type: "image/webp" });
+        const { imageData: processedImageData } = await parseLogoImage(file);
+        if (!cancelled) setImageData(processedImageData);
+      } catch (error) {
+        console.error("Error processing image:", error);
+        toast.error("Failed to process logo image for shader.");
+      } finally {
+        if (!cancelled) setIsProcessing(false);
+      }
+    };
 
-      processImage();
-    }
-  }, [isInView]);
+    processImage();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const params: ShaderParams = {
     patternScale: 4.5,
@@ -206,25 +172,21 @@ const HeroContent: React.FC<HeroContentProps> = ({
     liquid: 0.07,
     speed: 0.25,
   };
+
   return (
-    <div
-      ref={sectionRef}
-      className="relative z-10 mx-auto w-full px-4 sm:px-8 lg:px-28 py-20 lg:py-52 mt-16"
-    >
-      {isInView && (
-        <div className=" flex w-full m-auto items-center justify-center">
-          <div className="w-full max-w-5xl mx-auto mb-32 lg:h-[70vh] absolute">
-            <div className="lg:w-[80vh] lg:h-full">
-              {isProcessing ? (
-                <div className="text-white text-center">Processing Image...</div>
-              ) : (
-                imageData && <Canvas imageData={imageData} params={params} />
-              )}
-            </div>
+    <div className="relative z-10 mx-auto w-full px-4 sm:px-8 lg:px-28 py-20 lg:py-52 mt-16">
+      <div className="flex w-full m-auto items-center justify-center">
+        <div className="w-full max-w-5xl mx-auto mb-32 lg:h-[70vh] absolute">
+          <div className="lg:w-[80vh] lg:h-full">
+            {isProcessing ? (
+              <div className="text-white text-center">Processing Image...</div>
+            ) : (
+              imageData && <Canvas imageData={imageData} params={params} />
+            )}
           </div>
         </div>
-      )}
-  
+      </div>
+
       <h1 className="mb-3 text-lg leading-tight text-white lg:mt-6 lg:text-[36px]">
         {subtitle}
       </h1>
@@ -237,59 +199,42 @@ const HeroContent: React.FC<HeroContentProps> = ({
   );
 };
 
+/* ---------------------- Hero (no inView) ---------------------- */
 export default function Hero(): React.ReactElement {
   const heroText = content.hero;
-  const [isInView, setIsInView] = useState(false);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
 
+  // load the model after a short delay once (no inView gating)
   useEffect(() => {
-    if (!sectionRef.current) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          setIsInView(entry.isIntersecting);
-          if (entry.isIntersecting) {
-            setTimeout(() => setIsModelLoaded(true), 1500);
-          } else {
-            setIsModelLoaded(false);
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-    observer.observe(sectionRef.current);
-    return () => observer.disconnect();
+    const t = setTimeout(() => setIsModelLoaded(true), 1500);
+    return () => clearTimeout(t);
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative flex flex-col items-center justify-center px-4 text-center"
-    >
-      {isInView && (
-        <>
-          <div className="absolute inset-0 z-0">
-            <SparklesCore
-              background="transparent"
-              minSize={0.2}
-              maxSize={0.6}
-              particleDensity={1}
-              speed={0.15}
-              className="h-full w-full"
-              particleColor="#FFFFFF"
-            />
-          </div>
-          <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-full">
-            <Meteors number={1} className="opacity-40" />
-          </div>
-        </>
-      )}
+    <section className="relative flex flex-col items-center justify-center px-4 text-center">
+      {/* always render background effects */}
+      <div className="absolute inset-0 z-0">
+        <SparklesCore
+          background="transparent"
+          minSize={0.2}
+          maxSize={0.6}
+          particleDensity={1}
+          speed={0.15}
+          className="h-full w-full"
+          particleColor="#FFFFFF"
+        />
+      </div>
+      <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-full">
+        <Meteors number={1} className="opacity-40" />
+      </div>
+
+      {/* model appears after small delay */}
       {isModelLoaded && (
         <div className="pointer-events-none absolute inset-0 z-20 select-none">
           <ModelCanvas />
         </div>
       )}
+
       <div className="relative z-20 ">
         <HeroContent
           subtitle={heroText.subtitle}
@@ -297,6 +242,7 @@ export default function Hero(): React.ReactElement {
           line2={heroText.line2}
         />
       </div>
+
       <div className="relative z-30 mx-auto w-[80%] lg:mb-28 lg:max-w-5xl">
         <GradientMask>
           <InfiniteMarquee speed={0.7}>

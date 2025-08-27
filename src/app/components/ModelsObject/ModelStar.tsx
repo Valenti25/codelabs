@@ -31,7 +31,7 @@ export default function ModelCanvas() {
   return (
     <div
       ref={sectionRef}
-      className="relative h-[25vh] w-full lg:min-h-[600px] lg:overflow-hidden"
+      className="relative h-[25vh] w-full lg:min-h-[500px] lg:overflow-hidden"
     >
       <div className="absolute top-[90%] z-[-10] -left-10 h-4/5 w-1/2 lg:top-[30%] lg:-left-24">
         {isInView && (

@@ -65,7 +65,7 @@ export default function AppNavbar() {
   return (
     <div className="relative">
       <Navbar
-        className="relative z-50 px-6 py-4 lg:px-12 lg:py-10"
+        className="relative z-50 px-6 py-4 lg:px-12 lg:py-10 backdrop-blur-none"
         maxWidth="full"
       >
         <NavbarContent className="mx-auto flex w-full max-w-[1400px] items-center justify-between text-white">
@@ -112,7 +112,8 @@ export default function AppNavbar() {
                   onMouseLeave={handleMouseLeave}
                 >
                   <NavbarItem className="relative">
-                    <div className="relative z-10 flex cursor-pointer items-center gap-1 text-white/90 transition-colors">
+                    <div className="relative z-10 flex cursor-pointer items-center gap-1 text-white/90
+                     transition-colors">
                       Product
                     </div>
                   </NavbarItem>

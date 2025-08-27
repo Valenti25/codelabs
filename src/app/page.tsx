@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar/AppNavbar";
 import Hero from "./components/pages/Home/Home-Hero";
 import dynamic from "next/dynamic";
 import LightRays from "./components/ui/LightRays";
+import Footer from "./components/pages/Home/Home-Footer";
 
 const LandingPage = dynamic(
   () =>
@@ -58,6 +59,7 @@ export default function Home() {
         <PoweringSearchengineSection />
         <ChatSaleByAISection />
         <ChatsalebyAI />
+        <Footer />
       </div>
     </>
   );

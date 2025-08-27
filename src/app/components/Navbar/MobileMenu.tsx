@@ -7,32 +7,28 @@ import GradientBorderText from "./GradientBorderText";
 import { containerVariants, itemVariants } from "./animations";
 import React from "react";
 
-// Type สำหรับ Product SubItem
+// Types
 type ProductSubItem = {
   name: string;
   description: string;
   logo?: string;
 };
 
-// Type สำหรับ Product Category
 type ProductCategory = {
   description: string;
   logo?: string;
   subItems: ProductSubItem[];
 };
 
-// Type สำหรับ Dropdown Data
 type DropdownData = {
   products: Record<string, ProductCategory>;
   resources: { name: string; logo?: string }[];
 };
 
-// Type สำหรับ Navbar Content
 type NavbarContentData = {
   menuItems: string[];
 };
 
-// Props ของ MobileMenu
 type MobileMenuProps = {
   isMenuOpen: boolean;
   setIsMenuOpen: (open: boolean) => void;
@@ -55,13 +51,36 @@ export default function MobileMenu({
     <AnimatePresence>
       {isMenuOpen && (
         <motion.div
-          className="fixed inset-0 z-50 border-black backdrop-blur-md"
-          initial={{ clipPath: "circle(0% at calc(100% - 50px) 50px)" }}
-          animate={{ clipPath: "circle(150% at calc(100% - 50px) 50px)" }}
-          exit={{ clipPath: "circle(0% at calc(100% - 50px) 50px)" }}
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[9999] h-screen w-screen mobileMenuOverlay"
+          initial={{
+            opacity: 0,
+            clipPath: "circle(0% at calc(100% - 50px) 50px)",
+          }}
+          animate={{
+            opacity: 1,
+            clipPath: "circle(150% at calc(100% - 50px) 50px)",
+          }}
+          exit={{
+            opacity: 0,
+            clipPath: "circle(0% at calc(100% - 50px) 50px)",
+          }}
           transition={{ duration: 0.7, ease: "easeInOut" }}
+          style={{
+            willChange: "clip-path, opacity",
+            WebkitClipPath: "circle(150% at calc(100% - 50px) 50px)",
+          }}
         >
-          <div className="relative flex h-full w-full flex-col p-6">
+          <style jsx global>{`
+            @supports not (clip-path: circle(100% at 50% 50%)) {
+              .mobileMenuOverlay {
+                clip-path: none !important;
+              }
+            }
+          `}</style>
+
+          <div className="relative backdrop-blur-md bg-black/80 flex h-full w-full flex-col p-6">
             {/* ปุ่มปิด */}
             <button
               onClick={() => {
@@ -69,11 +88,12 @@ export default function MobileMenu({
                 setActiveDropdown(null);
               }}
               className="self-end p-1 text-white"
+              aria-label="Close menu"
             >
               <Image
                 width={20}
                 height={20}
-                src="./svg/x-symbol.svg"
+                src="/svg/x-symbol.svg"
                 alt="close icon"
                 className="object-contain"
               />
@@ -93,7 +113,7 @@ export default function MobileMenu({
                       activeDropdown === "products" ? null : "products"
                     )
                   }
-                  className="flex w-full items-center justify-between text-left text-lg font-bold"
+                  className="flex w-full items-center justify-between  text-left text-lg font-bold"
                 >
                   <span>Product</span>
                   <span
@@ -104,7 +124,7 @@ export default function MobileMenu({
                     <Image
                       width={20}
                       height={20}
-                      src="./svg/dropdown-arrow.svg"
+                      src="/svg/dropdown-arrow.svg"
                       alt="dropdown-arrow"
                       className="object-contain"
                     />
@@ -115,13 +135,13 @@ export default function MobileMenu({
                   <div className="mt-4 grid grid-cols-2 gap-x-3 pl-2">
                     {Object.entries(content.dropdown.products).map(
                       ([category, data]) => (
-                        <div key={category} className="space-y-3">
+                        <div key={category} className="space-y-3 bg-black">
                           <GradientBorderText logo={data.logo}>
                             <div className="ml-1 flex flex-col">
                               <h4 className="gradient-text-animated text-xs font-bold">
                                 {data.description}
                               </h4>
-                              <div className="text-xs mt-1 leading-tight text-[#676767]">
+                              <div className="mt-1 text-xs leading-tight text-[#676767]">
                                 {category}
                               </div>
                             </div>
@@ -195,7 +215,7 @@ export default function MobileMenu({
                     <Image
                       width={20}
                       height={20}
-                      src="./svg/dropdown-arrow.svg"
+                      src="/svg/dropdown-arrow.svg"
                       alt="dropdown-arrow"
                       className="object-contain"
                     />
