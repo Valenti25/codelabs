@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Image } from "@nextui-org/react";
 import { motion } from "framer-motion";
 
@@ -15,6 +15,7 @@ import { toast } from "sonner";
 
 interface Logo {
   src: string;
+  hoverSrc?: string; 
   alt: string;
 }
 
@@ -25,23 +26,22 @@ interface InfiniteMarqueeProps {
 }
 
 const LOGO_DATA: Logo[] = [
-  { src: "/images/chatgpt-logo.png", alt: "ChatGPT" },
-  { src: "/images/gemini-logo.png", alt: "Google Gemini" },
-  { src: "/images/poe-logo.png", alt: "Poe" },
-  { src: "/images/apple-intelligent-logo.png", alt: "Apple Intelligence" },
-  { src: "/images/mistral-ai-logo.png", alt: "Mistral AI" },
-  { src: "/images/qwen-logo.png", alt: "Qwen" },
-  { src: "/images/union-logo.png", alt: "Union" },
-  { src: "/images/deepseek-logo.png", alt: "DeepSeek" },
-  { src: "/images/claude-logo.png", alt: "Claude" },
-  { src: "/images/perplexity-logo.png", alt: "Perplexity" },
-  { src: "/images/microsoft-copilot-logo.png", alt: "Microsoft Copilot" },
+  { src: "/images/chatgpt-logo.png", hoverSrc: "/images/chatgpt-hover.png", alt: "ChatGPT" },
+  { src: "/images/gemini-logo.png", hoverSrc: "/images/gemini-hover.png", alt: "Google Gemini" },
+  { src: "/images/poe-logo.png", hoverSrc: "/images/poe-hover.png", alt: "Poe" },
+  { src: "/images/apple-intelligent-logo.png", hoverSrc: "/images/apple_intelligence-hover.png", alt: "Apple Intelligence" },
+  { src: "/images/mistral-ai-logo.png", hoverSrc: "/images/mistral-hover.png", alt: "Mistral AI" },
+  { src: "/images/qwen-logo.png", hoverSrc: "/images/qwen-hover.png", alt: "Qwen" },
+  { src: "/images/union-logo.png", hoverSrc: "/images/grok-hover.png", alt: "Union" },
+  { src: "/images/deepseek-logo.png", hoverSrc: "/images/deepseek-hover.png", alt: "DeepSeek" },
+  { src: "/images/claude-logo.png", hoverSrc: "/images/claude-hover.png", alt: "Claude" },
+  { src: "/images/perplexity-logo.png", hoverSrc: "/images/perplexity-hover.png", alt: "Perplexity" },
+  { src: "/images/microsoft-copilot-logo.png", hoverSrc: "/images/copilot-hover.png", alt: "Microsoft Copilot" },
 ];
 
 const DUPLICATE_COUNT = 2;
 const DEFAULT_SPEED = 0.4;
 
-/* -------------------- InfiniteMarquee (no inView) -------------------- */
 function InfiniteMarquee({
   children,
   speed = DEFAULT_SPEED,
@@ -49,62 +49,87 @@ function InfiniteMarquee({
 }: InfiniteMarqueeProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const animationProps: React.CSSProperties = {
-    animationName: "marquee",
-    animationDuration: `${30 / speed}s`,
-    animationTimingFunction: "linear",
-    animationIterationCount: "infinite",
-    animationPlayState: isHovered ? "paused" : "running",
-  };
-
   return (
     <div
-      className={`overflow-hidden ${className}`}
+      className={`relative overflow-visible ${className}`} 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className="flex"
+        className="marquee-track flex"
         style={{
-          width: "max-content",
-          willChange: "transform",
-          ...animationProps,
+          animationDuration: `${30 / speed}s`,
+          animationPlayState: isHovered ? "paused" : "running",
         }}
       >
         {Array.from({ length: DUPLICATE_COUNT }, (_, index) => (
           <React.Fragment key={index}>{children}</React.Fragment>
         ))}
       </div>
-      <style jsx>{`
-        @keyframes marquee {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
+
+      <style jsx global>{`
+        @keyframes hero-marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .marquee-track {
+          width: max-content;
+          will-change: transform;
+          animation-name: hero-marquee;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          overflow: visible;        /* ปล่อยให้ขยายเกินได้ */
+          padding-block: 6px;       /* กันโดนขอบบน/ล่างเวลา scale */
+          gap: 1rem;                /* กันชนกันนิดหน่อย */
+        }
+        .logo-item { position: relative; } /* สำหรับ z-index ตอน hover */
+
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-track { animation: none !important; transform: none !important; }
         }
       `}</style>
     </div>
   );
 }
 
-/* ------------------------- LogoGrid ------------------------- */
+const LogoItem: React.FC<Logo> = ({ src, hoverSrc, alt }) => {
+  const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    if (!hoverSrc) return;
+    const img = new window.Image();
+    img.src = hoverSrc;
+  }, [hoverSrc]);
+
+  const displaySrc = hovered && hoverSrc ? hoverSrc : src;
+
+  return (
+    <motion.div
+      className="logo-item select-none"
+      whileHover={{ scale: 1.25 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      onTouchStart={() => setHovered(true)}
+      onTouchEnd={() => setHovered(false)}
+      aria-label={alt}
+      role="img"
+    >
+      <Image
+        src={displaySrc}
+        alt={alt}
+        className="pointer-events-auto h-9 w-9 flex-shrink-0 object-contain lg:h-[50px] lg:w-[50px] transition-transform duration-150 will-change-transform"
+        loading="lazy"
+        radius="none"
+      />
+    </motion.div>
+  );
+};
+
 const LogoGrid: React.FC = () => (
   <div className="mt-8 flex items-center justify-center gap-4 pr-4 lg:gap-12 lg:pr-12">
     {LOGO_DATA.map((logo, index) => (
-      <motion.div
-        key={`${logo.alt}-${index}`}
-        whileHover={{ scale: 1.25 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      >
-        <Image
-          src={logo.src}
-          alt={logo.alt}
-          className="pointer-events-none h-9 w-9 flex-shrink-0 object-contain lg:h-[50px] lg:w-[50px]"
-          loading="lazy"
-        />
-      </motion.div>
+      <LogoItem key={`${logo.alt}-${index}`} {...logo} />
     ))}
   </div>
 );
@@ -112,6 +137,7 @@ const LogoGrid: React.FC = () => (
 /* ---------------------- GradientMask ---------------------- */
 const GradientMask: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div
+    className="overflow-visible"
     style={{
       maskImage:
         "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
@@ -123,7 +149,7 @@ const GradientMask: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   </div>
 );
 
-/* ---------------------- HeroContent (no inView) ---------------------- */
+/* ---------------------- HeroContent ---------------------- */
 interface HeroContentProps {
   subtitle: string;
   line1: string;
@@ -135,7 +161,6 @@ const HeroContent: React.FC<HeroContentProps> = ({ subtitle, line1, line2 }) => 
   const [imageData, setImageData] = useState<ImageData | null>(null);
 
   useEffect(() => {
-    // process image once on mount (no inView gating)
     const imagePath = "/images/AI_Innovation.webp";
     let cancelled = false;
 
@@ -199,12 +224,11 @@ const HeroContent: React.FC<HeroContentProps> = ({ subtitle, line1, line2 }) => 
   );
 };
 
-/* ---------------------- Hero (no inView) ---------------------- */
+/* ---------------------- Hero ---------------------- */
 export default function Hero(): React.ReactElement {
   const heroText = content.hero;
   const [isModelLoaded, setIsModelLoaded] = useState(false);
 
-  // load the model after a short delay once (no inView gating)
   useEffect(() => {
     const t = setTimeout(() => setIsModelLoaded(true), 1500);
     return () => clearTimeout(t);
@@ -212,7 +236,6 @@ export default function Hero(): React.ReactElement {
 
   return (
     <section className="relative flex flex-col items-center justify-center px-4 text-center">
-      {/* always render background effects */}
       <div className="absolute inset-0 z-0">
         <SparklesCore
           background="transparent"
@@ -228,7 +251,6 @@ export default function Hero(): React.ReactElement {
         <Meteors number={1} className="opacity-40" />
       </div>
 
-      {/* model appears after small delay */}
       {isModelLoaded && (
         <div className="pointer-events-none absolute inset-0 z-20 select-none">
           <ModelCanvas />

@@ -54,6 +54,13 @@ export default function AppNavbar() {
     };
   }, []);
 
+  // FIX: ถ้าเปลี่ยนเป็น mobile, ปิด dropdown เดสก์ท็อป
+  useEffect(() => {
+    if (isMobile) setActiveDropdown(null);
+    // ถ้ากลับเป็นเดสก์ท็อป ปิดเมนูมือถือไว้ด้วย
+    if (!isMobile) setIsMenuOpen(false);
+  }, [isMobile]);
+
   const handleMouseEnter = (dropdown: string) => {
     if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
     if (!isMobile) setActiveDropdown(dropdown);
@@ -81,7 +88,10 @@ export default function AppNavbar() {
           {isMobile ? (
             <div className="relative" ref={menuRef}>
               <Button
-                onClick={() => setIsMenuOpen(true)}
+                onClick={() => {
+                  setActiveDropdown(null); // FIX: ปิด dropdown เดสก์ท็อปก่อน
+                  setIsMenuOpen(true);     // เปิดเมนูมือถือ
+                }}
                 className="bg-transparent p-2 text-white"
               >
                 <Image
@@ -104,7 +114,7 @@ export default function AppNavbar() {
           ) : (
             <>
               <NavbarContent className="hidden gap-10 text-base font-bold lg:flex">
-                {/* Products dropdown trigger */}
+                {/* Products trigger */}
                 <div
                   ref={dropdownContainerRef}
                   className="relative rounded-lg"
@@ -112,8 +122,7 @@ export default function AppNavbar() {
                   onMouseLeave={handleMouseLeave}
                 >
                   <NavbarItem className="relative">
-                    <div className="relative z-10 flex cursor-pointer items-center gap-1 text-white/90
-                     transition-colors">
+                    <div className="relative z-10 flex cursor-pointer items-center gap-1 text-white/90 transition-colors">
                       Product
                     </div>
                   </NavbarItem>
@@ -129,7 +138,7 @@ export default function AppNavbar() {
                     </NavbarItem>
                   ))}
 
-                {/* Resources dropdown trigger */}
+                {/* Resources trigger */}
                 <div
                   ref={resourcesDropdownRef}
                   className="relative rounded-lg"
@@ -156,9 +165,8 @@ export default function AppNavbar() {
         </NavbarContent>
       </Navbar>
 
-      {/* Dropdown overlays */}
-      {/* Dropdown overlays */}
-      {activeDropdown === "products" && (
+      {/* FIX: render dropdown overlays เฉพาะเดสก์ท็อป และเมื่อไม่เปิดเมนูมือถือ */}
+      {!isMobile && !isMenuOpen && activeDropdown === "products" && (
         <ProductsDropdown
           dropdownData={content.dropdown.products}
           dropdownMenuRef={dropdownMenuRef}
@@ -166,7 +174,8 @@ export default function AppNavbar() {
           handleMouseLeave={handleMouseLeave}
         />
       )}
-      {activeDropdown === "resources" && (
+
+      {!isMobile && !isMenuOpen && activeDropdown === "resources" && (
         <ResourcesDropdown
           dropdownData={content.dropdown.resources}
           resourcesMenuRef={resourcesMenuRef}

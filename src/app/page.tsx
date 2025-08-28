@@ -3,7 +3,6 @@ import Navbar from "./components/Navbar/AppNavbar";
 import Hero from "./components/pages/Home/Home-Hero";
 import dynamic from "next/dynamic";
 import LightRays from "./components/ui/LightRays";
-import Footer from "./components/pages/Home/Home-Footer";
 
 const LandingPage = dynamic(
   () =>
@@ -30,6 +29,13 @@ const ChatSaleByAISection = dynamic(
 const ChatsalebyAI = dynamic(
   () =>
     import("./components/pages/Home/Home-ChatsalebyAI").then(
+      (mod) => mod.default,
+    ),
+  { ssr: false },
+);
+const Footer = dynamic(
+  () =>
+    import("./components/pages/Home/Home-Footer").then(
       (mod) => mod.default,
     ),
   { ssr: false },
