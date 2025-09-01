@@ -88,11 +88,7 @@ function EarbudsChatDemo() {
   type Msg = { id: string; role: "user" | "assistant"; text: string };
   const userMsgs: Msg[] = useMemo(
     () => [
-      {
-        id: "m1",
-        role: "user",
-        text: "I’m looking for wireless earbuds — mostly for listening to music while working.",
-      },
+      
       {
         id: "m2",
         role: "user",
@@ -214,7 +210,7 @@ function EarbudsChatDemo() {
                   <Card className="border-0 bg-transparent p-3">
                     <CardBody className="items-center gap-3 p-4">
                         {!imgLoaded && (
-                          <div className="flex h-[160px] w-full items-center justify-center gap-2">
+                          <div className="flex h-[120px] w-full items-center justify-center gap-2">
                             <ThinkingDots />
                             <span className="text-xs text-white/70">
                               กำลังโหลดรูป…
@@ -224,7 +220,7 @@ function EarbudsChatDemo() {
                         <NextUIImage
                           alt="AirPods Pro 2"
                           src="/images/airpods-pro.png"
-                          className={`h-[160px] w-full object-cover ${
+                          className={`h-[120px] w-full object-cover ${
                             imgLoaded ? "block" : "hidden"
                           }`}
                           onLoad={() => setImgLoaded(true)}
@@ -270,7 +266,7 @@ function EarbudsChatDemo() {
 /** ---------- Page wrapper ---------- */
 export default function Page() {
   return (
-    <main className="min-h-[80vh] px-0 py-10 md:px-0">
+    <main className="px-0 mt-40 md:px-0">
       <div className="w-full">
         <div className="mb-16 text-center">
           <p className="mb-3 text-sm text-[#676767] lg:text-xl">

@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar/AppNavbar";
 import Hero from "./components/pages/Home/Home-Hero";
 import dynamic from "next/dynamic";
 import LightRays from "./components/ui/LightRays";
+import HomeAIFaceRecognition from "./components/pages/Home/Home-AIFaceRecognition"
 
 const LandingPage = dynamic(
   () =>
@@ -20,7 +21,7 @@ const PoweringSearchengineSection = dynamic(
 
 const ChatSaleByAISection = dynamic(
   () =>
-    import("./components/pages/Home/ChatSaleByAISection").then(
+    import("./components/pages/Home/Home-ChatSaleByAISection").then(
       (mod) => mod.default,
     ),
   { ssr: false },
@@ -53,7 +54,7 @@ export default function Home() {
             lightSpread={0.8}
             rayLength={1.2}
             followMouse={true}
-            mouseInfluence={0.1}
+            mouseInfluence={0}
             noiseAmount={0.1}
             distortion={0.05}
             className="custom-rays z-[-1]"
@@ -64,6 +65,7 @@ export default function Home() {
         <LandingPage />
         <PoweringSearchengineSection />
         <ChatSaleByAISection />
+        <HomeAIFaceRecognition />
         <ChatsalebyAI />
         <Footer />
       </div>

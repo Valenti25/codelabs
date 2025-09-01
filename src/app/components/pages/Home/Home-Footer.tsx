@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Divider } from "@nextui-org/react";
 import SplashCursor from "@/app/components/ui/SplashCursor";
+import { useState } from "react";
 
 type FooterLink = { label: string; href: string; external?: boolean };
 
@@ -38,7 +39,10 @@ const legal: FooterLink[] = [
 export default function Footer() {
   return (
     <footer className="relative w-full overflow-hidden text-white/90">
-      <SplashCursor />
+      {/* กัน SplashCursor ไปกิน hover ของไอคอน */}
+      <div className="pointer-events-none">
+        <SplashCursor />
+      </div>
 
       <div className="mx-auto max-w-7xl px-6 py-14 lg:py-20">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
@@ -50,20 +54,19 @@ export default function Footer() {
                 width={150}
                 height={30}
                 className="h-auto w-[160px]"
+                priority
               />
             </Link>
 
-            <p className="mt-2 text-xs leading-relaxed font-semibold text-[#676767]">
+            <p className="mt-2 text-xs font-semibold leading-relaxed text-[#676767]">
               Codelabs AI empowers businesses to turn raw data into intelligent
               insights — making decisions faster, smarter, and easier to act on.
             </p>
-
-            {/* Social images */}
           </div>
 
           {/* Link columns */}
-          <div className="lg:-mr-14 ml-auto grid lg:max-w-xl grid-cols-4 text-sm lg:text-xs font-semibold lg:col-span-8">
-            <div className="lg:-ml-12 lg:w-[200px] ml-3">
+          <div className="lg:-mr-14 ml-auto grid grid-cols-4 lg:col-span-8 lg:max-w-xl text-sm lg:text-xs font-semibold">
+            <div className="ml-3 lg:-ml-12 lg:w-[200px]">
               <FooterColumn title="Products" links={products} />
             </div>
             <FooterColumn title="Case Studies" links={caseStudies} />
@@ -72,7 +75,7 @@ export default function Footer() {
           </div>
         </div>
 
-      <Divider className="my-10 opacity-20"/>
+        <Divider className="my-10 opacity-20" />
 
         {/* Bottom bar */}
         <div className="flex flex-col items-start justify-between gap-4 text-sm font-semibold text-[#676767] md:flex-row">
@@ -84,15 +87,11 @@ export default function Footer() {
             ))}
           </nav>
         </div>
-        
-        <div className="flex justify-between items-center mt-8">
+
+        <div className="mt-8 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[#676767] font-semibold">Powered by</span>
-            <Link
-              href="/"
-              aria-label="Your Company"
-              className="inline-flex items-center"
-            >
+            <span className="text-sm font-semibold text-[#676767]">Powered by</span>
+            <Link href="/" aria-label="Your Company" className="inline-flex items-center">
               <Image
                 src="/svg/logo-codelab-text-row7.svg"
                 alt="Icon Company"
@@ -102,7 +101,7 @@ export default function Footer() {
               />
             </Link>
           </div>
-          
+
           <div className="flex gap-5">
             <SocialIcon
               href="/"
@@ -160,7 +159,7 @@ function FooterNavLink({ label, href, external }: FooterLink) {
   const base = "text-[13px] text-[#676767]";
   if (external) {
     return (
-      <a href={href} className={base}>
+      <a href={href} className={base} target="_blank" rel="noopener noreferrer">
         {label}
       </a>
     );
@@ -176,7 +175,7 @@ function FooterLegalLink({ label, href, external }: FooterLink) {
   const base = "text-[#676767]";
   if (external) {
     return (
-      <a href={href} className={base}>
+      <a href={href} className={base} target="_blank" rel="noopener noreferrer">
         {label}
       </a>
     );
@@ -188,6 +187,11 @@ function FooterLegalLink({ label, href, external }: FooterLink) {
   );
 }
 
+/**
+ * ✅ สลับรูปแน่นอนด้วย state:
+ * - ทำงานได้ทั้ง hover (เดสก์ท็อป) และ touch (มือถือ)
+ * - ซ้อนรูปสองชั้นแล้วสลับ opacity เพื่อให้รูป hover โหลดไว้ล่วงหน้าด้วย
+ */
 function SocialIcon({
   href,
   label,
@@ -199,26 +203,47 @@ function SocialIcon({
   src: string;
   hoverSrc: string;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <Link
       href={href}
       aria-label={label}
-      className="group relative flex h-5 w-5 items-center justify-center transition"
+      className="relative inline-flex h-5 w-5 items-center justify-center"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+      onTouchStart={() => setHovered(true)}
+      onTouchEnd={() => setHovered(false)}
     >
-      <Image
-        src={src}
-        alt={label}
-        width={20}
-        height={20}
-        className="h-5 w-5 object-contain block group-hover:hidden"
-      />
-      <Image
-        src={hoverSrc}
-        alt={`${label} hover`}
-        width={20}
-        height={20}
-        className="h-5 w-5 object-contain hidden group-hover:block"
-      />
+      {/* รูปปกติ */}
+      <span
+        className="absolute inset-0 transition-opacity duration-150"
+        style={{ opacity: hovered ? 0 : 1 }}
+      >
+        <Image
+          src={src}
+          alt={label}
+          width={20}
+          height={20}
+          className="h-5 w-5 object-contain"
+        />
+      </span>
+
+      {/* รูปตอน hover */}
+      <span
+        className="absolute inset-0 transition-opacity duration-150"
+        style={{ opacity: hovered ? 1 : 0 }}
+      >
+        <Image
+          src={hoverSrc}
+          alt={`${label} hover`}
+          width={20}
+          height={20}
+          className="h-5 w-5 object-contain"
+        />
+      </span>
     </Link>
   );
 }

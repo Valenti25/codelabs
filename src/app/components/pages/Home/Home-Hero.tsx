@@ -1,24 +1,30 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Image } from "@nextui-org/react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  memo,
+  useCallback,
+  type ReactElement,
+} from "react";
+import { Input, Image as NextUIImage } from "@nextui-org/react";
 import { motion } from "framer-motion";
+import { Plus, Send } from "lucide-react";
 
 import ModelCanvas from "../../ModelsObject/ModelStar";
 import content from "@/locales/en/home.json";
 import Meteors from "../../ui/meteors";
 import { SparklesCore } from "../../ui/SparklesCore";
-import { Canvas, ShaderParams } from "../../Canvas/glass";
+import { Canvas, type ShaderParams } from "../../Canvas/glass";
 import { parseLogoImage } from "../../Canvas/parse-logo-image";
-
 import { toast } from "sonner";
-
+/** ================== Types & Data ================== */
 interface Logo {
   src: string;
-  hoverSrc?: string; 
+  hoverSrc?: string;
   alt: string;
 }
-
 interface InfiniteMarqueeProps {
   children: React.ReactNode;
   speed?: number;
@@ -26,23 +32,68 @@ interface InfiniteMarqueeProps {
 }
 
 const LOGO_DATA: Logo[] = [
-  { src: "/images/chatgpt-logo.png", hoverSrc: "/images/chatgpt-hover.png", alt: "ChatGPT" },
-  { src: "/images/gemini-logo.png", hoverSrc: "/images/gemini-hover.png", alt: "Google Gemini" },
-  { src: "/images/poe-logo.png", hoverSrc: "/images/poe-hover.png", alt: "Poe" },
-  { src: "/images/apple-intelligent-logo.png", hoverSrc: "/images/apple_intelligence-hover.png", alt: "Apple Intelligence" },
-  { src: "/images/mistral-ai-logo.png", hoverSrc: "/images/mistral-hover.png", alt: "Mistral AI" },
-  { src: "/images/qwen-logo.png", hoverSrc: "/images/qwen-hover.png", alt: "Qwen" },
-  { src: "/images/union-logo.png", hoverSrc: "/images/grok-hover.png", alt: "Union" },
-  { src: "/images/deepseek-logo.png", hoverSrc: "/images/deepseek-hover.png", alt: "DeepSeek" },
-  { src: "/images/claude-logo.png", hoverSrc: "/images/claude-hover.png", alt: "Claude" },
-  { src: "/images/perplexity-logo.png", hoverSrc: "/images/perplexity-hover.png", alt: "Perplexity" },
-  { src: "/images/microsoft-copilot-logo.png", hoverSrc: "/images/copilot-hover.png", alt: "Microsoft Copilot" },
+  {
+    src: "/images/chatgpt-logo.png",
+    hoverSrc: "/images/chatgpt-hover.png",
+    alt: "ChatGPT",
+  },
+  {
+    src: "/images/gemini-logo.png",
+    hoverSrc: "/images/gemini-hover.png",
+    alt: "Google Gemini",
+  },
+  {
+    src: "/images/poe-logo.png",
+    hoverSrc: "/images/poe-hover.png",
+    alt: "Poe",
+  },
+  {
+    src: "/images/apple-intelligent-logo.png",
+    hoverSrc: "/images/apple_intelligence-hover.png",
+    alt: "Apple Intelligence",
+  },
+  {
+    src: "/images/mistral-ai-logo.png",
+    hoverSrc: "/images/mistral-hover.png",
+    alt: "Mistral AI",
+  },
+  {
+    src: "/images/qwen-logo.png",
+    hoverSrc: "/images/qwen-hover.png",
+    alt: "Qwen",
+  },
+  {
+    src: "/images/union-logo.png",
+    hoverSrc: "/images/grok-hover.png",
+    alt: "Union",
+  },
+  {
+    src: "/images/deepseek-logo.png",
+    hoverSrc: "/images/deepseek-hover.png",
+    alt: "DeepSeek",
+  },
+  {
+    src: "/images/claude-logo.png",
+    hoverSrc: "/images/claude-hover.png",
+    alt: "Claude",
+  },
+  {
+    src: "/images/perplexity-logo.png",
+    hoverSrc: "/images/perplexity-hover.png",
+    alt: "Perplexity",
+  },
+  {
+    src: "/images/microsoft-copilot-logo.png",
+    hoverSrc: "/images/copilot-hover.png",
+    alt: "Microsoft Copilot",
+  },
 ];
 
 const DUPLICATE_COUNT = 2;
 const DEFAULT_SPEED = 0.4;
 
-function InfiniteMarquee({
+/** ================== Marquee ================== */
+const InfiniteMarquee = memo(function InfiniteMarquee({
   children,
   speed = DEFAULT_SPEED,
   className = "",
@@ -51,7 +102,7 @@ function InfiniteMarquee({
 
   return (
     <div
-      className={`relative overflow-visible ${className}`} 
+      className={`relative overflow-visible ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -62,15 +113,19 @@ function InfiniteMarquee({
           animationPlayState: isHovered ? "paused" : "running",
         }}
       >
-        {Array.from({ length: DUPLICATE_COUNT }, (_, index) => (
-          <React.Fragment key={index}>{children}</React.Fragment>
+        {Array.from({ length: DUPLICATE_COUNT }, (_, i) => (
+          <React.Fragment key={i}>{children}</React.Fragment>
         ))}
       </div>
 
       <style jsx global>{`
         @keyframes hero-marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
         .marquee-track {
           width: max-content;
@@ -78,26 +133,32 @@ function InfiniteMarquee({
           animation-name: hero-marquee;
           animation-timing-function: linear;
           animation-iteration-count: infinite;
-          overflow: visible;        /* ปล่อยให้ขยายเกินได้ */
-          padding-block: 6px;       /* กันโดนขอบบน/ล่างเวลา scale */
-          gap: 1rem;                /* กันชนกันนิดหน่อย */
+          overflow: visible;
+          padding-block: 6px;
+          gap: 1rem;
         }
-        .logo-item { position: relative; } /* สำหรับ z-index ตอน hover */
-
+        .logo-item {
+          position: relative;
+        }
         @media (prefers-reduced-motion: reduce) {
-          .marquee-track { animation: none !important; transform: none !important; }
+          .marquee-track {
+            animation: none !important;
+            transform: none !important;
+          }
         }
       `}</style>
     </div>
   );
-}
+});
 
+/** ================== Logo Item ================== */
 const LogoItem: React.FC<Logo> = ({ src, hoverSrc, alt }) => {
   const [hovered, setHovered] = useState(false);
 
+  // Preload hover image
   useEffect(() => {
     if (!hoverSrc) return;
-    const img = new window.Image();
+    const img = new globalThis.Image();
     img.src = hoverSrc;
   }, [hoverSrc]);
 
@@ -115,10 +176,10 @@ const LogoItem: React.FC<Logo> = ({ src, hoverSrc, alt }) => {
       aria-label={alt}
       role="img"
     >
-      <Image
+      <NextUIImage
         src={displaySrc}
         alt={alt}
-        className="pointer-events-auto h-9 w-9 flex-shrink-0 object-contain lg:h-[50px] lg:w-[50px] transition-transform duration-150 will-change-transform"
+        className="pointer-events-auto h-9 w-9 flex-shrink-0 object-contain transition-transform duration-150 will-change-transform lg:h-[50px] lg:w-[50px]"
         loading="lazy"
         radius="none"
       />
@@ -126,16 +187,20 @@ const LogoItem: React.FC<Logo> = ({ src, hoverSrc, alt }) => {
   );
 };
 
-const LogoGrid: React.FC = () => (
-  <div className="mt-8 flex items-center justify-center gap-4 pr-4 lg:gap-12 lg:pr-12">
-    {LOGO_DATA.map((logo, index) => (
-      <LogoItem key={`${logo.alt}-${index}`} {...logo} />
-    ))}
-  </div>
-);
+const LogoGrid = memo(function LogoGrid() {
+  return (
+    <div className="mt-8 flex items-center justify-center gap-4 pr-4 lg:gap-12 lg:pr-12">
+      {LOGO_DATA.map((logo, index) => (
+        <LogoItem key={`${logo.alt}-${index}`} {...logo} />
+      ))}
+    </div>
+  );
+});
 
-/* ---------------------- GradientMask ---------------------- */
-const GradientMask: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+/** ================== Mask ================== */
+const GradientMask: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
   <div
     className="overflow-visible"
     style={{
@@ -149,14 +214,67 @@ const GradientMask: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   </div>
 );
 
-/* ---------------------- HeroContent ---------------------- */
+/** ================== GlowFrame (เอากรอบจาก Landing มาใช้กับฟอร์ม) ================== */
+function GlowFrame({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [hover, setHover] = useState(false);
+
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  return (
+    <div
+      ref={ref}
+      onMouseMove={onMouseMove}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => {
+        setHover(false);
+        setMousePos({ x: 0, y: 0 });
+      }}
+      className={[
+        "group card-outer-bg card-outer-shadow relative overflow-hidden p-[1px] transition-all duration-300",
+        "rounded-full",
+        className,
+      ].join(" ")}
+    >
+      {/* แสงตามเมาส์ */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background: `radial-gradient(circle 180px at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.15), transparent 50%)`,
+          mixBlendMode: "screen",
+        }}
+        aria-hidden
+      />
+      <div className="card-inner-bg card-inner-blur relative z-10 rounded-full">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/** ================== Hero Content ================== */
 interface HeroContentProps {
   subtitle: string;
   line1: string;
   line2: string;
 }
 
-const HeroContent: React.FC<HeroContentProps> = ({ subtitle, line1, line2 }) => {
+const HeroContent = memo(function HeroContentBase({
+  subtitle,
+  line1,
+  line2,
+}: HeroContentProps) {
   const [isProcessing, setIsProcessing] = useState(true);
   const [imageData, setImageData] = useState<ImageData | null>(null);
 
@@ -168,15 +286,16 @@ const HeroContent: React.FC<HeroContentProps> = ({ subtitle, line1, line2 }) => 
       try {
         setIsProcessing(true);
         const response = await fetch(imagePath);
-        if (!response.ok) {
+        if (!response.ok)
           throw new Error(`Failed to fetch image: ${response.statusText}`);
-        }
         const blob = await response.blob();
-        const file = new File([blob], "AI_Innovation.webp", { type: "image/webp" });
+        const file = new File([blob], "AI_Innovation.webp", {
+          type: "image/webp",
+        });
         const { imageData: processedImageData } = await parseLogoImage(file);
         if (!cancelled) setImageData(processedImageData);
-      } catch (error) {
-        console.error("Error processing image:", error);
+      } catch (err) {
+        console.error("Error processing image:", err);
         toast.error("Failed to process logo image for shader.");
       } finally {
         if (!cancelled) setIsProcessing(false);
@@ -199,12 +318,12 @@ const HeroContent: React.FC<HeroContentProps> = ({ subtitle, line1, line2 }) => 
   };
 
   return (
-    <div className="relative z-10 mx-auto w-full px-4 sm:px-8 lg:px-28 py-20 lg:py-52 mt-16">
-      <div className="flex w-full m-auto items-center justify-center">
-        <div className="w-full max-w-5xl mx-auto mb-32 lg:h-[70vh] absolute">
-          <div className="lg:w-[80vh] lg:h-full">
+    <div className="relative z-10 mx-auto mt-16 w-full px-4 py-20 sm:px-8 lg:px-28 lg:py-52">
+      <div className="m-auto flex w-full items-center justify-center">
+        <div className="absolute mx-auto mb-32 w-full max-w-5xl lg:h-[80vh]">
+          <div className="lg:h-full lg:w-[80vh]">
             {isProcessing ? (
-              <div className="text-white text-center">Processing Image...</div>
+              <div className="text-center text-white">Processing Image...</div>
             ) : (
               imageData && <Canvas imageData={imageData} params={params} />
             )}
@@ -222,22 +341,34 @@ const HeroContent: React.FC<HeroContentProps> = ({ subtitle, line1, line2 }) => 
       </div>
     </div>
   );
-};
+});
 
-/* ---------------------- Hero ---------------------- */
-export default function Hero(): React.ReactElement {
+/** ================== Hero ================== */
+const SparklesCoreMemo = memo(SparklesCore);
+const MeteorsMemo = memo(Meteors);
+const ModelCanvasMemo = memo(ModelCanvas);
+
+export default function Hero(): ReactElement {
   const heroText = content.hero;
   const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [inputText, SetInputText] = useState<string>("");
 
   useEffect(() => {
     const t = setTimeout(() => setIsModelLoaded(true), 1500);
     return () => clearTimeout(t);
   }, []);
 
+  const onSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success(`You asked: ${inputText}`);
+    SetInputText(inputText);
+  }, []);
+
   return (
     <section className="relative flex flex-col items-center justify-center px-4 text-center">
+      {/* Background */}
       <div className="absolute inset-0 z-0">
-        <SparklesCore
+        <SparklesCoreMemo
           background="transparent"
           minSize={0.2}
           maxSize={0.6}
@@ -248,16 +379,16 @@ export default function Hero(): React.ReactElement {
         />
       </div>
       <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-full">
-        <Meteors number={1} className="opacity-40" />
+        <MeteorsMemo number={1} className="opacity-40" />
       </div>
 
       {isModelLoaded && (
         <div className="pointer-events-none absolute inset-0 z-20 select-none">
-          <ModelCanvas />
+          <ModelCanvasMemo />
         </div>
       )}
 
-      <div className="relative z-20 ">
+      <div className="relative z-20">
         <HeroContent
           subtitle={heroText.subtitle}
           line1={heroText.line1}
@@ -265,6 +396,64 @@ export default function Hero(): React.ReactElement {
         />
       </div>
 
+      {/* Form — responsive spacing & size */}
+<form
+  onSubmit={onSubmit}
+  className="
+    relative z-40 pointer-events-auto
+    mx-auto w-full
+    mt-3 sm:-mt-2 md:-mt-10 lg:-mt-20 xl:-mt-28
+    mb-10 sm:mb-14 md:mb-20 lg:mb-24
+    max-w-[min(92vw,48rem)]
+    px-2 sm:px-0
+  "
+>
+  <GlowFrame className="rounded-full">
+    <Input
+      value={inputText}
+      onChange={(e) => SetInputText(e.target.value)}
+      radius="full"
+      variant="flat"
+      placeholder="Ask me anything"
+      aria-label="Ask me anything"
+      autoComplete="off"
+      spellCheck={false}
+      // โฟกัสเร็วขึ้นในเดสก์ท็อป (ตัดได้ถ้าไม่ต้องการ)
+      // autoFocus
+      classNames={{
+        base: "w-full",
+        // ความสูง/ระยะขอบในแต่ละไซส์
+        inputWrapper:
+          "rounded-full shadow-none border-none bg-transparent " +
+          "h-11 sm:h-12 md:h-14 px-2 md:px-3 " +
+          "data-[hover=true]:bg-transparent group-hover:bg-transparent",
+        // ขนาดฟอนต์ตามจอ
+        input: "text-sm md:text-base text-white",
+        innerWrapper: "gap-2",
+      }}
+      startContent={
+        <div className="ml-2 md:ml-3 flex items-center gap-3">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full">
+            <Plus className="h-4 w-4 md:h-5 md:w-5 text-white/75" />
+          </span>
+          <span className="h-4 w-px bg-white/10" />
+        </div>
+      }
+      endContent={
+        <button
+          type="submit"
+          aria-label="Send"
+          className="mr-2 flex h-8 w-8 items-center justify-center rounded-full"
+        >
+          <Send className="h-5 w-5 md:h-5 md:w-5 text-white/80" />
+        </button>
+      }
+    />
+  </GlowFrame>
+</form>
+
+
+      {/* Logos */}
       <div className="relative z-30 mx-auto w-[80%] lg:mb-28 lg:max-w-5xl">
         <GradientMask>
           <InfiniteMarquee speed={0.7}>
