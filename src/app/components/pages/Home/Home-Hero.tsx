@@ -16,8 +16,6 @@ import ModelCanvas from "../../ModelsObject/ModelStar";
 import content from "@/locales/en/home.json";
 import Meteors from "../../ui/meteors";
 import { SparklesCore } from "../../ui/SparklesCore";
-import { Canvas, type ShaderParams } from "../../Canvas/glass";
-import { parseLogoImage } from "../../Canvas/parse-logo-image";
 import { toast } from "sonner";
 /** ================== Types & Data ================== */
 interface Logo {
@@ -275,63 +273,28 @@ const HeroContent = memo(function HeroContentBase({
   line1,
   line2,
 }: HeroContentProps) {
-  const [isProcessing, setIsProcessing] = useState(true);
-  const [imageData, setImageData] = useState<ImageData | null>(null);
-
-  useEffect(() => {
-    const imagePath = "/images/AI_Innovation.webp";
-    let cancelled = false;
-
-    const processImage = async () => {
-      try {
-        setIsProcessing(true);
-        const response = await fetch(imagePath);
-        if (!response.ok)
-          throw new Error(`Failed to fetch image: ${response.statusText}`);
-        const blob = await response.blob();
-        const file = new File([blob], "AI_Innovation.webp", {
-          type: "image/webp",
-        });
-        const { imageData: processedImageData } = await parseLogoImage(file);
-        if (!cancelled) setImageData(processedImageData);
-      } catch (err) {
-        console.error("Error processing image:", err);
-        toast.error("Failed to process logo image for shader.");
-      } finally {
-        if (!cancelled) setIsProcessing(false);
-      }
-    };
-
-    processImage();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const params: ShaderParams = {
-    patternScale: 4.5,
-    refraction: 0.025,
-    edge: 0.35,
-    patternBlur: 0.003,
-    liquid: 0.07,
-    speed: 0.25,
-  };
-
   return (
-    <div className="relative z-10 mx-auto mt-16 w-full px-4 py-20 sm:px-8 lg:px-28 lg:py-52">
-      <div className="m-auto flex w-full items-center justify-center">
-        <div className="absolute mx-auto mb-32 w-full max-w-5xl lg:h-[80vh]">
-          <div className="lg:h-full lg:w-[80vh]">
-            {isProcessing ? (
-              <div className="text-center text-white">Processing Image...</div>
-            ) : (
-              imageData && <Canvas imageData={imageData} params={params} />
-            )}
-          </div>
-        </div>
-      </div>
+    <div className="relative z-10 mx-auto mt-16 w-full px-4 py-20 sm:px-8 lg:px-28 lg:py-20">
+      <section className="grid place-items-center px-6">
+        <h1 className="max-w-5xl text-center text-4xl font-semibold text-white sm:text-6xl lg:text-6xl">
+          <span className="block">
+            <span className="bg-gradient-to-r from-[#4568DC] to-[#B06AB3] bg-clip-text text-transparent">
+              AI Innovation
+            </span>{" "}
+            at the core.
+          </span>
 
-      <h1 className="mb-3 text-lg leading-tight text-white lg:mt-6 lg:text-[36px]">
+          <span className="block mt-4">
+            Turning{" "}
+            <span className="bg-gradient-to-r from-[#4568DC] to-[#B06AB3] bg-clip-text text-transparent">
+              Data → Insight
+            </span>
+            , instantly.
+          </span>
+        </h1>
+      </section>
+
+      <h1 className="mb-3 pt-6 text-lg leading-tight text-white lg:mt-6 lg:text-[36px]">
         {subtitle}
       </h1>
 
@@ -396,62 +359,53 @@ export default function Hero(): ReactElement {
         />
       </div>
 
-      {/* Form — responsive spacing & size */}
-<form
-  onSubmit={onSubmit}
-  className="
-    relative z-40 pointer-events-auto
-    mx-auto w-full
-    mt-3 sm:-mt-2 md:-mt-10 lg:-mt-20 xl:-mt-28
-    mb-10 sm:mb-14 md:mb-20 lg:mb-24
-    max-w-[min(92vw,48rem)]
-    px-2 sm:px-0
-  "
->
-  <GlowFrame className="rounded-full">
-    <Input
-      value={inputText}
-      onChange={(e) => SetInputText(e.target.value)}
-      radius="full"
-      variant="flat"
-      placeholder="Ask me anything"
-      aria-label="Ask me anything"
-      autoComplete="off"
-      spellCheck={false}
-      // โฟกัสเร็วขึ้นในเดสก์ท็อป (ตัดได้ถ้าไม่ต้องการ)
-      // autoFocus
-      classNames={{
-        base: "w-full",
-        // ความสูง/ระยะขอบในแต่ละไซส์
-        inputWrapper:
-          "rounded-full shadow-none border-none bg-transparent " +
-          "h-11 sm:h-12 md:h-14 px-2 md:px-3 " +
-          "data-[hover=true]:bg-transparent group-hover:bg-transparent",
-        // ขนาดฟอนต์ตามจอ
-        input: "text-sm md:text-base text-white",
-        innerWrapper: "gap-2",
-      }}
-      startContent={
-        <div className="ml-2 md:ml-3 flex items-center gap-3">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full">
-            <Plus className="h-4 w-4 md:h-5 md:w-5 text-white/75" />
-          </span>
-          <span className="h-4 w-px bg-white/10" />
-        </div>
-      }
-      endContent={
-        <button
-          type="submit"
-          aria-label="Send"
-          className="mr-2 flex h-8 w-8 items-center justify-center rounded-full"
-        >
-          <Send className="h-5 w-5 md:h-5 md:w-5 text-white/80" />
-        </button>
-      }
-    />
-  </GlowFrame>
-</form>
-
+      <form
+        onSubmit={onSubmit}
+        className="pointer-events-auto relative z-40 mx-auto mt-3 mb-10 w-full max-w-[min(92vw,48rem)] px-2 sm:-mt-2 sm:mb-14 sm:px-0 md:-mt-10 md:mb-20 lg:-mt-20 lg:mb-24 xl:-mt-28"
+      >
+        <GlowFrame className="mt-28 rounded-full">
+          <Input
+            value={inputText}
+            onChange={(e) => SetInputText(e.target.value)}
+            radius="full"
+            variant="flat"
+            placeholder="Ask me anything"
+            aria-label="Ask me anything"
+            autoComplete="off"
+            spellCheck={false}
+            // โฟกัสเร็วขึ้นในเดสก์ท็อป (ตัดได้ถ้าไม่ต้องการ)
+            // autoFocus
+            classNames={{
+              base: "w-full",
+              // ความสูง/ระยะขอบในแต่ละไซส์
+              inputWrapper:
+                "rounded-full shadow-none border-none bg-transparent " +
+                "h-11 sm:h-12 md:h-14 px-2 md:px-3 " +
+                "data-[hover=true]:bg-transparent group-hover:bg-transparent",
+              // ขนาดฟอนต์ตามจอ
+              input: "text-sm md:text-base text-white",
+              innerWrapper: "gap-2",
+            }}
+            startContent={
+              <div className="ml-2 flex items-center gap-3 md:ml-3">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full">
+                  <Plus className="h-4 w-4 text-white/75 md:h-5 md:w-5" />
+                </span>
+                <span className="h-4 w-px bg-white/10" />
+              </div>
+            }
+            endContent={
+              <button
+                type="submit"
+                aria-label="Send"
+                className="mr-2 flex h-8 w-8 items-center justify-center rounded-full"
+              >
+                <Send className="h-5 w-5 text-white/80 md:h-5 md:w-5" />
+              </button>
+            }
+          />
+        </GlowFrame>
+      </form>
 
       {/* Logos */}
       <div className="relative z-30 mx-auto w-[80%] lg:mb-28 lg:max-w-5xl">

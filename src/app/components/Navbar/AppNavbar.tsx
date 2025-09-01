@@ -70,7 +70,7 @@ export default function AppNavbar() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative no-focus-ring">
       <Navbar
         className="relative z-50 px-6 py-4 lg:px-12 lg:py-10 backdrop-blur-none"
         maxWidth="full"

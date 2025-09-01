@@ -18,6 +18,15 @@ body {
   padding: 0;
   font-family: var(--font-line-regular);
 }
+@layer utilities {
+  /* ฆ่าขอบโฟกัสของ NextUI ทั้งหมดในขอบเขตที่กำหนด */
+  .no-focus-ring :is(*:focus, *:focus-visible,
+                     [data-focus-visible="true"], [data-focus="true"]) {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
 
 .gradient-text {
   background: linear-gradient(90deg, #4568dc, #b06ab3);

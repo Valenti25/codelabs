@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useCallback, memo } from "react";
 import {
   Card,
   CardBody,
@@ -27,10 +27,10 @@ const UI = {
   resultsForPrefix: "ผลลัพธ์สำหรับ",
   datasetLabel: "ชุดข้อมูล",
   productHeader: "สินค้า",
-  noResults: (q: string) => `ไม่พบสินค้าที่ตรงกับ “${q}”`,
+  noResults: (q: string) => `ไม่พบสินค้าที่ตรงกับ "${q}"`,
 };
 
-/** ---------- “3 หน้าเท็กซ์” ที่จะวนไปเรื่อย ๆ ---------- */
+/** ---------- "3 หน้าเท็กซ์" ที่จะวนไปเรื่อย ๆ ---------- */
 type TextPage = { noun: string; query: string };
 const TEXT_PAGES: TextPage[] = [
   { noun: "โน้ตบุ๊ก", query: "asus zenbook" },
@@ -96,6 +96,40 @@ function deriveNoun(raw: string): string {
   return "สินค้า";
 }
 
+// Memoized ProductCard component เพื่อลด re-render
+const ProductCard = memo(({ product }: { product: Product }) => {
+  return (
+    <div className="card-outer-bg card-outer-shadow w-[220px] max-w-[220px] shrink-0 rounded-[25px] p-[1px]">
+      <div className="card-inner-bg card-inner-blur rounded-[24px]">
+        <Card isHoverable shadow="sm" className="rounded-[24px] border-0 bg-transparent shadow-none">
+          <CardBody className="p-0">
+            <div className="p-4 pt-4">
+              <div className="card-outer-bg card-outer-shadow relative overflow-hidden rounded-[18px] p-[1px]">
+                <div className="card-inner-bg card-inner-blur rounded-[17px]">
+                  <NextUIImage
+                    removeWrapper
+                    alt={product.name}
+                    src={product.image}
+                    className="h-[120px] w-full rounded-[17px] object-cover"
+                    loading="lazy"
+                    style={{ willChange: "transform" }}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="px-4 pt-1 pb-4 space-y-1 min-h-[64px]">
+              <div className="line-clamp-2 text-xs text-white/80">{product.name}</div>
+              <div className="text-[11px] font-semibold text-white/90">{currencyTHB(product.price)}</div>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    </div>
+  );
+});
+
+ProductCard.displayName = "ProductCard";
+
 export default function SearchEngineAI() {
   const [setIndex] = useState<number>(1);
   const activeProducts = PRODUCT_SETS[setIndex];
@@ -103,11 +137,36 @@ export default function SearchEngineAI() {
   const [pageIndex, setPageIndex] = useState<number>(0);
   const [demoRunning, setDemoRunning] = useState<boolean>(true);
   const [text, setText] = useState<string>("");
+  const [isUserInteracting, setIsUserInteracting] = useState<boolean>(false);
 
-  const typingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const eraseTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // ใช้ useRef เพื่อเก็บ timer references
+  const timersRef = useRef<{
+    typing: NodeJS.Timeout | null;
+    pause: NodeJS.Timeout | null;
+    erase: NodeJS.Timeout | null;
+  }>({
+    typing: null,
+    pause: null,
+    erase: null,
+  });
 
+  // Cleanup function สำหรับ clear timers
+  const clearAllTimers = useCallback(() => {
+    if (timersRef.current.typing) {
+      clearInterval(timersRef.current.typing);
+      timersRef.current.typing = null;
+    }
+    if (timersRef.current.pause) {
+      clearTimeout(timersRef.current.pause);
+      timersRef.current.pause = null;
+    }
+    if (timersRef.current.erase) {
+      clearInterval(timersRef.current.erase);
+      timersRef.current.erase = null;
+    }
+  }, []);
+
+  // Optimized filtered products with debouncing
   const filtered = useMemo(() => {
     const q = text.trim().toLowerCase();
     if (!q) return [];
@@ -123,51 +182,95 @@ export default function SearchEngineAI() {
 
   const showDropdown = text.trim().length > 0;
 
+  // Handle brand button click with useCallback
+  const handleBrandClick = useCallback((brandQuery: string) => {
+    const next = `${currentNoun !== "สินค้า" ? currentNoun + " " : ""}${brandQuery}`;
+    setText(next.trim());
+    setDemoRunning(false);
+    setIsUserInteracting(true);
+  }, [currentNoun]);
+
+  // Handle input change with useCallback
+  const handleInputChange = useCallback((value: string) => {
+    setText(value);
+    if (value !== "") {
+      setDemoRunning(false);
+      setIsUserInteracting(true);
+    }
+  }, []);
+
+  // Optimized typing effect with better performance
   useEffect(() => {
-    if (!demoRunning) return;
+    if (!demoRunning || isUserInteracting) return;
 
     const target = TEXT_PAGES[pageIndex].query;
-    let i = 0;
+    let currentIndex = 0;
 
-    if (typingTimerRef.current) clearInterval(typingTimerRef.current);
-    if (eraseTimerRef.current) clearInterval(eraseTimerRef.current);
-    if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
+    clearAllTimers();
 
-    typingTimerRef.current = setInterval(() => {
-      i += 1;
-      setText(target.slice(0, i));
-      if (i >= target.length) {
-        clearInterval(typingTimerRef.current!);
-        pauseTimerRef.current = setTimeout(() => {
-          eraseTimerRef.current = setInterval(() => {
+    // Typing phase
+    timersRef.current.typing = setInterval(() => {
+      currentIndex += 1;
+      setText(target.slice(0, currentIndex));
+      
+      if (currentIndex >= target.length) {
+        if (timersRef.current.typing) {
+          clearInterval(timersRef.current.typing);
+          timersRef.current.typing = null;
+        }
+        
+        // Pause phase
+        timersRef.current.pause = setTimeout(() => {
+          // Erasing phase
+          timersRef.current.erase = setInterval(() => {
             setText((prev) => {
               if (prev.length <= 0) {
-                clearInterval(eraseTimerRef.current!);
+                if (timersRef.current.erase) {
+                  clearInterval(timersRef.current.erase);
+                  timersRef.current.erase = null;
+                }
                 setPageIndex((p) => (p + 1) % TEXT_PAGES.length);
                 return "";
               }
               return prev.slice(0, -1);
             });
-          }, 70);
+          }, 50); // เร็วขึ้นเล็กน้อยเพื่อความ smooth
         }, 1800);
       }
-    }, 120);
+    }, 100); // เร็วขึ้นเล็กน้อยเพื่อความ smooth
 
-    return () => {
-      if (typingTimerRef.current) clearInterval(typingTimerRef.current);
-      if (eraseTimerRef.current) clearInterval(eraseTimerRef.current);
-      if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
-    };
-  }, [pageIndex, demoRunning]);
+    return clearAllTimers;
+  }, [pageIndex, demoRunning, isUserInteracting, clearAllTimers]);
+
+  // Pause demo when user stops interacting
+  useEffect(() => {
+    if (!isUserInteracting) return;
+    
+    const timeout = setTimeout(() => {
+      if (text === "") {
+        setIsUserInteracting(false);
+        setDemoRunning(true);
+      }
+    }, 5000); // Resume demo after 5 seconds of no input
+
+    return () => clearTimeout(timeout);
+  }, [isUserInteracting, text]);
 
   return (
-    <section className="w-full text-white">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 py-16 md:grid md:grid-cols-12 md:gap-12 md:py-24">
-        <div className="md:col-span-4 md:order-2">
+    <section className="w-full text-white" style={{ contain: "layout style" }}>
+      <div className="mx-auto my-16 text-center">
+        <p className="text-lg text-[#676767]">
+          Next-Gen AI for Business
+        </p>
+        <h1 className="mt-2 text-xl lg:text-[40px]">Powering Search engine</h1>
+      </div>
+      
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 py-10 md:grid md:grid-cols-12 md:gap-12">
+        <div className="md:col-span-4 md:order-1">
           <h2 className="text-xl tracking-tight text-white sm:text-3xl lg:text-[40px]">Search engine AI</h2>
           <p className="mt-4 max-w-sm text-sm text-[#676767]">
-            An AI-powered sales assistant that chats, qualifies, recommends and helps close deals —{" "}
-            <span className="tabular-nums">24/7</span>.
+            An AI-powered sales assistant that chats, qualifies, recommends and helps close deals
+            <span className="tabular-nums"> 24/7</span>.
           </p>
 
           <ul className="mt-6 space-y-4">
@@ -185,16 +288,13 @@ export default function SearchEngineAI() {
           </ul>
         </div>
 
-        <div className="md:col-span-8 md:order-1">
+        <div className="md:col-span-8 md:order-2">
           <div className="relative">
             <div className="card-outer-bg card-outer-shadow relative overflow-hidden rounded-full p-[1px]">
               <div className="card-inner-bg card-inner-blur rounded-full">
                 <Input
                   value={text}
-                  onValueChange={(v) => {
-                    setText(v);
-                    if (v !== "") setDemoRunning(false);
-                  }}
+                  onValueChange={handleInputChange}
                   size="lg"
                   radius="full"
                   variant="flat"
@@ -208,7 +308,14 @@ export default function SearchEngineAI() {
                   startContent={
                     <div className="ml-4 flex items-center gap-3">
                       <div className="flex h-6 w-6 items-center justify-center rounded-full">
-                        <Image src="/images/starai.png" alt="AI" width={20} height={20} />
+                        <Image 
+                          src="/images/starai.png" 
+                          alt="AI" 
+                          width={20} 
+                          height={20}
+                          loading="eager"
+                          style={{ willChange: "auto" }}
+                        />
                       </div>
                       <span className="h-5 w-px bg-white/12" />
                     </div>
@@ -227,33 +334,25 @@ export default function SearchEngineAI() {
             </div>
 
             <div
-              className={`absolute inset-x-0 top-[calc(100%+12px)] z-50
-                transition-[opacity,transform] duration-150 ease-out
+              className={`relative inset-x-0 top-[calc(100%+12px)] mt-4
+                transition-[opacity,transform] duration-200 ease-out
                 ${
                   showDropdown
                     ? "opacity-100 scale-100 pointer-events-auto"
-                    : "opacity-0 scale-[0.98] pointer-events-none"
+                    : "opacity-0 scale-95 pointer-events-none"
                 }`}
+              style={{ willChange: "transform, opacity" }}
             >
               <div className="card-outer-bg card-outer-shadow relative overflow-hidden rounded-[25px] p-[1px]">
                 <div className="card-inner-bg card-inner-blur relative rounded-[24px]">
-                  <div className="px-4 pt-4 text-sm text-white/70">
-                    {UI.resultsForPrefix}: <span className="font-semibold">{text}</span>
-                    <span className="ml-2 text-white/30">· {UI.datasetLabel} {pageIndex + 1}/{TEXT_PAGES.length}</span>
-                  </div>
-
                   <div className="grid gap-6 px-4 pt-2 pb-4 md:grid-cols-5">
-                    <div className="md:order-1 md:col-span-2 min-w-[240px]">
+                    <div className="md:order-1 md:col-span-2">
                       <ul className="space-y-1">
                         {BRAND_BASE.map((b) => (
                           <li key={b.query}>
                             <button
-                              onClick={() => {
-                                const next = `${currentNoun !== "สินค้า" ? currentNoun + " " : ""}${b.query}`;
-                                setText(next.trim());
-                                setDemoRunning(false);
-                              }}
-                              className="group flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-white/80 transition hover:bg-white/10 hover:text-white min-h-[40px]"
+                              onClick={() => handleBrandClick(b.query)}
+                              className="group flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-white/80 transition-colors duration-150 hover:bg-white/10 hover:text-white min-h-[40px]"
                             >
                               <span className="inline-flex items-center gap-2">
                                 <Search className="h-4 w-4 opacity-70" />
@@ -277,8 +376,9 @@ export default function SearchEngineAI() {
                       ) : (
                         <ScrollShadow
                           orientation="horizontal"
-                          className="w-full overflow-x-auto min-h-[200px]"
+                          className="w-full overflow-x-auto min-h-[220px]"
                           hideScrollBar
+                          style={{ contain: "layout" }}
                         >
                           <div className="flex min-w-full gap-4 pr-2">
                             {filtered.map((p) => (
@@ -296,35 +396,5 @@ export default function SearchEngineAI() {
         </div>
       </div>
     </section>
-  );
-}
-
-function ProductCard({ product }: { product: Product }) {
-  return (
-    <div className="card-outer-bg card-outer-shadow w-[224px] min-w-[224px] max-w-[224px] shrink-0 rounded-[25px] p-[1px]">
-      <div className="card-inner-bg card-inner-blur rounded-[24px]">
-        <Card isHoverable shadow="sm" className="rounded-[24px] border-0 bg-transparent shadow-none">
-          <CardBody className="p-0">
-            <div className="p-4 pt-4">
-              <div className="card-outer-bg card-outer-shadow relative overflow-hidden rounded-[18px] p-[1px]">
-                <div className="card-inner-bg card-inner-blur rounded-[17px]">
-                  <NextUIImage
-                    removeWrapper
-                    alt={product.name}
-                    src={product.image}
-                    className="h-[120px] w-full rounded-[17px] object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="px-4 pt-1 pb-4 space-y-1 min-h-[64px]">
-              <div className="line-clamp-2 text-xs text-white/80">{product.name}</div>
-              <div className="text-[11px] font-semibold text-white/90">{currencyTHB(product.price)}</div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-    </div>
   );
 }
