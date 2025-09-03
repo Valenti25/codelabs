@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Divider } from "@nextui-org/react";
 import SplashCursor from "@/app/components/ui/SplashCursor";
 import { useState } from "react";
 
@@ -57,7 +56,6 @@ export default function Footer() {
                 priority
               />
             </Link>
-
             <p className="mt-2 text-xs font-semibold leading-relaxed text-[#676767]">
               Codelabs AI empowers businesses to turn raw data into intelligent
               insights — making decisions faster, smarter, and easier to act on.
@@ -75,8 +73,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <Divider className="my-10 opacity-20" />
-
+        <hr className="my-12 opacity-20" />
         {/* Bottom bar */}
         <div className="flex flex-col items-start justify-between gap-4 text-sm font-semibold text-[#676767] md:flex-row">
           <p>© 2025 codelabs ai. All rights reserved.</p>
@@ -187,11 +184,6 @@ function FooterLegalLink({ label, href, external }: FooterLink) {
   );
 }
 
-/**
- * ✅ สลับรูปแน่นอนด้วย state:
- * - ทำงานได้ทั้ง hover (เดสก์ท็อป) และ touch (มือถือ)
- * - ซ้อนรูปสองชั้นแล้วสลับ opacity เพื่อให้รูป hover โหลดไว้ล่วงหน้าด้วย
- */
 function SocialIcon({
   href,
   label,

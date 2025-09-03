@@ -33,7 +33,7 @@ const ChatSaleByAISection = dynamic(
 
 const ChatsalebyAI = dynamic(
   () =>
-    import("./components/pages/Home/Home-ChatsalebyAI").then(
+    import("./components/pages/Home/Home-CaseStudies&Resources").then(
       (mod) => mod.default,
     ),
   { ssr: false },

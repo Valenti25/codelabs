@@ -19,14 +19,17 @@ body {
   font-family: var(--font-line-regular);
 }
 @layer utilities {
-  /* ฆ่าขอบโฟกัสของ NextUI ทั้งหมดในขอบเขตที่กำหนด */
-  .no-focus-ring :is(*:focus, *:focus-visible,
-                     [data-focus-visible="true"], [data-focus="true"]) {
+  .no-focus-ring
+    :is(
+      *:focus,
+      *:focus-visible,
+      [data-focus-visible="true"],
+      [data-focus="true"]
+    ) {
     outline: none !important;
     box-shadow: none !important;
   }
 }
-
 
 .gradient-text {
   background: linear-gradient(90deg, #4568dc, #b06ab3);
@@ -37,8 +40,8 @@ body {
 }
 
 img {
-  -webkit-user-drag: none; 
-  user-select: none;      
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .gradient-text-animated {
@@ -92,8 +95,8 @@ img {
   display: none; /* Chrome, Safari, Opera */
 }
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE และ Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE และ Edge */
+  scrollbar-width: none; /* Firefox */
 }
 @keyframes meteorEffect {
   0% {
@@ -115,7 +118,5 @@ img {
   }
 }
 .opacity-0 {
-    opacity: 100%;
-  }
-
-  
+  opacity: 100%;
+}

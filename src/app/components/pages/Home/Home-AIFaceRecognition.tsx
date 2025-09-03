@@ -12,13 +12,12 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 
-/* ---------- Phone with scan area ---------- */
 type ScanPhoneProps = {
   caption?: string;
   imgSrc: string;
   imgAlt: string;
   durationMs?: number;
-  imgPct?: number; // ความสูงรูปเป็น % ของกรอบสแกน
+  imgPct?: number; 
 };
 
 function ScanPhone({
@@ -119,7 +118,7 @@ export default function Page() {
           </div>
 
           {/* จัดกึ่งกลางคอลัมน์ในกริด */}
-          <div className="mx-auto flex max-w-full grid-cols-1 justify-center items-center gap-12">
+          <div className="mx-auto lg:flex max-w-full lg:justify-center lg:items-center gap-12 md:flex-row">
             {/* Left */}
             <div className="w-full max-w-md md:justify-self-end">
               <div className="mt-8 sm:mt-10">
@@ -172,7 +171,6 @@ export default function Page() {
               "
             >
               <ScanPhone imgSrc="/images/Group.png"  imgAlt="face"   imgPct={60} durationMs={2600} />
-              <ScanPhone imgSrc="/images/idcard.png" imgAlt="id card" imgPct={40} durationMs={2600} />
               <ScanPhone imgSrc="/images/idcard.png" imgAlt="id card" imgPct={40} durationMs={2600} />
             </div>
           </div>
