@@ -172,6 +172,7 @@ export default function Page() {
             >
               <ScanPhone imgSrc="/images/Group.png"  imgAlt="face"   imgPct={60} durationMs={2600} />
               <ScanPhone imgSrc="/images/idcard.png" imgAlt="id card" imgPct={40} durationMs={2600} />
+              <ScanPhone imgSrc="/images/idcard.png" imgAlt="id card" imgPct={40} durationMs={2600} />
             </div>
           </div>
         </section>
