@@ -57,12 +57,10 @@ export default function ChatsalebyAI() {
         <h2 className="text-xl lg:text-[40px]">Case Studies & Resources</h2>
       </div>
 
-      {/* กรอบแสดงผลของ Carousel */}
       <motion.div
         ref={carouselRef}
         className="w-full overflow-hidden  cursor-grab px-8"
       >
-        {/* เนื้อหา Carousel ที่สามารถลากได้ */}
         <motion.div
           ref={motionRef}
           className="flex gap-8 " // เพิ่มระยะห่างระหว่างการ์ด
@@ -92,7 +90,7 @@ export default function ChatsalebyAI() {
                   </div>
                   {/* ส่วนข้อความ */}
                   <div className="p-6">
-                    <p className="text-sm gradient-text mb-2">
+                    <p className="text-sm gradient-text-animated mb-2">
                       {item.category}
                     </p>
                     <p className="text-sm">

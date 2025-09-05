@@ -1,16 +1,14 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Avatar, Image as NextUIImage } from "@nextui-org/react";
 import {
   motion,
-  useInView,
+  type Variants,
   useMotionValue,
   animate,
-  type Variants,
-  type PanInfo, // ← เพิ่มแบบ import type
 } from "framer-motion";
-import { ShoppingCart, Heart, Scale } from "lucide-react";
+import { ShoppingCart, Heart, Scale, ArrowDown } from "lucide-react";
 
 /* ---------- Frame (กรอบเดียวของทุกการ์ด) ---------- */
 const Frame = ({
@@ -41,30 +39,9 @@ const Frame = ({
 const easeOutCubic = [0.33, 1, 0.68, 1] as const;
 
 const bubbleVariants: Variants = {
-  hidden: { opacity: 0, y: 8, filter: "blur(2px)" },
-  visible: (i: number = 0) => ({
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: { delay: 0.15 * i, duration: 0.5, ease: easeOutCubic },
-  }),
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.28, ease: easeOutCubic } },
 };
-
-function ThinkingDots() {
-  return (
-    <div className="flex items-center gap-1 py-0.5">
-      {[0, 1, 2].map((i) => (
-        <motion.span
-          key={i}
-          className="inline-block h-1.5 w-1.5 rounded-full bg-white/80"
-          initial={{ opacity: 0.25, y: 0 }}
-          animate={{ opacity: [0.25, 1, 0.25], y: [0, -2, 0] }}
-          transition={{ duration: 1, repeat: Infinity, delay: i * 0.2, ease: "easeInOut" }}
-        />
-      ))}
-    </div>
-  );
-}
 
 /* ---------- Types & Data ---------- */
 type Msg = { id: string; role: "user" | "assistant"; text: string };
@@ -130,11 +107,6 @@ function ProductMiniCard({ p }: { p: ProductInfo }) {
   return (
     <motion.div whileHover={{ y: -1 }} className="w-[180px] shrink-0 rounded-xl bg-white/5 p-2">
       <div className="relative rounded-lg p-1.5">
-        {p.category && (
-          <span className="absolute left-2 top-2 rounded-full px-1.5 py-0.5 text-[9px] text-white/80">
-            {p.category}
-          </span>
-        )}
         <div className="aspect-[4/3] w-full overflow-hidden rounded-md bg-black/10">
           <NextUIImage alt={p.title} src={p.image} className="h-full w-full object-contain" />
         </div>
@@ -165,53 +137,63 @@ function ProductMiniCard({ p }: { p: ProductInfo }) {
   );
 }
 
-/* ---------- Strip สินค้า (drag + snap) ---------- */
+/* ---------- Strip สินค้า: ใช้ motion.drag แนวนอน ไม่มี scrollbar ---------- */
 function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
-  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
   const x = useMotionValue(0);
-  const CARD = 180, GAP = 8, STEP = CARD + GAP;
+  const [minX, setMinX] = useState(0);
 
-  const [limits, setLimits] = useState({ left: 0, right: 0 });
-  const [maxIndex, setMaxIndex] = useState(0);
-
-  useEffect(() => {
-    const measure = () => {
-      const vw = viewportRef.current?.clientWidth ?? 0;
-      const contentW = products.length * STEP - GAP;
-      const left = Math.min(0, vw - contentW);
-      setLimits({ left, right: 0 });
-
-      const visible = Math.max(1, Math.floor(vw / STEP));
-      setMaxIndex(Math.max(0, products.length - visible));
-
-      const current = x.get();
-      if (current < left) x.set(left);
-      if (current > 0) x.set(0);
+  useLayoutEffect(() => {
+    const calc = () => {
+      const track = trackRef.current;
+      const wrap = wrapRef.current;
+      if (!track || !wrap) return;
+      const trackW = track.scrollWidth;
+      const wrapW = wrap.clientWidth;
+      setMinX(Math.min(0, wrapW - trackW - 8));
+      // clamp ค่า x ให้ยังอยู่ในช่วงหลัง reflow
+      const cur = x.get();
+      if (cur < wrapW - trackW - 8) x.set(wrapW - trackW - 8);
+      if (cur > 0) x.set(0);
     };
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [products.length, STEP, x]);
+    calc();
+    const ro = new ResizeObserver(calc);
+    if (wrapRef.current) ro.observe(wrapRef.current);
+    if (trackRef.current) ro.observe(trackRef.current);
+    return () => ro.disconnect();
+  }, [x]);
 
- const handleDragEnd = (_evt: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
-  const current = x.get();
-  const projected = current + info.velocity.x * 0.25;
-  const rawIndex = Math.round(-projected / STEP);
-  const clamped = Math.min(Math.max(rawIndex, 0), maxIndex);
-  animate(x, -clamped * STEP, { type: "spring", stiffness: 320, damping: 32 });
-};
+  // ล้อเมาส์แนวนอน (ปกติ)
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      const speed = 1; // = ความเร็วธรรมชาติ
+      const next = Math.max(Math.min(x.get() - e.deltaX * speed, 0), minX);
+      x.set(next);
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [x, minX]);
 
   return (
     <div className="p-2">
-      <div ref={viewportRef} className="relative overflow-hidden rounded-2xl bg-white/[0.03] p-2">
+      <div ref={wrapRef} className="relative rounded-2xl bg-white/[0.03] p-2 overflow-hidden">
         <motion.div
-          className="flex gap-2"
-          style={{ x, cursor: "grab" }}
+          ref={trackRef}
+          className="flex gap-2 will-change-transform"
+          style={{ x }}
           drag="x"
-          dragElastic={0.06}
-          dragConstraints={limits}
-          onDragEnd={handleDragEnd}
-          whileTap={{ cursor: "grabbing" }}
+          dragConstraints={{ left: minX, right: 0 }}
+          dragElastic={0.02}
+          dragTransition={{
+            power: 0.25,
+            timeConstant: 140,
+            modifyTarget: (t) => Math.max(Math.min(t, 0), minX),
+          }}
         >
           {products.map((p, i) => <ProductMiniCard key={i} p={p} />)}
         </motion.div>
@@ -220,7 +202,7 @@ function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
   );
 }
 
-/* ---------- การ์ดกราฟ (ย่อให้ไม่ล้น/พอดีกับ 260px) ---------- */
+/* ---------- การ์ดกราฟ ---------- */
 function ChartCard({ src, title }: { src: string; title?: string }) {
   return (
     <div className="p-2">
@@ -229,7 +211,8 @@ function ChartCard({ src, title }: { src: string; title?: string }) {
           <NextUIImage
             alt={title ?? "chart"}
             src={src}
-            className="w-full max-w-[240px] max-h-[150px] md:max-h-[160px] object-contain"
+            className="w-full max-w-[240px] max-h-[160px] object-contain"
+            loading="lazy"
           />
         </div>
         {title ? <div className="mt-2 text-center text-[10px] text-white/70">{title}</div> : null}
@@ -238,7 +221,7 @@ function ChartCard({ src, title }: { src: string; title?: string }) {
   );
 }
 
-/* ---------- การ์ดตาราง (ขนาดคงที่กับกราฟ) ---------- */
+/* ---------- การ์ดตาราง ---------- */
 function SummaryTableCard({ title }: { title?: string }) {
   const rows = [
     { q: "Q1", rev: "$120", growth: "+12%" },
@@ -275,181 +258,222 @@ function SummaryTableCard({ title }: { title?: string }) {
   );
 }
 
-/* ---------- Demo ---------- */
-function EarbudsChatDemo() {
-  const triggerRef = useRef<HTMLDivElement | null>(null);
-  const inView = useInView(triggerRef, { amount: 0.3, once: false, margin: "-10% 0px -10% 0px" });
+function ScrollableChat() {
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
-  const [scenarioIdx, setScenarioIdx] = useState(0);
-  const scenario = SCENARIOS[scenarioIdx];
+  const y = useMotionValue(0);
+  const [minY, setMinY] = useState(0);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-  const [revealedUserCount, setRevealedUserCount] = useState(0);
-  const [assistantVisible, setAssistantVisible] = useState(false);
-  const [productVisible, setProductVisible] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const [thanksVisible, setThanksVisible] = useState(false);
+  const blocks = SCENARIOS.map((sc, idx) => {
+    const isFirst = idx === 0;
+    const isSecond = idx === 1;
+    const isThird = idx === 2;
+    const isFourth = idx === 3;
+    const isFifth = idx === 4;
 
-  const runIdRef = useRef(0);
+    return (
+      <div key={`block-${idx}`} className="space-y-4 ">
+        {/* user bubbles */}
+        {sc.userMsgs.map((m) => (
+          <motion.div
+            key={m.id}
+            variants={bubbleVariants}
+            initial="hidden"
+            animate="visible"
+            className="relative flex justify-start"
+          >
+            <div className="mt-1 mr-3 hidden sm:block">
+              <Avatar className="shadow-lg border rounded-full border-white/20 p-0.5" radius="lg" size="sm" src="/images/user.png" name="You" />
+            </div>
+            <div className="max-w-[46rem] rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] leading-relaxed text-white">
+              {m.text}
+            </div>
+          </motion.div>
+        ))}
 
+        {/* assistant bubble */}
+        <motion.div
+          variants={bubbleVariants}
+          initial="hidden"
+          animate="visible"
+          className="relative  mr-2 flex w-full justify-end"
+        >
+          <div className="mr-8 w-full max-w-[46rem] rounded-[22px] rounded-br-none border border-white/12 bg-gradient-to-b from-white/10 to-white/5 px-5 py-3 text-right text-[15px] leading-relaxed text-white">
+            {sc.assistantText}
+          </div>
+
+        </motion.div>
+
+        {/* content card */}
+        <motion.div
+          variants={bubbleVariants}
+          initial="hidden"
+          animate="visible"
+          className="relative flex w-full justify-end"
+        >
+          <Frame radius={22} squareBR className={`w-full ${idx === 0 ? "max-w-[560px]" : "max-w-[260px]"}`}>
+            {isFirst ? (
+              <FirstScenarioProductsStrip products={sc.products ?? [sc.product]} />
+            ) : isSecond ? (
+              <ChartCard src={sc.product.image} title={sc.product.title} />
+            ) : isThird ? (
+              <SummaryTableCard title={sc.product.title} />
+            ) : isFourth ? (
+              <ChartCard src={sc.product.image} title={sc.product.title} />
+            ) : isFifth ? (
+              <ChartCard src={sc.product.image} title={sc.product.title} />
+            ) : null}
+          </Frame>
+        </motion.div>
+
+        {/* small thank-you tail */}
+        <motion.div
+          variants={bubbleVariants}
+          initial="hidden"
+          animate="visible"
+          className="relative flex w-full justify-start"
+        >
+          <div className="mt-1 mr-3 hidden sm:block">
+            <Avatar className="shadow-lg" radius="lg" size="sm" src="/images/user.png" name="You" />
+          </div>
+          <div className="max-w-[40rem] rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] text-white">
+            Awesome, thanks! That’s exactly what I needed 🙌
+          </div>
+        </motion.div>
+
+        {idx < SCENARIOS.length - 1 && (
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px w-full bg-white/10" />
+            <span className="text-[10px] uppercase tracking-widest text-white/40">Next</span>
+            <div className="h-px w-full bg-white/10" />
+          </div>
+        )}
+      </div>
+    );
+  });
+
+  // คำนวณ bounds
+  useLayoutEffect(() => {
+    const calc = () => {
+      const vp = viewportRef.current;
+      const ct = contentRef.current;
+      if (!vp || !ct) return;
+      const viewportH = vp.clientHeight;
+      const contentH = ct.scrollHeight;
+      const min = Math.min(0, viewportH - contentH);
+      setMinY(min);
+
+      // clamp y เข้าช่วงเมื่อ reflow
+      const cur = y.get();
+      if (cur < min) y.set(min);
+      if (cur > 0) y.set(0);
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    if (viewportRef.current) ro.observe(viewportRef.current);
+    if (contentRef.current) ro.observe(contentRef.current);
+    return () => ro.disconnect();
+  }, [y]);
+
+  // แสดงปุ่มไปล่างสุดเมื่อยังไม่ถึงล่างสุด
   useEffect(() => {
-    if (!inView) return;
-    const myRun = ++runIdRef.current;
+    const unsub = y.on("change", (val) => {
+      setShowScrollToBottom(Math.abs(val - minY) > 6);
+    });
+    return () => unsub();
+  }, [y, minY]);
 
-    setRevealedUserCount(0);
-    setAssistantVisible(false);
-    setProductVisible(false);
-    setImgLoaded(false);
-    setThanksVisible(false);
+  // รองรับล้อเมาส์: ความเร็ว “ปกติ”
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (!vp) return;
 
-    const sleep = (ms: number) =>
-      new Promise<void>((res) => setTimeout(() => (runIdRef.current === myRun ? res() : void 0), ms));
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const speed = 1; // 1 = พฤติกรรม native โดยรวม
+      const target = Math.max(Math.min(y.get() - e.deltaY * speed, 0), minY);
+      y.set(target);
+    };
 
-    const USER_BUBBLE_GAP = 650;
-    const ASSISTANT_DELAY = 150;
-    const HOLD_AFTER_ASSISTANT = 650;
-    const HOLD_BEFORE_THANKS = 360;
-    const HOLD_END = 4200;
+    vp.addEventListener("wheel", onWheel, { passive: false });
+    return () => vp.removeEventListener("wheel", onWheel);
+  }, [y, minY]);
 
-    (async () => {
-      for (let i = 0; i < scenario.userMsgs.length; i++) {
-        if (runIdRef.current !== myRun) return;
-        setRevealedUserCount(i + 1);
-        await sleep(USER_BUBBLE_GAP);
-      }
-
-      await sleep(ASSISTANT_DELAY);
-      if (runIdRef.current !== myRun) return;
-      setAssistantVisible(true);
-
-      await sleep(HOLD_AFTER_ASSISTANT);
-      if (runIdRef.current !== myRun) return;
-      setProductVisible(true);
-
-      await sleep(HOLD_BEFORE_THANKS);
-      if (runIdRef.current !== myRun) return;
-      setThanksVisible(true);
-
-      await sleep(HOLD_END);
-      if (runIdRef.current !== myRun) return;
-      setScenarioIdx((idx) => (idx + 1) % SCENARIOS.length);
-    })();
-
-    return () => { runIdRef.current++; };
-  }, [scenarioIdx, inView, scenario]);
-
-  useEffect(() => { if (!inView) runIdRef.current++; }, [inView]);
-
-  const isFirst  = scenarioIdx === 0;
-  const isSecond = scenarioIdx === 1;
-  const isThird  = scenarioIdx === 2;
-  const isFourth = scenarioIdx === 3;
-  const isFifth  = scenarioIdx === 4;
-
-  // ทำให้ขนาด consistent: แชท 1 = 560px, ที่เหลือ = 260px
-  const frameWidthClass = isFirst ? "max-w-[560px]" : "max-w-[260px]";
+  const scrollToBottom = () => {
+    // ใช้ inertia ให้ความรู้สึกเหมือน native fling
+    animate(y, minY, {
+      type: "inertia",
+      velocity: -1200, // ให้พุ่งลงเร็วเล็กน้อย
+      min: minY,
+      max: 0,
+      power: 0.8,
+      timeConstant: 220,
+      bounceStiffness: 700,
+      bounceDamping: 50,
+      modifyTarget: (t) => Math.max(Math.min(t, 0), minY),
+    });
+  };
 
   return (
     <Frame radius={28} className="relative mx-auto w-full max-w-6xl">
+      {/* พื้นหลังแสงนุ่ม ๆ */}
       <section className="overflow-hidden bg-[radial-gradient(1200px_600px_at_50%_-200px,rgba(63,63,70,0.18),transparent_60%)] from-zinc-950 to-black px-5 py-10 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset] md:px-10">
-        <div className="min-h-[470px] w-full md:min-h-[540px]">
-          <div className="w-full space-y-6">
-            <div ref={triggerRef} className="h-1 w-full" />
+        <div className="relative">
+          {/* Top fade mask */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-10 z-10" />
 
-            {/* User bubbles */}
-            {scenario.userMsgs.slice(0, revealedUserCount).map((m, idx) => (
-              <motion.div
-                key={m.id}
-                variants={bubbleVariants}
-                initial="hidden"
-                animate="visible"
-                custom={idx}
-                className="relative flex justify-start"
-              >
-                <div className="mt-1 mr-3 hidden sm:block">
-                  <Avatar className="shadow-lg border rounded-full border-white/20 p-0.5" radius="lg" size="sm" src="/images/user.png" name="You" />
-                </div>
-                <div className="max-w-[46rem] rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] leading-relaxed text-white">
-                  {m.text}
-                </div>
-              </motion.div>
-            ))}
-
-            {/* Assistant bubble */}
-            {revealedUserCount === scenario.userMsgs.length && assistantVisible && (
-              <motion.div
-                variants={bubbleVariants}
-                initial="hidden"
-                animate="visible"
-                custom={2}
-                className="relative mr-2 flex w-full justify-end"
-              >
-                <div className="mr-8 w-full max-w-[46rem] rounded-[22px] rounded-br-none border border-white/12 bg-gradient-to-b from-white/10 to-white/5 px-5 py-3 text-right text-[15px] leading-relaxed text-white">
-                  {scenario.assistantText}
-                </div>
-
-                <div className="absolute top-1/2 -right-10 hidden -translate-y-1/2 pr-5 md:block">
-                  <Frame radius={28}>
-                    <button aria-label="Action" className="flex h-10 w-10 items-center justify-center">
-                      <Avatar className="shadow-lg" radius="lg" size="sm" src="/images/starai.png" name="AI" />
-                    </button>
-                  </Frame>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Product / Chart / Table area */}
-            {(assistantVisible || productVisible) && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: easeOutCubic }}
-                className="relative flex w-full justify-end"
-              >
-                {!productVisible && (
-                  <Frame radius={22} squareBR className={`w-full ${frameWidthClass}`}>
-                    <div className="flex items-center justify-center gap-2 px-6 py-8">
-                      <ThinkingDots />
-                      <span className="text-xs text-white/70">กำลังพิม</span>
-                    </div>
-                  </Frame>
-                )}
-
-                {productVisible && (
-                  <Frame radius={22} squareBR className={`w-full ${frameWidthClass}`}>
-                    {isFirst ? (
-                      <FirstScenarioProductsStrip products={scenario.products ?? [scenario.product]} />
-                    ) : isSecond ? (
-                      <ChartCard src={scenario.product.image} title={scenario.product.title} />
-                    ) : isThird ? (
-                      <SummaryTableCard title={scenario.product.title} />
-                    ) : isFourth ? (
-                      <ChartCard src={scenario.product.image} title={scenario.product.title} />
-                    ) : isFifth ? (
-                      <ChartCard src={scenario.product.image} title={scenario.product.title} />
-                    ) : null}
-                  </Frame>
-                )}
-              </motion.div>
-            )}
-
-            {/* Final ack */}
-            {thanksVisible && (
-              <motion.div
-                variants={bubbleVariants}
-                initial="hidden"
-                animate="visible"
-                custom={3}
-                className="relative flex w-full justify-start"
-              >
-                <div className="mt-1 mr-3 hidden sm:block">
-                  <Avatar className="shadow-lg" radius="lg" size="sm" src="/images/user.png" name="You" />
-                </div>
-                <div className="max-w-[40rem] rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] text-white">
-                  Awesome, thanks! That’s exactly what I needed 🙌
-                </div>
-              </motion.div>
-            )}
+          {/* Viewport สูงคงที่ + ไม่มี scrollbar */}
+          <div
+            ref={viewportRef}
+            className="relative max-h-[560px] overflow-hidden pr-1 md:pr-2"
+          >
+            {/* Content ขยับด้วย motion.y */}
+            <motion.div
+              ref={contentRef}
+              className="pb-14 pt-2 space-y-6 will-change-transform"
+              style={{ y }}
+              drag="y"
+              dragElastic={0}
+              onDrag={(e, info) => {
+                const next = Math.max(Math.min(y.get() + info.delta.y, 0), minY);
+                y.set(next);
+              }}
+              onDragEnd={(e, info) => {
+                animate(y, 0, {
+                  type: "inertia",
+                  velocity: info.velocity.y,
+                  min: minY,
+                  max: 0,
+                  power: 0.8,
+                  timeConstant: 220,
+                  bounceStiffness: 700,
+                  bounceDamping: 50,
+                  modifyTarget: (t) => Math.max(Math.min(t, 0), minY),
+                });
+              }}
+            >
+              {blocks}
+            </motion.div>
           </div>
+
+          {/* Bottom fade mask */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 z-10" />
+
+          {/* ปุ่มเลื่อนไปล่างสุด */}
+          {showScrollToBottom && (
+            <button
+              onClick={scrollToBottom}
+              className="group absolute bottom-4 right-4 z-20 rounded-full bg-white/10 px-3 py-2 backdrop-blur transition hover:bg-white/20"
+              aria-label="Scroll to latest"
+            >
+              <span className="flex items-center gap-2 text-xs text-white/80">
+                <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
+                ไปข้อความล่าสุด
+              </span>
+            </button>
+          )}
         </div>
       </section>
     </Frame>
@@ -459,13 +483,16 @@ function EarbudsChatDemo() {
 /* ---------- Page ---------- */
 export default function Page() {
   return (
-    <main className="px-0 mt-40 md:px-0">
-      <div className="w-full">
-        <div className="mb-16 text-center">
+    <main className="px-0  mt-40 md:px-0">
+      <div className="w-full ">
+        <div className="mb-8  text-center">
           <p className="mb-3 text-sm text-[#676767] lg:text-xl">The Future of Smart Sales</p>
           <h2 className="text-xl text-white lg:text-[40px]">Chat sale by AI</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-white/50">
+            เลื่อนอ่านแชทได้ตามปกติ ส่วนที่เกินจะถูกซ่อนในกรอบ — ดูการแนะนำสินค้า/กราฟ/ตารางได้ต่อเนื่อง
+          </p>
         </div>
-        <EarbudsChatDemo />
+        <ScrollableChat />
         <div className="mx-auto mt-10 flex max-w-sm items-center justify-center text-center font-semibold">
           <p className="text-[#676767]">
             An AI-powered sales assistant that chats, qualifies, recommends, and helps close deals — 24/7.

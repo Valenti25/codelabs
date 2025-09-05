@@ -45,7 +45,6 @@ img {
 }
 
 .gradient-text-animated {
-  /* ไล่สี: A→B→C→B→A ให้ขอบซ้าย-ขวาเป็น A เหมือนกัน */
   background: linear-gradient(
     90deg,
     #EDB279,
@@ -63,6 +62,24 @@ img {
 
   -webkit-text-stroke-width: 0.2px;
   -webkit-text-stroke-color: rgba(255, 255, 255, 0.1);
+
+  animation: gradientMove 8s linear infinite alternate;
+}
+.gradient-text-animated2 {
+  background: linear-gradient(
+    90deg,
+    #EDB279,
+    #B542D7,
+    #4514DC,
+    #B542D7,
+    #EDB279
+  );
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 
   animation: gradientMove 8s linear infinite alternate;
 }

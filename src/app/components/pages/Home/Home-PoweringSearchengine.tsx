@@ -477,7 +477,7 @@ export default function SearchEngineAI() {
         <div className="md:order-2 md:col-span-8">
           <div className="relative">
             {/* Search bar */}
-            <div className="card-outer-bg card-outer-shadow relative overflow-visible rounded-full p-[1px]">
+            <div className="card-outer-bg card-outer-shadow relative rounded-full p-[1px]">
               <div className="card-inner-bg card-inner-blur rounded-full relative">
                 <Input
                   value={text}
@@ -489,12 +489,12 @@ export default function SearchEngineAI() {
                     base: "w-full",
                     input: "!text-transparent md:text-lg placeholder:text-white/40 caret-violet-400",
                     innerWrapper: "gap-2 relative",
-                    inputWrapper: "h-14 md:h-16 bg-transparent rounded-full shadow-none border-0 !outline-none ring-0 focus:outline-none focus:ring-0",
+                    inputWrapper: "h-14 md:h-14 bg-transparent rounded-full shadow-none border-0 !outline-none ring-0 focus:outline-none focus:ring-0",
                   }}
                   startContent={
-                    <div ref={startSlotRef} className="ml-4 pr-7 flex items-center gap-3">
+                    <div ref={startSlotRef} className=" pr-7 flex items-center gap-3">
                       <div className="flex h-6 w-6 items-center justify-center rounded-full">
-                        <Image src="/images/starai.png" alt="AI" width={20} height={20} loading="eager" />
+                        <Image src="/images/starai1.png" alt="AI" width={20} height={20} loading="eager" />
                       </div>
                       <span className="h-5 w-px bg-white/12" />
                     </div>
@@ -527,14 +527,14 @@ export default function SearchEngineAI() {
 
             {/* Dropdown */}
             <div
-              className={`relative inset-x-0 top-[calc(100%+12px)] mt-4 transition-[opacity,transform] duration-200 ease-out ${
+              className={`relative inset-x-0  top-[calc(100%+12px)] mt-4 transition-[opacity,transform] duration-200 ease-out ${
                 true ? "pointer-events-auto scale-100 opacity-100" : "pointer-events-none scale-100 opacity-0"
               }`}
               style={{ willChange: "transform, opacity" }}
             >
-              <div className="card-outer-bg card-outer-shadow relative overflow-visible rounded-[25px] p-[1px]">
+              <div className="card-outer-bg card-outer-shadow rounded-[25px] p-[1px]">
                 <div className="card-inner-bg card-inner-blur relative rounded-[24px]">
-                  <ScrollShadow orientation="vertical" className="max-h-[450px]" hideScrollBar>
+                  <ScrollShadow orientation="vertical" className="max-h-[450px] overflow-x-hidden" hideScrollBar>
                     <div className="grid gap-6 px-4 pt-2 pb-4 md:grid-cols-1">
                       {/* Left: fake predictions */}
                       <div className="md:order-1 md:col-span-2">

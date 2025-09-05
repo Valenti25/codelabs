@@ -278,7 +278,7 @@ const HeroContent = memo(function HeroContentBase({
       <section className="grid place-items-center px-6">
         <h1 className="max-w-5xl text-center text-4xl font-semibold text-white sm:text-6xl lg:text-6xl">
           <span className="block">
-            <span className="gradient-text-animated">
+            <span className="gradient-text-animated2">
               AI Innovation
             </span>{" "}
             at the core.
@@ -286,7 +286,7 @@ const HeroContent = memo(function HeroContentBase({
 
           <span className="block mt-4">
             Turning{" "}
-            <span className="gradient-text-animated">
+            <span className="gradient-text-animated2">
               Data → Insight
             </span>
             , instantly.
@@ -373,16 +373,12 @@ export default function Hero(): ReactElement {
             aria-label="Ask me anything"
             autoComplete="off"
             spellCheck={false}
-            // โฟกัสเร็วขึ้นในเดสก์ท็อป (ตัดได้ถ้าไม่ต้องการ)
-            // autoFocus
             classNames={{
               base: "w-full",
-              // ความสูง/ระยะขอบในแต่ละไซส์
               inputWrapper:
                 "rounded-full shadow-none border-none bg-transparent " +
                 "h-11 sm:h-12 md:h-14 px-2 md:px-3 " +
                 "data-[hover=true]:bg-transparent group-hover:bg-transparent",
-              // ขนาดฟอนต์ตามจอ
               input: "text-sm md:text-base text-white",
               innerWrapper: "gap-2",
             }}
