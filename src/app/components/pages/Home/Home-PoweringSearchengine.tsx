@@ -604,12 +604,12 @@ export default function SearchEngineAI() {
                         <div className="mt-5 text-xs tracking-wider text-white/40">{UI.Brand}</div>
                         <div className="-mx-6 md:-mx-8 px-6 md:px-8">
                           <div className="flex h-10 items-center gap-5 overflow-x-auto">
-                            <Image src="/images/Frame-6.png" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
-                            <Image src="/images/Frame.png" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
-                            <Image src="/images/Frame-1.png" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
-                            <Image src="/images/Frame (1).png" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
-                            <Image src="/images/Frame-4.png" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
-                            <Image src="/images/Frame-5.png" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
+                            <Image src="/svg/Frame.svg" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
+                            <Image src="/svg/Frame-1.svg" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
+                            <Image src="/svg/Frame-2.svg" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
+                            <Image src="/svg/Frame-3.svg" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
+                            <Image src="/svg/Frame-4.svg" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
+                            <Image src="/svg/Frame-5.svg" alt="" width={32} height={32} className="h-7 w-7 object-contain opacity-90" />
                           </div>
                         </div>
 
