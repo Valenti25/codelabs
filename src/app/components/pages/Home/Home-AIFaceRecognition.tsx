@@ -15,7 +15,9 @@ import {
 import Image from "next/image";
 
 const ShowRoom = dynamic(() => import("./Home-Three/ShowRoom"), { ssr: false });
-const ShowRoom2 = dynamic(() => import("./Home-Three/ShowRoom2"), { ssr: false });
+const ShowRoom2 = dynamic(() => import("./Home-Three/ShowRoom2"), {
+  ssr: false,
+});
 
 type ScanPhoneProps = {
   heading?: string | null;
@@ -55,7 +57,9 @@ function ScanPhone({
   const washOpacity = useTransform(progress, [0, 1], [0.9, 0.18]);
   const barWidth = useTransform(progress, (v) => `${v * 100}%`);
   const [percent, setPercent] = useState(0);
-  useMotionValueEvent(progress, "change", (v) => setPercent(Math.round(v * 100)));
+  useMotionValueEvent(progress, "change", (v) =>
+    setPercent(Math.round(v * 100)),
+  );
 
   return (
     <Card className="relative mx-auto h-[460px] w-[250px] shrink-0 overflow-hidden rounded-[34px] border-4 border-white/10 bg-neutral-900/60 shadow-xl">
@@ -67,15 +71,15 @@ function ScanPhone({
         )}
 
         {/* notch */}
-        <div className="absolute left-1/2 top-2 h-1.5 w-20 -translate-x-1/2 rounded-full bg-white/15" />
+        <div className="absolute top-2 left-1/2 h-1.5 w-20 -translate-x-1/2 rounded-full bg-white/15" />
 
         <div className="relative mt-8 h-[230px] overflow-hidden rounded-2xl border border-white/10 bg-black/40">
           <div className="absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06),transparent_60%)]" />
           <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:24px_24px]" />
-          <span className="pointer-events-none absolute left-3 top-3 h-5 w-5 rounded-tl-lg border-l-2 border-t-2 border-white/95" />
-          <span className="pointer-events-none absolute right-3 top-3 h-5 w-5 rounded-tr-lg border-r-2 border-t-2 border-white/95" />
+          <span className="pointer-events-none absolute top-3 left-3 h-5 w-5 rounded-tl-lg border-t-2 border-l-2 border-white/95" />
+          <span className="pointer-events-none absolute top-3 right-3 h-5 w-5 rounded-tr-lg border-t-2 border-r-2 border-white/95" />
           <span className="pointer-events-none absolute bottom-3 left-3 h-5 w-5 rounded-bl-lg border-b-2 border-l-2 border-white/95" />
-          <span className="pointer-events-none absolute right-3 bottom-3 h-5 w-5 rounded-br-lg border-b-2 border-r-2 border-white/95" />
+          <span className="pointer-events-none absolute right-3 bottom-3 h-5 w-5 rounded-br-lg border-r-2 border-b-2 border-white/95" />
 
           {modelUrl ? (
             <div className="relative z-[1] h-full">
@@ -97,12 +101,43 @@ function ScanPhone({
             </div>
           )}
 
-          {/* scan overlay */}
+          {/* ===== Scan overlay + ปลายคลื่นหนา/เข้ม ===== */}
           <motion.div
             aria-hidden
-            className="pointer-events-none absolute left-0 right-0 top-0 z-[2] bg-[linear-gradient(to_bottom,rgba(60,145,134,.9)_0%,rgba(60,145,134,.35)_45%,rgba(60,145,134,.06)_100%)]"
+            className="pointer-events-none absolute top-0 right-0 left-0 z-[2]"
             style={{ height: fillHeight, opacity: washOpacity }}
-          />
+          >
+            {/* ตัวเนื้อแถบสแกน */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(to bottom, rgba(60,145,134,1) 0%, rgba(60,145,134,.48) 45%, rgba(60,145,134,.12) 100%)",
+              }}
+            />
+            {/* หางหนาที่ก้นคลื่น (glow + core + highlight) */}
+            <div className="pointer-events-none absolute -bottom-1 left-0 right-0 h-12 mix-blend-screen">
+              {/* ก้อนเรืองแสงหนา */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(120% 200% at 50% 100%, rgba(138,255,239,1) 0%, rgba(138,255,239,.75) 34%, rgba(138,255,239,.38) 60%, transparent 78%)",
+                  filter: "blur(4px)", // คม/เข้มกำลังดี
+                }}
+              />
+              {/* แกนสว่างตรงกลาง เพิ่ม punch */}
+              <div
+                className="absolute left-6 right-6 bottom-[10px] h-[6px] rounded-full opacity-90"
+                style={{
+                  background:
+                    "linear-gradient(to right, transparent, rgba(180,255,247,.95), transparent)",
+                }}
+              />
+              {/* เส้นคมที่ขอบก้นคลื่น */}
+              <div className="absolute left-3 right-3 bottom-2 h-[3px] rounded-full bg-white/95" />
+            </div>
+          </motion.div>
         </div>
 
         <div className="mt-4">
@@ -116,7 +151,11 @@ function ScanPhone({
         </div>
 
         {caption && (
-          <Chip size="sm" variant="bordered" className="absolute right-3 top-10 max-w-[70%] truncate">
+          <Chip
+            size="sm"
+            variant="bordered"
+            className="absolute top-10 right-3 max-w-[70%] truncate"
+          >
             {caption}
           </Chip>
         )}
@@ -133,13 +172,13 @@ type ResultPhoneProps = {
   successDesc?: string;
   failedTitle?: string;
   failedDesc?: string;
-  cycleMs?: number;       // ระยะเวลาสลับ (มิลลิวินาที)
+  cycleMs?: number; // ระยะเวลาสลับ (มิลลิวินาที)
   startWith?: "success" | "failed";
 };
 
 function SuccessPhone({
-  successSrc = "/images/reslut.png",        // รูป Success ปัจจุบันของคุณ
-  failedSrc = "/images/fail.png",           // ใส่พาธรูป Failed แบบในภาพตัวอย่าง
+  successSrc = "/images/reslut.png",
+  failedSrc = "/images/fail.png",
   successTitle = "Success!",
   successDesc = "Your identity is confirmed",
   failedTitle = "Failed!",
@@ -149,7 +188,6 @@ function SuccessPhone({
 }: ResultPhoneProps) {
   const [mode, setMode] = useState<"success" | "failed">(startWith);
 
-  // สลับโหมดอัตโนมัติทุก cycleMs
   useEffect(() => {
     const id = setInterval(() => {
       setMode((m) => (m === "success" ? "failed" : "success"));
@@ -157,60 +195,63 @@ function SuccessPhone({
     return () => clearInterval(id);
   }, [cycleMs]);
 
-  // UI เหมือนการ์ด 1–2
   return (
     <Card className="relative mx-auto h-[460px] w-[250px] shrink-0 overflow-hidden rounded-[34px] border-4 border-white/10 bg-neutral-900/60 shadow-xl">
       <CardBody className="relative h-full p-4 pt-16 text-center">
         <div className="mb-1 h-5" aria-hidden />
-        <div className="absolute left-1/2 top-2 h-1.5 w-20 -translate-x-1/2 rounded-full bg-white/15" />
+        <div className="absolute top-2 left-1/2 h-1.5 w-20 -translate-x-1/2 rounded-full bg-white/15" />
 
-          <div className="relative z-[1] mb-16 flex h-full flex-col items-center justify-center">
-            <AnimatePresence mode="wait">
-              {mode === "success" ? (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.35 }}
-                  className="flex flex-col items-center"
-                >
-                  <Image
-                    src={successSrc}
-                    alt="Success"
-                    width={96}
-                    height={96}
-                    className="h-24 w-24 select-none object-contain"
-                    draggable={false}
-                    priority
-                  />
-                  <h3 className="mt-6 text-lg font-semibold text-white">{successTitle}</h3>
-                  <p className="mt-1 text-xs text-white/70">{successDesc}</p>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="failed"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.35 }}
-                  className="flex flex-col items-center"
-                >
-                  <Image
-                    src={failedSrc}
-                    alt="Failed"
-                    width={96}
-                    height={96}
-                    className="h-24 w-24 select-none object-contain"
-                    draggable={false}
-                    priority
-                  />
-                  <h3 className="mt-6 text-lg font-semibold text-white">{failedTitle}</h3>
-                  <p className="mt-1 text-xs text-white/70">{failedDesc}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+        <div className="relative z-[1] mb-16 flex h-full flex-col items-center justify-center">
+          <AnimatePresence mode="wait">
+            {mode === "success" ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex flex-col items-center"
+              >
+                <Image
+                  src={successSrc}
+                  alt="Success"
+                  width={96}
+                  height={96}
+                  className="h-24 w-24 select-none object-contain"
+                  draggable={false}
+                  priority
+                />
+                <h3 className="mt-6 text-lg font-semibold text-white">
+                  {successTitle}
+                </h3>
+                <p className="mt-1 text-xs text-white/70">{successDesc}</p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="failed"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex flex-col items-center"
+              >
+                <Image
+                  src={failedSrc}
+                  alt="Failed"
+                  width={96}
+                  height={96}
+                  className="h-24 w-24 select-none object-contain"
+                  draggable={false}
+                  priority
+                />
+                <h3 className="mt-6 text-lg font-semibold text-white">
+                  {failedTitle}
+                </h3>
+                <p className="mt-1 text-xs text-white/70">{failedDesc}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </CardBody>
     </Card>
   );
@@ -220,48 +261,68 @@ function SuccessPhone({
 export default function Page() {
   return (
     <NextUIProvider>
-      <main className="bg-black text-white overflow-x-hidden">
+      <main className="overflow-x-hidden bg-black text-white">
         <section className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="mx-auto my-16 text-center">
-            <p className="text-lg text-[#676767]">Instant, secure identity check</p>
+            <p className="text-lg text-[#676767]">
+              Instant, secure identity check
+            </p>
             <h1 className="mt-2 text-xl lg:text-[40px]">AI Face Recognition</h1>
           </div>
 
-          <div className="mx-auto max-w-full gap-12 lg:flex lg:items-start lg:justify-center md:flex-row lg:flex-nowrap">
+          <div className="mx-auto max-w-full gap-12 md:flex-row lg:flex lg:flex-nowrap lg:items-start lg:justify-center">
             {/* ซ้าย: ข้อความ */}
             <div className="w-full max-w-md md:justify-self-end">
               <div className="mt-8 sm:mt-10">
-                <h2 className="text-xl font-semibold">Secure access in one glance</h2>
-                <p className="mt-2 max-w-sm text-sm font-semibold text-[#676767]">
-                  An AI-powered identity system that verifies, secures and grants access — instantly.
+                <h2 className="text-lg font-semibold">
+                  Secure access in one glance
+                </h2>
+                <p className="mt-2 max-w-sm text-xs font-semibold text-[#676767]">
+                  An AI-powered identity system that verifies, secures and
+                  grants access — instantly.
                 </p>
 
                 <div className="mt-8 max-w-xs">
                   <ul className="space-y-6">
                     <li className="flex items-start gap-3">
-                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-white/80" aria-hidden="true" strokeWidth={2} />
+                      <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full">
+                        <CheckCircle2 className="h-4 w-4 opacity-80" />
+                      </span>
                       <div>
-                        <div className="text-sm font-semibold leading-snug text-white">Liveness Detection</div>
-                        <p className="mt-1 text-xs leading-relaxed text-white/60">
-                          prevents spoofing by detecting real faces vs. photos or videos
+                        <div className="text-sm font-semibold text-white">
+                          Liveness Detection
+                        </div>
+                        <p className="mt-1 text-xs font-semibold text-[#676767]">
+                          prevents spoofing by detecting real faces vs. photos
+                          or videos
                         </p>
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
-                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-white/80" aria-hidden="true" strokeWidth={2} />
+                      <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full">
+                        <CheckCircle2 className="h-4 w-4 opacity-80" />
+                      </span>
                       <div>
-                        <div className="text-sm font-semibold leading-snug text-white">Fast Verification</div>
-                        <p className="mt-1 text-xs leading-relaxed text-white/60">
-                          instant recognition within milliseconds for smooth user experience
+                        <div className="text-sm font-semibold text-white">
+                          Fast Verification
+                        </div>
+                        <p className="mt-1 text-xs font-semibold text-[#676767]">
+                          instant recognition within milliseconds for smooth
+                          user experience
                         </p>
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
-                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-white/80" aria-hidden="true" strokeWidth={2} />
+                      <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full">
+                        <CheckCircle2 className="h-4 w-4 opacity-80" />
+                      </span>
                       <div>
-                        <div className="text-sm font-semibold leading-snug text-white">Adaptive Accuracy</div>
-                        <p className="mt-1 text-xs leading-relaxed text-white/60">
-                          improves over time with AI learning, adapting to different lighting and angles
+                        <div className="text-sm font-semibold text-white">
+                          Adaptive Accuracy
+                        </div>
+                        <p className="mt-1 text-xs font-semibold text-[#676767]">
+                          improves over time with AI learning, adapting to
+                          different lighting and angles
                         </p>
                       </div>
                     </li>
@@ -271,9 +332,9 @@ export default function Page() {
             </div>
 
             {/* ขวา: การ์ด */}
-            <div className="w-full flex">
+            <div className="flex w-full">
               {/* แถวบน: 1–2 */}
-              <div className="mx-auto flex max-w-7xl  flex-wrap items-center justify-center gap-8 overflow-x-auto pb-2 lg:flex-nowrap lg:justify-start lg:overflow-visible">
+              <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-8 overflow-x-auto pb-2 lg:flex-nowrap lg:justify-start lg:overflow-visible">
                 <ScanPhone
                   heading="Face ID"
                   modelUrl="/models/wireframehead.glb"
@@ -297,8 +358,8 @@ export default function Page() {
               {/* แถวล่าง: การ์ดผลลัพธ์ (สลับ Success/Failed) */}
               <div className="mx-auto flex max-w-7xl items-center justify-center">
                 <SuccessPhone
-                  successSrc="/images/reslut.png"      
-                  failedSrc="/images/fail.png"          
+                  successSrc="/images/reslut.png"
+                  failedSrc="/images/fail.png"
                   cycleMs={2600}
                   startWith="success"
                 />

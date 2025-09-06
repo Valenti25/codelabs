@@ -441,14 +441,14 @@ export default function SearchEngineAI() {
   return (
     <section className="w-full text-white" style={{ contain: "layout style" }}>
       <div className="mx-auto my-16 text-center">
-        <p className="text-lg text-[#676767]">Next-Gen AI for Business</p>
+        <p className="mb-3 font-semibold text-lg text-[#676767] lg:text-xl">Next-Gen AI for Business</p>
         <h1 className="mt-2 text-xl lg:text-[40px]">Powering Search engine</h1>
       </div>
 
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 py-10 md:grid md:grid-cols-12 md:gap-12">
         <div className="md:order-1 md:col-span-4">
-          <h2 className="text-xl tracking-tight text-white sm:text-3xl lg:text-[40px]">Search engine AI</h2>
-          <p className="mt-4 max-w-sm text-sm text-[#676767]">
+          <h2 className="text-lg font-semibold text-white">Search engine AI</h2>
+          <p className="mt-4 max-w-sm text-xs font-semibold text-[#676767]">
             An AI-powered sales assistant that chats, qualifies, recommends and helps close deals <span className="tabular-nums">24/7</span>.
           </p>
 
@@ -462,12 +462,12 @@ export default function SearchEngineAI() {
               { title: "Secure & Private", desc: "Protecting user data with compliance standards" },
             ].map((f) => (
               <li key={f.title} className="flex min-h-[40px] items-start gap-3">
-                <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/20 bg-white/5">
+                <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full ">
                   <CheckCircle2 className="h-4 w-4 opacity-80" />
                 </span>
                 <div>
-                  <div className="text-sm text-white/90">{f.title}</div>
-                  <div className="text-xs text-[#676767]">{f.desc}</div>
+                  <div className="text-sm font-semibold text-white">{f.title}</div>
+                  <div className="text-xs font-semibold text-[#676767]">{f.desc}</div>
                 </div>
               </li>
             ))}

@@ -9,11 +9,16 @@ const LandingPage = dynamic(
     import("./components/pages/Home/Home-Landing").then((mod) => mod.default),
   { ssr: false },
 );
-// const HomeAIOpticalCharacterRecognition = dynamic(
-//   () =>
-//     import("./components/pages/Home/Home-AIOpticalCharacterRecognition").then((mod) => mod.default),
-//   { ssr: false },
-// );
+const HomeAIOpticalCharacterRecognition = dynamic(
+  () =>
+    import("./components/pages/Home/Home-AIOpticalCharacterRecognition").then((mod) => mod.default),
+  { ssr: false },
+);
+const HomeUnlockAIPowerforYourBusiness = dynamic(
+  () =>
+    import("./components/pages/Home/Home-UnlockAIPowerforYourBusiness").then((mod) => mod.default),
+  { ssr: false },
+);
 const HomeAIFaceRecognition = dynamic(
   () =>
     import("./components/pages/Home/Home-AIFaceRecognition").then((mod) => mod.default),
@@ -75,8 +80,9 @@ export default function Home() {
         <PoweringSearchengineSection />
         <ChatSaleByAISection />
         <HomeAIFaceRecognition />
-        {/* <HomeAIOpticalCharacterRecognition /> */}
+        <HomeAIOpticalCharacterRecognition />
         <ChatsalebyAI />
+        <HomeUnlockAIPowerforYourBusiness />
         <Footer />
       </div>
     </>

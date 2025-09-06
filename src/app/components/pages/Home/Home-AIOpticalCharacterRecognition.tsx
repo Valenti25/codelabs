@@ -1,256 +1,324 @@
-// "use client";
+"use client";
 
-// import React, { useEffect, useRef, useState } from "react";
-// import { NextUIProvider, Card, CardBody } from "@nextui-org/react";
-// import { CheckCircle2 } from "lucide-react";
-// import {
-//   motion,
-//   useInView,
-//   useMotionValue,
-//   useTransform,
-//   useAnimation,
-//   animate,
-// } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
+import { NextUIProvider, Image as NextUIImage } from "@nextui-org/react";
+import { CheckCircle2 } from "lucide-react";
+import {
+  motion,
+  useInView,
+  useMotionValue,
+  useTransform,
+  useAnimation,
+  animate,
+} from "framer-motion";
 
-// const SCAN_MS = 2400; // ระยะเวลาสแกนต่อรอบ
+/* ---------------- HoverFrame: กรอบมีไลท์ตามเมาส์ ---------------- */
+function HoverFrame({
+  children,
+  radius = 25,
+  className = "",
+}: {
+  children: React.ReactNode;
+  radius?: number;
+  className?: string;
+}) {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const frameRef = useRef<HTMLDivElement | null>(null);
 
-// export default function Page() {
-//   const sectionRef = useRef<HTMLDivElement | null>(null);
-//   const inView = useInView(sectionRef, { amount: 0.35, once: true }); // เริ่มเมื่อเห็น ~35% ของบล็อก (เริ่มครั้งเดียว แต่อนิเมชันวนเอง)
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!frameRef.current) return;
+    const rect = frameRef.current.getBoundingClientRect();
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
 
-//   // progress = 0..1 ต่อหนึ่งรอบการสแกน (ควบคุมเฉพาะแถบสแกน)
-//   const progress = useMotionValue(0);
-//   const [done, setDone] = useState(false);
+  return (
+    <div
+      ref={frameRef}
+      onMouseMove={onMove}
+      onMouseLeave={() => setMousePos({ x: 0, y: 0 })}
+      className={`group card-outer-bg card-outer-shadow relative overflow-hidden p-[1px] transition-all duration-300 ${className}`}
+      style={{ borderRadius: radius }}
+    >
+      {/* แสงตามเมาส์ */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background: `radial-gradient(
+            circle 180px at ${mousePos.x}px ${mousePos.y}px,
+            rgba(255,255,255,0.15),
+            transparent 50%
+          )`,
+        }}
+      />
+      {/* เนื้อใน */}
+      <div
+        className="card-inner-bg card-inner-blur relative z-10"
+        style={{ borderRadius: radius - 1 }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
 
-//   // แปลง progress -> ความสูง/ความทึบของแถบสแกน
-//   const sweepH = useTransform(progress, [0, 1], ["0%", "100%"]);
-//   const sweepOpacity = useTransform(progress, [0, 1], [0.92, 0.22]);
+/* === Speed === */
+const SCAN_MS = 1400;
 
-//   // Controls สำหรับเปิดเผยย่อหน้าหลังสแกนเสร็จ
-//   const p1Ctrl = useAnimation();
-//   const p2Ctrl = useAnimation();
+export default function Page() {
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const inView = useInView(sectionRef, { amount: 0.35, once: true });
 
-//   // ออร์เคสตร้า: reset → scan → reveal p1 → reveal p2 → hold → loop
-//   useEffect(() => {
-//     if (!inView) return;
-//     let cancelled = false;
+  // progress = 0..1 ต่อหนึ่งรอบการสแกน
+  const progress = useMotionValue(0);
+  const [done, setDone] = useState(false);
 
-//     const resetText = async () => {
-//       await Promise.all([
-//         p1Ctrl.start({ opacity: 0, y: 12, transition: { duration: 0 } }),
-//         p2Ctrl.start({ opacity: 0, y: 12, transition: { duration: 0 } }),
-//       ]);
-//     };
+  // แปลง progress -> ความสูง/ความทึบของแถบสแกน
+  const sweepH = useTransform(progress, [0, 1], ["0%", "100%"]);
+  const sweepOpacity = useTransform(progress, [0, 1], [0.92, 0.22]);
 
-//     const run = async () => {
-//       while (!cancelled) {
-//         // Reset stage
-//         setDone(false);
-//         progress.set(0);
-//         await resetText();
+  // Controls สำหรับคอนเทนต์ด้านขวา
+  const p1Ctrl = useAnimation();
+  const p2Ctrl = useAnimation();
 
-//         // Scan stage
-//         const scan = animate(progress, 1, {
-//           duration: SCAN_MS / 1000,
-//           ease: [0.42, 0, 0.2, 1],
-//         });
-//         await scan.finished;
-//         if (cancelled) break;
+  useEffect(() => {
+    if (!inView) return;
 
-//         // Mark complete
-//         setDone(true);
+    let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let scanAnim: ReturnType<typeof animate> | null = null;
 
-//         // Reveal text stage (ทีละย่อหน้าแบบสมูท)
-//         await p1Ctrl.start({
-//           opacity: 1,
-//           y: 0,
-//           transition: { duration: 0.45, ease: [0.33, 1, 0.68, 1] },
-//         });
-//         if (cancelled) break;
-//         await p2Ctrl.start({
-//           opacity: 1,
-//           y: 0,
-//           transition: { duration: 0.45, ease: [0.33, 1, 0.68, 1] },
-//         });
-//         if (cancelled) break;
+    const resetText = () => {
+      p1Ctrl.set({ opacity: 0, y: 12 });
+      p2Ctrl.set({ opacity: 0, y: 12 });
+      progress.set(0);
+      setDone(false);
+    };
 
-//         // Hold complete state สักครู่แล้ววนใหม่
-//         await new Promise((r) => setTimeout(r, 650));
-//       }
-//     };
+    const cycle = async () => {
+      if (cancelled) return;
 
-//     run();
-//     return () => {
-//       cancelled = true;
-//     };
-//   }, [inView, progress, p1Ctrl, p2Ctrl]);
+      resetText();
 
-//   return (
-//     <NextUIProvider>
-//       <main className="bg-black text-white">
-//         {/* ===== Hero Heading ===== */}
-//         <section
-//           ref={sectionRef}
-//           className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20"
-//         >
-//           <div className="text-center">
-//             <p className="text-sm text-white/60 sm:text-base">
-//               Read, extract, and understand text instantly
-//             </p>
-//             <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-//               AI Optical Character Recognition
-//             </h1>
-//           </div>
+      scanAnim = animate(progress, 1, {
+        duration: SCAN_MS / 1000,
+        ease: [0.42, 0, 0.2, 1],
+      });
+      await scanAnim.finished;
+      if (cancelled) return;
 
-//           {/* ===== Two Columns ===== */}
-//           <div className="mt-12 grid gap-10 lg:grid-cols-2 lg:items-center">
-//             {/* ------- Left: Demo Card (สแกนวนลูป) ------- */}
-//             <Card className="rounded-[28px] border border-white/10 bg-white/[0.03] shadow-xl">
-//               <CardBody className="p-5 md:p-8">
-//                 <div className="relative grid gap-5 md:grid-cols-[1.1fr_1.6fr]">
-//                   {/* viewer + scan */}
-//                   <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 p-4">
-//                     <div className="mx-auto mb-4 h-2 w-28 rounded-full bg-white/15" />
-//                     <div className="relative overflow-hidden rounded-xl border border-white/10">
-//                       {/* grid bg */}
-//                       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:22px_22px]" />
-//                       {/* document icon */}
-//                       <div className="relative grid h-56 place-items-center md:h-64">
-//                         <svg
-//                           width="92"
-//                           height="120"
-//                           viewBox="0 0 92 120"
-//                           fill="none"
-//                           className="opacity-90"
-//                         >
-//                           <rect
-//                             x="10"
-//                             y="8"
-//                             width="72"
-//                             height="104"
-//                             rx="12"
-//                             stroke="white"
-//                             strokeOpacity="0.85"
-//                             strokeWidth="3"
-//                           />
-//                           <path
-//                             d="M26 40h40M26 56h40M26 72h28"
-//                             stroke="white"
-//                             strokeOpacity="0.75"
-//                             strokeWidth="4"
-//                             strokeLinecap="round"
-//                           />
-//                         </svg>
-//                       </div>
+      setDone(true);
+      await p1Ctrl.start({
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.35, ease: [0.33, 1, 0.68, 1] },
+      });
+      if (cancelled) return;
+      await p2Ctrl.start({
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.35, ease: [0.33, 1, 0.68, 1] },
+      });
+      if (cancelled) return;
 
-//                       {/* green scan sweep — วนลูปเรื่อย ๆ */}
-//                       <motion.div
-//                         className="pointer-events-none absolute left-0 right-0 top-0 z-[2] bg-[linear-gradient(to_bottom,rgba(60,145,134,.95)_0%,rgba(60,145,134,.40)_45%,rgba(60,145,134,.10)_100%)]"
-//                         style={{ height: sweepH, opacity: sweepOpacity }}
-//                         aria-hidden
-//                       />
-//                     </div>
+      timeoutId = setTimeout(() => {
+        cycle();
+      }, 550);
+    };
 
-//                     {/* toolbar */}
-//                     <div className="mt-3 flex items-center justify-between text-xs text-white/50">
-//                       <div className="flex gap-3">
-//                         <span className="inline-block h-2 w-2 rounded-full bg-white/40" />
-//                         <span className="inline-block h-2 w-2 rounded-full bg-white/40" />
-//                         <span className="inline-block h-2 w-2 rounded-full bg-white/40" />
-//                       </div>
-//                       <div className="flex gap-4">
-//                         <span className="h-2 w-10 rounded bg-white/20" />
-//                         <span className="h-2 w-8 rounded bg-white/20" />
-//                       </div>
-//                     </div>
-//                   </div>
+    cycle();
 
-//                   {/* ข้อความสรุปที่ "ค่อย ๆ ขึ้น" หลังสแกนเสร็จ */}
-//                   <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-//                     <motion.p
-//                       className="text-[13px] leading-relaxed text-white/80"
-//                       initial={{ opacity: 0, y: 12 }}
-//                       animate={p1Ctrl}
-//                     >
-//                       In the fiscal year 2025, the company experienced steady and
-//                       sustainable growth across all major product categories.
-//                       Notebooks remained the cornerstone of overall revenue,
-//                       supported by consistent demand from education and
-//                       enterprise customers.
-//                     </motion.p>
-//                     <motion.p
-//                       className="mt-3 text-[13px] leading-relaxed text-white/70"
-//                       initial={{ opacity: 0, y: 12 }}
-//                       animate={p2Ctrl}
-//                     >
-//                       Tablets showed remarkable improvement, largely driven by
-//                       e-learning platforms and the growing adoption of hybrid work.
-//                       Smartwatches gained traction among health-conscious users,
-//                       valued for real-time monitoring features.
-//                     </motion.p>
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (scanAnim) scanAnim.stop();
+    };
+  }, [inView, p1Ctrl, p2Ctrl, progress]);
 
-//                     {/* สถานะเล็ก ๆ ด้านล่าง — จะขึ้น Complete แป๊บเดียวปลายรอบ แล้วกลับเป็น Scanning */}
-//                     <div className="mt-4 flex items-center gap-2 text-xs">
-//                       {!done ? (
-//                         <>
-//                           <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400/80" />
-//                           <span className="text-white/70">Scanning…</span>
-//                         </>
-//                       ) : (
-//                         <>
-//                           <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
-//                           <span className="text-white/70">Scan complete</span>
-//                         </>
-//                       )}
-//                     </div>
-//                   </div>
-//                 </div>
-//               </CardBody>
-//             </Card>
+  const IMG_SRC = "/images/optical.png";
+  const THUMBS = [
+    { src: "/svg/copy.svg", alt: "Doc A" },
+    { src: "/svg/share.svg", alt: "Doc B" },
+    { src: "/svg/announce.svg", alt: "Doc C" },
+  ];
 
-//             {/* ------- Right: Copy & Bullets ------- */}
-//             <div>
-//               <h2 className="text-2xl font-semibold sm:text-3xl">
-//                 Instant Document Understanding
-//               </h2>
-//               <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/70">
-//                 An AI-powered system that quickly transforms scanned files into usable,
-//                 structured data.
-//               </p>
+  return (
+    <NextUIProvider>
+      <main className="text-white">
+        {/* ===== Hero ===== */}
+        <section
+          ref={sectionRef}
+          className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16"
+        >
+          <div className="text-center">
+            <p className="text-lg text-[#676767]">
+              Read, extract, and understand text instantly
+            </p>
+            <h1 className="mt-2 text-xl lg:text-[40px]">
+              AI Optical Character Recognition
+            </h1>
+          </div>
 
-//               <ul className="mt-6 space-y-5">
-//                 <li className="flex items-start gap-3">
-//                   <CheckCircle2 className="mt-0.5 h-5 w-5 text-white/90" />
-//                   <div>
-//                     <div className="text-sm font-medium">High Precision</div>
-//                     <p className="text-sm text-white/60">
-//                       Delivers accurate extraction even from low-quality images or complex layouts.
-//                     </p>
-//                   </div>
-//                 </li>
-//                 <li className="flex items-start gap-3">
-//                   <CheckCircle2 className="mt-0.5 h-5 w-5 text-white/90" />
-//                   <div>
-//                     <div className="text-sm font-medium">Multi-Language Ready</div>
-//                     <p className="text-sm text-white/60">
-//                       Supports various languages and scripts for global usability.
-//                     </p>
-//                   </div>
-//                 </li>
-//                 <li className="flex items-start gap-3">
-//                   <CheckCircle2 className="mt-0.5 h-5 w-5 text-white/90" />
-//                   <div>
-//                     <div className="text-sm font-medium">Actionable Output</div>
-//                     <p className="text-sm text-white/60">
-//                       Converts raw text into editable, searchable, analytics-ready content.
-//                     </p>
-//                   </div>
-//                 </li>
-//               </ul>
-//             </div>
-//           </div>
-//         </section>
-//       </main>
-//     </NextUIProvider>
-//   );
-// }
+          {/* ===== Two Columns ===== */}
+          <div className="mt-10 grid gap-8 lg:grid-cols-[1.6fr_0.9fr] lg:items-start">
+            <HoverFrame className="rounded-[28px]">
+              <div className="p-4 md:p-6">
+                <div className="relative grid gap-4 md:grid-cols-[1.15fr_1fr]">
+                  {/* viewer + scan */}
+                  <div className="relative overflow-hidden rounded-2xl p-3 md:p-4">
+                    <div className="relative overflow-hidden rounded-xl border border-white/10">
+                      {/* grid bg */}
+                      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:22px_22px]" />
+                      <span className="pointer-events-none absolute top-3 left-3 h-4 w-4 rounded-tl-lg border-t-2 border-l-2 border-white/94" />
+                      <span className="pointer-events-none absolute top-3 right-3 h-4 w-4 rounded-tr-lg border-t-2 border-r-2 border-white/94" />
+                      <span className="pointer-events-none absolute bottom-3 left-3 h-4 w-4 rounded-bl-lg border-b-2 border-l-2 border-white/94" />
+                      <span className="pointer-events-none absolute right-3 bottom-3 h-4 w-4 rounded-br-lg border-r-2 border-b-2 border-white/95" />
+
+                      {/* ===== Image center ===== */}
+                      <div className="relative grid h-[280px] place-items-center">
+                        <NextUIImage
+                          src={IMG_SRC}
+                          alt="Sample document for OCR"
+                          radius="sm"
+                          className="relative z-[1] max-h-[240px] w-auto object-contain"
+                          shadow="sm"
+                        />
+                      </div>
+
+                      {/* ===== Scan sweep + tail (intense) ===== */}
+                      <motion.div
+                        className="pointer-events-none absolute top-0 right-0 left-0 z-[2]"
+                        style={{ height: sweepH, opacity: sweepOpacity }}
+                        aria-hidden
+                      >
+                        {/* ตัวเนื้อแถบสแกน */}
+                        <div
+                          className="absolute inset-0"
+                          style={{
+                            background:
+                              "linear-gradient(to bottom, rgba(60,145,134,1) 0%, rgba(60,145,134,.48) 45%, rgba(60,145,134,.12) 100%)",
+                          }}
+                        />
+                        {/* หางหนา (เวอร์ชันเข้ม) */}
+                        <div className="pointer-events-none absolute -bottom-1 left-0 right-0 h-12 mix-blend-screen">
+                          {/* กล้อนเรืองแสงหนา */}
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              background:
+                                "radial-gradient(120% 200% at 50% 100%, rgba(138,255,239,1) 0%, rgba(138,255,239,.75) 34%, rgba(138,255,239,.38) 60%, transparent 78%)",
+                              filter: "blur(4px)", // คม/เข้มขึ้น
+                            }}
+                          />
+                          {/* แกนแสง core */}
+                          <div
+                            className="absolute left-6 right-6 bottom-[10px] h-[6px] rounded-full opacity-90"
+                            style={{
+                              background:
+                                "linear-gradient(to right, transparent, rgba(180,255,247,.95), transparent)",
+                            }}
+                          />
+                          {/* เส้นไฮไลต์คม ๆ ตรงขอบปลาย */}
+                          <div className="absolute left-3 right-3 bottom-2 h-[3px] rounded-full bg-white/95" />
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
+
+                  {/* ข้อความสรุป */}
+                  <div className="rounded-2xl p-4">
+                    <motion.p
+                      className="text-[12px] leading-relaxed text-white md:text-[13px]"
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={p1Ctrl}
+                    >
+                      In the fiscal year 2025, the company experienced steady
+                      and sustainable growth across all major product
+                      categories. Notebooks remained the cornerstone of overall
+                      revenue, supported by consistent demand from education and
+                      enterprise customers.
+                    </motion.p>
+                    <motion.p
+                      className="mt-3 text-[12px] leading-relaxed text-white md:text-[13px]"
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={p2Ctrl}
+                    >
+                      Tablets showed remarkable improvement, largely driven by
+                      e-learning platforms and the growing adoption of hybrid
+                      work. Smartwatches gained traction among health-conscious
+                      users, valued for real-time monitoring features.
+                    </motion.p>
+
+                    <div className="mt-4 flex items-center gap-10">
+                      {THUMBS.map((it) => (
+                        <NextUIImage
+                          key={it.src}
+                          src={it.src}
+                          alt={it.alt}
+                          width={20}
+                          height={20}
+                          loading="lazy"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </HoverFrame>
+
+            {/* ------- Right: Copy & Bullets ------- */}
+            <div className="lg:pt-1">
+              <h2 className="text-lg font-semibold">
+                Instant Document Understanding
+              </h2>
+              <p className="mt-2 max-w-xl text-xs text-[#676767] font-semibold">
+                An AI-powered system that quickly transforms scanned files into
+                usable, structured data.
+              </p>
+
+              <ul className="mt-5 space-y-4">
+                <li className="flex items-start gap-3">
+                  <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full ">
+                    <CheckCircle2 className="h-4 w-4 opacity-80" />
+                  </span>
+                  <div>
+                    <div className="text-sm font-semibold">High Precision</div>
+                    <p className="text-xs mt-1 text-[#676767] font-semibold">
+                      Delivers accurate extraction even from low-quality images
+                      or complex layouts.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full ">
+                    <CheckCircle2 className="h-4 w-4 opacity-80" />
+                  </span>
+                  <div>
+                    <div className="text-sm font-semibold">
+                      Multi-Language Ready
+                    </div>
+                    <p className="text-xs mt-1 text-[#676767] font-semibold">
+                      Supports various languages and scripts for global
+                      usability.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full ">
+                    <CheckCircle2 className="h-4 w-4 opacity-80" />
+                  </span>
+                  <div>
+                    <div className="text-sm font-semibold">Actionable Output</div>
+                    <p className="text-xs mt-1 font-semibold text-[#676767]">
+                      Converts raw text into editable, searchable,
+                      analytics-ready content.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+    </NextUIProvider>
+  );
+}

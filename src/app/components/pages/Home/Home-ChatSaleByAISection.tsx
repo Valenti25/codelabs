@@ -486,11 +486,8 @@ export default function Page() {
     <main className="px-0  mt-40 md:px-0">
       <div className="w-full ">
         <div className="mb-8  text-center">
-          <p className="mb-3 text-sm text-[#676767] lg:text-xl">The Future of Smart Sales</p>
+          <p className="mb-3 font-semibold text-lg text-[#676767] lg:text-xl">The Future of Smart Sales</p>
           <h2 className="text-xl text-white lg:text-[40px]">Chat sale by AI</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-white/50">
-            เลื่อนอ่านแชทได้ตามปกติ ส่วนที่เกินจะถูกซ่อนในกรอบ — ดูการแนะนำสินค้า/กราฟ/ตารางได้ต่อเนื่อง
-          </p>
         </div>
         <ScrollableChat />
         <div className="mx-auto mt-10 flex max-w-sm items-center justify-center text-center font-semibold">

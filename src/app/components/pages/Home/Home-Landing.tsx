@@ -43,7 +43,7 @@ const CardComponent = ({ title, description, image }) => {
   return (
     <div
       ref={cardRef}
-      className="group card-outer-bg card-outer-shadow relative overflow-hidden rounded-[25px] p-[1px] transition-all duration-300"
+      className="group card-outer-bg card-outer-shadow relative overflow-hidden rounded-[25px] p-[1px] transition-all"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
@@ -53,7 +53,7 @@ const CardComponent = ({ title, description, image }) => {
     >
       {/* แสงตามเมาส์ - แก้ไขแล้ว */}
       <div 
-        className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity group-hover:opacity-100"
         style={{
           background: `radial-gradient(
             circle 180px at ${mousePos.x}px ${mousePos.y}px,
@@ -70,14 +70,14 @@ const CardComponent = ({ title, description, image }) => {
               <Image
                 src={isHovered ? image.hoverSrc : image.defaultSrc}
                 alt={image.alt}
-                className="h-[160px] w-[160px] lg:h-[170px] lg:w-[170px] transition-transform duration-300 group-hover:scale-105"
+                className="h-[160px] w-[160px] lg:h-[170px] lg:w-[170px] transition-transform group-hover:scale-105"
               />
             </div>
-            <h3 className="mb-3 text-lg lg:text-2xl transition-colors duration-300 group-hover:text-white">
+            <h3 className="mb-3 text-lg lg:text-2xl group-hover:text-white">
               {title}
             </h3>
           </div>
-          <p className="text-sm leading-relaxed text-[#7E7E7E] transition-colors duration-300 group-hover:text-white/90">
+          <p className="text-sm  text-[#676767] font-semibold group-hover:text-white/90">
             {description}
           </p>
         </CardBody>
@@ -94,13 +94,13 @@ export default function LandingPage() {
     <section className="mx-auto max-w-[1270px] px-8 lg:px-4 py-16 text-white lg:py-24">
       {/* Landing Heading */}
       <div className="mb-12 text-center">
-        <p className="mb-3 text-lg text-[#7E7E7E] lg:text-xl">
+        <p className="mb-3 text-lg font-semibold text-[#676767] lg:text-xl">
           {landingContent.heading.smallTitle}
         </p>
         <h2 className="text-xl lg:text-[40px]">
           {landingContent.heading.mainTitle}
         </h2>
-        <div className="mx-auto mt-4 max-w-4xl lg:px-2 text-xs text-[#7E7E7E] lg:text-xl">
+        <div className="mx-auto font-semibold mt-4 max-w-4xl lg:px-2 text-xs text-[#676767] lg:text-xl">
           <p>{landingContent.heading.description1}</p>
           <p>{landingContent.heading.description2}</p>
         </div>
