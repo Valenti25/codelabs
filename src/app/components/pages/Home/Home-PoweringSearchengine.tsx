@@ -18,6 +18,7 @@ import {
 import { Search, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 import { motion, useMotionValue, animate } from "framer-motion";
+import Star from "../../ui/star";
 
 type BrandName = "ASUS" | "Lenovo" | "Dell" | "Apple" | "HP" | "Samsung" | "Huawei" | "Garmin";
 type Noun = "Notebook" | "Tablet" | "Smartwatch" | "สินค้า";
@@ -493,8 +494,8 @@ export default function SearchEngineAI() {
                   }}
                   startContent={
                     <div ref={startSlotRef} className=" pr-7 flex items-center gap-3">
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full">
-                        <Image src="/images/starai1.png" alt="AI" width={20} height={20} loading="eager" />
+                      <div className="flex items-center justify-center rounded-full">
+                        <Star />
                       </div>
                       <span className="h-5 w-px bg-white/12" />
                     </div>
