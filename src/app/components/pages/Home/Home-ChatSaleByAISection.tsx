@@ -1,16 +1,11 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Avatar, Image as NextUIImage } from "@nextui-org/react";
-import {
-  motion,
-  type Variants,
-  useMotionValue,
-  animate,
-} from "framer-motion";
+import { motion, type Variants, useMotionValue } from "framer-motion";
 import { ShoppingCart, Heart, Scale, ArrowDown } from "lucide-react";
 
-/* ---------- Frame (กรอบเดียวของทุกการ์ด) ---------- */
+/* ---------- Frame ---------- */
 const Frame = ({
   radius = 22,
   className = "",
@@ -38,9 +33,17 @@ const Frame = ({
 
 const easeOutCubic = [0.33, 1, 0.68, 1] as const;
 
+// นุ่มขึ้น + ใช้ layout animation
 const bubbleVariants: Variants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.28, ease: easeOutCubic } },
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.28,
+      ease: easeOutCubic,
+    },
+  },
 };
 
 /* ---------- Types & Data ---------- */
@@ -105,8 +108,14 @@ const currencyTHB = (n: number) =>
 /* ---------- Product mini card ---------- */
 function ProductMiniCard({ p }: { p: ProductInfo }) {
   return (
-    <motion.div whileHover={{ y: -1 }} className="w-[180px] shrink-0 rounded-xl bg-white/5 p-2">
+    <motion.div
+      layout="position"
+      whileHover={{ y: -1 }}
+      transition={{ type: "spring", stiffness: 320, damping: 30, mass: 0.7 }}
+      className="w-[180px] shrink-0 rounded-xl bg-white/5 p-2"
+    >
       <div className="relative rounded-lg p-1.5">
+        {/* ล็อกอัตราส่วนป้องกัน layout shift */}
         <div className="aspect-[4/3] w-full overflow-hidden rounded-md bg-black/10">
           <NextUIImage alt={p.title} src={p.image} className="h-full w-full object-contain" />
         </div>
@@ -137,7 +146,7 @@ function ProductMiniCard({ p }: { p: ProductInfo }) {
   );
 }
 
-/* ---------- Strip สินค้า: ใช้ motion.drag แนวนอน ไม่มี scrollbar ---------- */
+/* ---------- Strip แนวนอน ---------- */
 function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -152,7 +161,6 @@ function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
       const trackW = track.scrollWidth;
       const wrapW = wrap.clientWidth;
       setMinX(Math.min(0, wrapW - trackW - 8));
-      // clamp ค่า x ให้ยังอยู่ในช่วงหลัง reflow
       const cur = x.get();
       if (cur < wrapW - trackW - 8) x.set(wrapW - trackW - 8);
       if (cur > 0) x.set(0);
@@ -164,15 +172,13 @@ function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
     return () => ro.disconnect();
   }, [x]);
 
-  // ล้อเมาส์แนวนอน (ปกติ)
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) return;
       e.preventDefault();
-      const speed = 1; // = ความเร็วธรรมชาติ
-      const next = Math.max(Math.min(x.get() - e.deltaX * speed, 0), minX);
+      const next = Math.max(Math.min(x.get() - e.deltaX, 0), minX);
       x.set(next);
     };
     el.addEventListener("wheel", onWheel, { passive: false });
@@ -184,16 +190,13 @@ function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
       <div ref={wrapRef} className="relative rounded-2xl bg-white/[0.03] p-2 overflow-hidden">
         <motion.div
           ref={trackRef}
+          layout="position"
           className="flex gap-2 will-change-transform"
           style={{ x }}
           drag="x"
           dragConstraints={{ left: minX, right: 0 }}
           dragElastic={0.02}
-          dragTransition={{
-            power: 0.25,
-            timeConstant: 140,
-            modifyTarget: (t) => Math.max(Math.min(t, 0), minX),
-          }}
+          transition={{ type: "spring", stiffness: 300, damping: 35, mass: 0.9 }}
         >
           {products.map((p, i) => <ProductMiniCard key={i} p={p} />)}
         </motion.div>
@@ -202,18 +205,14 @@ function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
   );
 }
 
-/* ---------- การ์ดกราฟ ---------- */
+/* ---------- การ์ด ---------- */
 function ChartCard({ src, title }: { src: string; title?: string }) {
   return (
     <div className="p-2">
       <div className="w-full rounded-2xl bg-white/[0.03] p-2">
-        <div className="flex items-center justify-center overflow-hidden rounded-xl bg-black/10">
-          <NextUIImage
-            alt={title ?? "chart"}
-            src={src}
-            className="w-full max-w-[240px] max-h-[160px] object-contain"
-            loading="lazy"
-          />
+        {/* ล็อกกรอบภาพกัน shift */}
+        <div className="flex items-center justify-center overflow-hidden rounded-xl bg-black/10 w-full max-w-[240px] max-h-[160px] mx-auto">
+          <NextUIImage alt={title ?? "chart"} src={src} className="w-full h-full object-contain" loading="lazy" />
         </div>
         {title ? <div className="mt-2 text-center text-[10px] text-white/70">{title}</div> : null}
       </div>
@@ -221,7 +220,6 @@ function ChartCard({ src, title }: { src: string; title?: string }) {
   );
 }
 
-/* ---------- การ์ดตาราง ---------- */
 function SummaryTableCard({ title }: { title?: string }) {
   const rows = [
     { q: "Q1", rev: "$120", growth: "+12%" },
@@ -258,62 +256,188 @@ function SummaryTableCard({ title }: { title?: string }) {
   );
 }
 
+/* ---------- Chat Timeline (Loop + Ultra-smooth) ---------- */
+type TimelineItem =
+  | { kind: "user"; key: string; text: string }
+  | { kind: "assistant"; key: string; text: string }
+  | { kind: "card"; key: string; idx: number; scenario: Scenario }
+  | { kind: "tail"; key: string }
+  | { kind: "divider"; key: string };
+
+type InstancedItem = TimelineItem & { instanceId: number }; // key ที่ “เสถียร” ต่อชิ้น
+
 function ScrollableChat() {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   const y = useMotionValue(0);
   const [minY, setMinY] = useState(0);
-  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [autoFollow, setAutoFollow] = useState(true);
 
-  const blocks = SCENARIOS.map((sc, idx) => {
-    const isFirst = idx === 0;
-    const isSecond = idx === 1;
-    const isThird = idx === 2;
-    const isFourth = idx === 3;
-    const isFifth = idx === 4;
+  // ลิสต์หลัก (ไม่เปลี่ยน) + state แสดงผลแบบ “instance”
+  const MASTER: TimelineItem[] = useMemo(() => {
+    const arr: TimelineItem[] = [];
+    SCENARIOS.forEach((sc, idx) => {
+      sc.userMsgs.forEach((m) => arr.push({ kind: "user", key: m.id, text: m.text }));
+      arr.push({ kind: "assistant", key: `s${idx + 1}-a`, text: sc.assistantText });
+      arr.push({ kind: "card", key: `s${idx + 1}-c`, idx, scenario: sc });
+      arr.push({ kind: "tail", key: `s${idx + 1}-t` });
+      if (idx < SCENARIOS.length - 1) arr.push({ kind: "divider", key: `s${idx + 1}-d` });
+    });
+    return arr;
+  }, []);
 
-    return (
-      <div key={`block-${idx}`} className="space-y-4 ">
-        {/* user bubbles */}
-        {sc.userMsgs.map((m) => (
-          <motion.div
-            key={m.id}
-            variants={bubbleVariants}
-            initial="hidden"
-            animate="visible"
-            className="relative flex justify-start"
-          >
-            <div className="mt-1 mr-3 hidden sm:block">
-              <Avatar className="shadow-lg border rounded-full border-white/20 p-0.5" radius="lg" size="sm" src="/images/user.png" name="You" />
-            </div>
-            <div className="max-w-[46rem] rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] leading-relaxed text-white">
-              {m.text}
-            </div>
-          </motion.div>
-        ))}
+  const [items, setItems] = useState<InstancedItem[]>([]);
+  const nextIdxRef = useRef(0);
+  const nextInstanceRef = useRef(1);
+  const timerRef = useRef<number | null>(null);
 
-        {/* assistant bubble */}
+  const BASE_DELAY = 900;
+  const VARIANCE = 0.18; // ลด jitter ให้พอดีมือโปร
+
+  const scheduleNext = () => {
+    const jitter = 1 + (Math.random() * 2 - 1) * VARIANCE; // 0.82x - 1.18x
+    const delay = BASE_DELAY * jitter;
+    timerRef.current = window.setTimeout(() => {
+      const base = MASTER[nextIdxRef.current];
+      const instance: InstancedItem = { ...base, instanceId: nextInstanceRef.current++ };
+      setItems((prev) => [...prev, instance]);
+      nextIdxRef.current = (nextIdxRef.current + 1) % MASTER.length; // loop
+      scheduleNext();
+    }, delay) as unknown as number;
+  };
+
+  // เริ่มลูปเติมแบบเนียน ๆ
+  useEffect(() => {
+    if (!items.length) {
+      const first: InstancedItem = { ...MASTER[0], instanceId: nextInstanceRef.current++ };
+      setItems([first]);
+      nextIdxRef.current = 1 % MASTER.length;
+      scheduleNext();
+    }
+    return () => { if (timerRef.current) window.clearTimeout(timerRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // คำนวณ bounds ทุกครั้งที่ layout เปลี่ยน
+  useLayoutEffect(() => {
+    const calc = () => {
+      const vp = viewportRef.current;
+      const ct = contentRef.current;
+      if (!vp || !ct) return;
+      const viewportH = vp.clientHeight;
+      const contentH = ct.scrollHeight;
+      const min = Math.min(0, viewportH - contentH);
+      setMinY(min);
+
+      const cur = y.get();
+      if (cur < min) y.set(min);
+      if (cur > 0) y.set(0);
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    if (viewportRef.current) ro.observe(viewportRef.current);
+    if (contentRef.current) ro.observe(contentRef.current);
+    return () => ro.disconnect();
+  }, [y, items.length]);
+
+  // ออโต้สโครลแบบ “lerp” ลื่นมาก ไม่มีเด้งแรง
+  useEffect(() => {
+    if (!autoFollow) return;
+    let raf = 0;
+    const smoothFollow = () => {
+      const current = y.get();
+      const target = minY;
+      // alpha 0.18 = ไล่ช้าแต่นุ่ม (ปรับได้ 0.12–0.25)
+      const alpha = 0.18;
+      const next = current + (target - current) * alpha;
+      y.set(Math.abs(next - target) < 0.2 ? target : next);
+      if (next !== target) raf = requestAnimationFrame(smoothFollow);
+    };
+    raf = requestAnimationFrame(smoothFollow);
+    return () => cancelAnimationFrame(raf);
+  }, [items.length, minY, y, autoFollow]);
+
+  // เลื่อนด้วยเมาส์: ใกล้ native + ลบ momentum แข็ง ๆ ออก
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (!vp) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const next = Math.max(Math.min(y.get() - e.deltaY, 0), minY);
+      y.set(next);
+      if (e.deltaY < -2) setAutoFollow(false);
+    };
+
+    vp.addEventListener("wheel", onWheel, { passive: false });
+    return () => vp.removeEventListener("wheel", onWheel);
+  }, [y, minY]);
+
+  const scrollToBottom = () => {
+    setAutoFollow(true);
+    // “ติดพื้น” อย่างนุ่มนวลด้วย lerp รอบถัดไป
+  };
+
+  const renderItem = (item: InstancedItem) => {
+    const stableKey = `${item.key}#${item.instanceId}`; // คีย์เสถียร—ไม่มี Math.random
+    if (item.kind === "user") {
+      return (
         <motion.div
+          key={stableKey}
+          layout="position"
           variants={bubbleVariants}
           initial="hidden"
           animate="visible"
-          className="relative  mr-2 flex w-full justify-end"
+          transition={{ layout: { type: "spring", stiffness: 240, damping: 28, mass: 0.9 } }}
+          className="relative flex justify-start"
+        >
+          <div className="mt-1 mr-3 hidden sm:block">
+            <Avatar className="shadow-lg border rounded-full border-white/20 p-0.5" radius="lg" size="sm" src="/images/user.png" name="You" />
+          </div>
+          <div className="max-w-[46rem] rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] leading-relaxed text-white">
+            {item.text}
+          </div>
+        </motion.div>
+      );
+    }
+    if (item.kind === "assistant") {
+      return (
+        <motion.div
+          key={stableKey}
+          layout="position"
+          variants={bubbleVariants}
+          initial="hidden"
+          animate="visible"
+          transition={{ layout: { type: "spring", stiffness: 240, damping: 28, mass: 0.9 } }}
+          className="relative mr-2 flex w-full justify-end"
         >
           <div className="mr-8 w-full max-w-[46rem] rounded-[22px] rounded-br-none border border-white/12 bg-gradient-to-b from-white/10 to-white/5 px-5 py-3 text-right text-[15px] leading-relaxed text-white">
-            {sc.assistantText}
+            {item.text}
           </div>
-
         </motion.div>
+      );
+    }
+    if (item.kind === "card") {
+      const idx = item.idx;
+      const sc = item.scenario;
+      const isFirst = idx === 0;
+      const isSecond = idx === 1;
+      const isThird = idx === 2;
+      const isFourth = idx === 3;
+      const isFifth = idx === 4;
 
-        {/* content card */}
+      return (
         <motion.div
+          key={stableKey}
+          layout="position"
           variants={bubbleVariants}
           initial="hidden"
           animate="visible"
+          transition={{ layout: { type: "spring", stiffness: 240, damping: 28, mass: 0.9 } }}
           className="relative flex w-full justify-end"
         >
-          <Frame radius={22} squareBR className={`w-full ${idx === 0 ? "max-w-[560px]" : "max-w-[260px]"}`}>
+          <Frame radius={22} squareBR className={`w-full ${isFirst ? "max-w-[560px]" : "max-w-[260px]"}`}>
             {isFirst ? (
               <FirstScenarioProductsStrip products={sc.products ?? [sc.product]} />
             ) : isSecond ? (
@@ -327,12 +451,17 @@ function ScrollableChat() {
             ) : null}
           </Frame>
         </motion.div>
-
-        {/* small thank-you tail */}
+      );
+    }
+    if (item.kind === "tail") {
+      return (
         <motion.div
+          key={stableKey}
+          layout="position"
           variants={bubbleVariants}
           initial="hidden"
           animate="visible"
+          transition={{ layout: { type: "spring", stiffness: 240, damping: 28, mass: 0.9 } }}
           className="relative flex w-full justify-start"
         >
           <div className="mt-1 mr-3 hidden sm:block">
@@ -342,127 +471,55 @@ function ScrollableChat() {
             Awesome, thanks! That’s exactly what I needed 🙌
           </div>
         </motion.div>
-
-        {idx < SCENARIOS.length - 1 && (
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px w-full bg-white/10" />
-            <span className="text-[10px] uppercase tracking-widest text-white/40">Next</span>
-            <div className="h-px w-full bg-white/10" />
-          </div>
-        )}
-      </div>
+      );
+    }
+    // divider
+    return (
+      <motion.div
+        key={stableKey}
+        layout="position"
+        className="my-6 flex items-center gap-3"
+        transition={{ layout: { type: "spring", stiffness: 240, damping: 28, mass: 0.9 } }}
+      >
+        <div className="h-px w-full bg-white/10" />
+        <span className="text-[10px] uppercase tracking-widest text-white/40">Next</span>
+        <div className="h-px w-full bg-white/10" />
+      </motion.div>
     );
-  });
-
-  // คำนวณ bounds
-  useLayoutEffect(() => {
-    const calc = () => {
-      const vp = viewportRef.current;
-      const ct = contentRef.current;
-      if (!vp || !ct) return;
-      const viewportH = vp.clientHeight;
-      const contentH = ct.scrollHeight;
-      const min = Math.min(0, viewportH - contentH);
-      setMinY(min);
-
-      // clamp y เข้าช่วงเมื่อ reflow
-      const cur = y.get();
-      if (cur < min) y.set(min);
-      if (cur > 0) y.set(0);
-    };
-    calc();
-    const ro = new ResizeObserver(calc);
-    if (viewportRef.current) ro.observe(viewportRef.current);
-    if (contentRef.current) ro.observe(contentRef.current);
-    return () => ro.disconnect();
-  }, [y]);
-
-  // แสดงปุ่มไปล่างสุดเมื่อยังไม่ถึงล่างสุด
-  useEffect(() => {
-    const unsub = y.on("change", (val) => {
-      setShowScrollToBottom(Math.abs(val - minY) > 6);
-    });
-    return () => unsub();
-  }, [y, minY]);
-
-  // รองรับล้อเมาส์: ความเร็ว “ปกติ”
-  useEffect(() => {
-    const vp = viewportRef.current;
-    if (!vp) return;
-
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const speed = 1; // 1 = พฤติกรรม native โดยรวม
-      const target = Math.max(Math.min(y.get() - e.deltaY * speed, 0), minY);
-      y.set(target);
-    };
-
-    vp.addEventListener("wheel", onWheel, { passive: false });
-    return () => vp.removeEventListener("wheel", onWheel);
-  }, [y, minY]);
-
-  const scrollToBottom = () => {
-    // ใช้ inertia ให้ความรู้สึกเหมือน native fling
-    animate(y, minY, {
-      type: "inertia",
-      velocity: -1200, // ให้พุ่งลงเร็วเล็กน้อย
-      min: minY,
-      max: 0,
-      power: 0.8,
-      timeConstant: 220,
-      bounceStiffness: 700,
-      bounceDamping: 50,
-      modifyTarget: (t) => Math.max(Math.min(t, 0), minY),
-    });
   };
 
   return (
     <Frame radius={28} className="relative mx-auto w-full max-w-6xl">
-      {/* พื้นหลังแสงนุ่ม ๆ */}
       <section className="overflow-hidden bg-[radial-gradient(1200px_600px_at_50%_-200px,rgba(63,63,70,0.18),transparent_60%)] from-zinc-950 to-black px-5 py-10 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset] md:px-10">
         <div className="relative">
-          {/* Top fade mask */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-10 z-10" />
-
-          {/* Viewport สูงคงที่ + ไม่มี scrollbar */}
-          <div
-            ref={viewportRef}
-            className="relative max-h-[560px] overflow-hidden pr-1 md:pr-2"
-          >
-            {/* Content ขยับด้วย motion.y */}
+          <div ref={viewportRef} className="relative max-h-[560px] overflow-hidden pr-1 md:pr-2">
             <motion.div
               ref={contentRef}
+              layout // เปิด FLIP ทั้งคอลัมน์
               className="pb-14 pt-2 space-y-6 will-change-transform"
               style={{ y }}
               drag="y"
               dragElastic={0}
               onDrag={(e, info) => {
-                const next = Math.max(Math.min(y.get() + info.delta.y, 0), minY);
+                const cur = y.get();
+                const next = Math.max(Math.min(cur + info.delta.y, 0), minY);
                 y.set(next);
+                if (info.delta.y > 2) setAutoFollow(false);
               }}
-              onDragEnd={(e, info) => {
-                animate(y, 0, {
-                  type: "inertia",
-                  velocity: info.velocity.y,
-                  min: minY,
-                  max: 0,
-                  power: 0.8,
-                  timeConstant: 220,
-                  bounceStiffness: 700,
-                  bounceDamping: 50,
-                  modifyTarget: (t) => Math.max(Math.min(t, 0), minY),
-                });
+              onDragEnd={() => {
+                // ปล่อยเฉย ๆ ให้ lerp จบแทน spring กระชาก
               }}
+              transition={{ layout: { type: "spring", stiffness: 220, damping: 26, mass: 1 } }}
             >
-              {blocks}
+              {items.map(renderItem)}
             </motion.div>
           </div>
 
-          {/* Bottom fade mask */}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 z-10" />
 
-          {/* ปุ่มเลื่อนไปล่างสุด */}
-          {showScrollToBottom && (
+          {/* ปุ่มกลับไปล่างสุด */}
+          {Math.abs(y.get() - minY) > 6 && (
             <button
               onClick={scrollToBottom}
               className="group absolute bottom-4 right-4 z-20 rounded-full bg-white/10 px-3 py-2 backdrop-blur transition hover:bg-white/20"
@@ -483,9 +540,9 @@ function ScrollableChat() {
 /* ---------- Page ---------- */
 export default function Page() {
   return (
-    <main className="px-0  mt-40 md:px-0">
+    <main className="px-0 mt-40 md:px-0">
       <div className="w-full ">
-        <div className="mb-8  text-center">
+        <div className="mb-8 text-center">
           <p className="mb-3 font-semibold text-lg text-[#676767] lg:text-xl">The Future of Smart Sales</p>
           <h2 className="text-xl text-white lg:text-[40px]">Chat sale by AI</h2>
         </div>

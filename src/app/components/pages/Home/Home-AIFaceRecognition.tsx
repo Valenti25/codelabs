@@ -14,11 +14,15 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 
+/* ----- Dynamic viewers ----- */
 const ShowRoom = dynamic(() => import("./Home-Three/ShowRoom"), { ssr: false });
 const ShowRoom2 = dynamic(() => import("./Home-Three/ShowRoom2"), {
   ssr: false,
 });
 
+/* ---------------------------------------- */
+/*                ScanPhone                 */
+/* ---------------------------------------- */
 type ScanPhoneProps = {
   heading?: string | null;
   caption?: string;
@@ -28,9 +32,10 @@ type ScanPhoneProps = {
   imgPct?: number;
   modelUrl?: string;
   modelScale?: number;
+  /** เลือกคอมโพเนนต์โชว์รูม: "head" = ShowRoom, "card" = ShowRoom2 */
+  showroom?: "head" | "card";
 };
 
-/* ---------- การ์ดสแกนปกติ (การ์ด 1–2) ---------- */
 function ScanPhone({
   heading = "Face ID",
   caption,
@@ -40,6 +45,7 @@ function ScanPhone({
   imgPct = 65,
   modelUrl,
   modelScale = 1,
+  showroom = "head",
 }: ScanPhoneProps) {
   const progress = useMotionValue(0);
 
@@ -60,6 +66,9 @@ function ScanPhone({
   useMotionValueEvent(progress, "change", (v) =>
     setPercent(Math.round(v * 100)),
   );
+
+  // เลือก viewer ตามพร็อพ
+  const Viewer = showroom === "card" ? ShowRoom2 : ShowRoom;
 
   return (
     <Card className="relative mx-auto h-[460px] w-[250px] shrink-0 overflow-hidden rounded-[34px] border-4 border-white/10 bg-neutral-900/60 shadow-xl">
@@ -83,7 +92,8 @@ function ScanPhone({
 
           {modelUrl ? (
             <div className="relative z-[1] h-full">
-              <ShowRoom url={modelUrl} height={230} scale={modelScale} />
+              {/* ใช้ viewer ตามที่เลือก */}
+              <Viewer url={modelUrl} height={230} scale={modelScale} />
             </div>
           ) : (
             <div className="relative z-[1] flex h-full items-center justify-center">
@@ -94,7 +104,7 @@ function ScanPhone({
                   width={250}
                   height={250}
                   style={{ height: `${imgPct}%` }}
-                  className="w-auto select-none object-contain opacity-90"
+                  className="w-auto object-contain opacity-90 select-none"
                   draggable={false}
                 />
               ) : null}
@@ -116,26 +126,26 @@ function ScanPhone({
               }}
             />
             {/* หางหนาที่ก้นคลื่น (glow + core + highlight) */}
-            <div className="pointer-events-none absolute -bottom-1 left-0 right-0 h-12 mix-blend-screen">
+            <div className="pointer-events-none absolute right-0 -bottom-1 left-0 h-12 mix-blend-screen">
               {/* ก้อนเรืองแสงหนา */}
               <div
                 className="absolute inset-0"
                 style={{
                   background:
                     "radial-gradient(120% 200% at 50% 100%, rgba(138,255,239,1) 0%, rgba(138,255,239,.75) 34%, rgba(138,255,239,.38) 60%, transparent 78%)",
-                  filter: "blur(4px)", // คม/เข้มกำลังดี
+                  filter: "blur(4px)",
                 }}
               />
               {/* แกนสว่างตรงกลาง เพิ่ม punch */}
               <div
-                className="absolute left-6 right-6 bottom-[10px] h-[6px] rounded-full opacity-90"
+                className="absolute right-6 bottom-[10px] left-6 h-[6px] rounded-full opacity-90"
                 style={{
                   background:
                     "linear-gradient(to right, transparent, rgba(180,255,247,.95), transparent)",
                 }}
               />
               {/* เส้นคมที่ขอบก้นคลื่น */}
-              <div className="absolute left-3 right-3 bottom-2 h-[3px] rounded-full bg-white/95" />
+              <div className="absolute right-3 bottom-2 left-3 h-[3px] rounded-full bg-white/95" />
             </div>
           </motion.div>
         </div>
@@ -164,7 +174,9 @@ function ScanPhone({
   );
 }
 
-/* ---------- การ์ดผลลัพธ์: สลับ Success/Failed อัตโนมัติ ---------- */
+/* ---------------------------------------- */
+/*               Result Phone               */
+/* ---------------------------------------- */
 type ResultPhoneProps = {
   successSrc?: string;
   failedSrc?: string;
@@ -217,7 +229,7 @@ function SuccessPhone({
                   alt="Success"
                   width={96}
                   height={96}
-                  className="h-24 w-24 select-none object-contain"
+                  className="h-24 w-24 object-contain select-none"
                   draggable={false}
                   priority
                 />
@@ -240,7 +252,7 @@ function SuccessPhone({
                   alt="Failed"
                   width={96}
                   height={96}
-                  className="h-24 w-24 select-none object-contain"
+                  className="h-24 w-24 object-contain select-none"
                   draggable={false}
                   priority
                 />
@@ -257,7 +269,9 @@ function SuccessPhone({
   );
 }
 
-/* ---------- Page ---------- */
+/* ---------------------------------------- */
+/*                  Page                    */
+/* ---------------------------------------- */
 export default function Page() {
   return (
     <NextUIProvider>
@@ -334,15 +348,20 @@ export default function Page() {
             {/* ขวา: การ์ด */}
             <div className="flex w-full">
               {/* แถวบน: 1–2 */}
+              {/* แถวบน: 1–2 */}
               <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-8 overflow-x-auto pb-2 lg:flex-nowrap lg:justify-start lg:overflow-visible">
+                {/* ใบแรก: ใช้ ShowRoom2 (room2) */}
                 <ScanPhone
                   heading="Face ID"
+                  showroom="card" // <-- ใช้ ShowRoom2
                   modelUrl="/models/wireframehead.glb"
                   modelScale={0.75}
                   durationMs={2600}
                 />
+                {/* ใบที่สอง: ใช้ ShowRoom (ธรรมดา) */}
                 <ScanPhone
                   heading="Card ID"
+                  showroom="head" // <-- ใช้ ShowRoom ธรรมดา
                   modelUrl="/models/id_card.glb"
                   modelScale={0.25}
                   durationMs={2600}

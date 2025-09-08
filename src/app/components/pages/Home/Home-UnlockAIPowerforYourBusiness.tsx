@@ -80,7 +80,9 @@ function FieldShell({
   return (
     <div
       className={[
-        small ? "px-4 py-[10px] md:px-5 md:py-3.5" : "px-5 py-4 md:px-6 md:py-5",
+        small
+          ? "px-4 py-[10px] md:px-5 md:py-3.5"
+          : "px-5 py-4 md:px-6 md:py-5",
         className,
       ].join(" ")}
     >
@@ -95,7 +97,7 @@ function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className={[
-        "w-full bg-transparent outline-none text-[17px] leading-relaxed",
+        "w-full bg-transparent text-[17px] leading-relaxed outline-none",
         "text-white placeholder:text-white/35",
         props.className || "",
       ].join(" ")}
@@ -104,7 +106,10 @@ function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
 }
 
 function PhoneInput(
-  props: Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">
+  props: Omit<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    "onChange" | "value"
+  >,
 ) {
   const [val, setVal] = useState("");
   const digitsOnly = (s: string) => s.replace(/\D+/g, "");
@@ -160,7 +165,7 @@ function BigTextarea({
       onInput={autosize}
       rows={minRows}
       className={[
-        "w-full resize-none text-[17px] leading-relaxed bg-transparent outline-none",
+        "w-full resize-none bg-transparent text-[17px] leading-relaxed outline-none",
         "text-white placeholder:text-white/35",
         "px-5 py-4 md:px-6 md:py-5",
         className,
@@ -250,7 +255,7 @@ function SubjectSelect({
                 }}
                 className={[
                   "rounded-2xl ring-1 ring-white/12",
-                  "backdrop-blur-md bg-black/70",
+                  "bg-black/70 backdrop-blur-md",
                   "shadow-[0_12px_40px_rgba(0,0,0,0.55)]",
                   "pointer-events-auto",
                 ].join(" ")}
@@ -266,7 +271,7 @@ function SubjectSelect({
                           onChange(opt.key);
                           setOpen(false);
                         }}
-                        className="w-full text-left px-4 py-3 text-[16px] text-[#606367] hover:text-white/90 hover:bg-white/10 focus:outline-none"
+                        className="w-full px-4 py-3 text-left text-[16px] text-[#606367] hover:bg-white/10 hover:text-white/90 focus:outline-none"
                       >
                         {opt.label}
                       </button>
@@ -276,7 +281,7 @@ function SubjectSelect({
               </motion.div>
             )}
           </AnimatePresence>,
-          document.body
+          document.body,
         )}
     </>
   );
@@ -309,22 +314,27 @@ export default function Page() {
       return;
     }
 
-    console.log({ name, email, phone: phoneNum, subject: subjectValue, message });
+    console.log({
+      name,
+      email,
+      phone: phoneNum,
+      subject: subjectValue,
+      message,
+    });
     alert("Message sent!");
   };
 
   return (
     <main className="relative z-10 flex w-full items-center justify-center bg-black px-4 text-white sm:px-8">
+      <div className="pointer-events-none">
+        <SplashCursor />
+      </div>
       <motion.section
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative mx-auto w-full max-w-7xl overflow-visible isolate" // isolate กัน blend/blur แปลกๆ
+        className="relative isolate mx-auto w-full max-w-7xl overflow-visible" // isolate กัน blend/blur แปลกๆ
       >
-        <div className="pointer-events-none">
-          <SplashCursor />
-        </div>
-
         <div className="pointer-events-none mx-auto flex max-w-4xl items-center justify-center">
           <ModelRot />
         </div>
@@ -333,7 +343,8 @@ export default function Page() {
           GET IN TOUCH
         </h1>
         <p className="mt-4 text-center text-base text-white/70 sm:text-lg">
-          Empower your business with Codelabs AI. Let’s transform the way you work.
+          Empower your business with Codelabs AI. Let’s transform the way you
+          work.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-12">
@@ -341,14 +352,23 @@ export default function Page() {
             {/* Name */}
             <HoverPill rounded="rounded-full">
               <FieldShell small>
-                <TextInput name="name" aria-label="Your Name" placeholder="Your Name" required />
+                <TextInput
+                  name="name"
+                  aria-label="Your Name"
+                  placeholder="Your Name"
+                  required
+                />
               </FieldShell>
             </HoverPill>
 
             {/* Phone */}
             <HoverPill rounded="rounded-full">
               <FieldShell small>
-                <PhoneInput name="phone" aria-label="Phone Number" placeholder="Phone Number" />
+                <PhoneInput
+                  name="phone"
+                  aria-label="Phone Number"
+                  placeholder="Phone Number"
+                />
               </FieldShell>
             </HoverPill>
 
@@ -377,10 +397,14 @@ export default function Page() {
             </HoverPill>
 
             {/* Message */}
-            <HoverPill className="md:col-span-2" rounded="rounded-3xl" glowRadius={300}>
+            <HoverPill
+              className="md:col-span-2"
+              rounded="rounded-3xl"
+              glowRadius={300}
+            >
               <BigTextarea
                 name="message"
-                placeholder="Write your comment…"
+                placeholder="Your Message"
                 minRows={10}
                 maxRows={20}
                 className="min-h-[220px]"
@@ -390,8 +414,15 @@ export default function Page() {
 
           {/* Send button */}
           <div className="mt-10 flex justify-center">
-            <HoverPill className="px-[2px] py-[2px]" rounded="rounded-full" glowRadius={180}>
-              <button type="submit" className="relative z-10 px-12 py-3.5 text-base font-medium">
+            <HoverPill
+              className="px-[2px] py-[2px]"
+              rounded="rounded-full"
+              glowRadius={180}
+            >
+              <button
+                type="submit"
+                className="relative z-10 px-12 py-3.5 text-base font-medium"
+              >
                 Send
               </button>
             </HoverPill>
@@ -422,10 +453,16 @@ export default function Page() {
                 external: true,
               },
             ].map(({ href, title, subtitle, Icon, external }, i) => (
-              <HoverPill key={i} rounded="rounded-3xl" className="min-h-[140px]">
+              <HoverPill
+                key={i}
+                rounded="rounded-3xl"
+                className="min-h-[140px]"
+              >
                 <a
                   href={href}
-                  {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  {...(external
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
                   className="block h-full w-full"
                 >
                   <div className="flex h-full items-center gap-5 p-6 md:p-7">
@@ -434,7 +471,9 @@ export default function Page() {
                     </div>
 
                     <div className="min-w-0">
-                      <div className="text-lg font-medium text-white/90">{title}</div>
+                      <div className="text-lg font-medium text-white/90">
+                        {title}
+                      </div>
                       <div className="mt-1 text-base leading-relaxed break-words text-white/65">
                         {subtitle}
                       </div>
