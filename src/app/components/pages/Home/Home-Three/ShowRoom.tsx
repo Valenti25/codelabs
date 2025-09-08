@@ -171,7 +171,7 @@ export default function ShowRoom({
         background: "rgba(0,0,0,0.05)",
       }}
     >
-      <Canvas camera={{ position: [2.2, 1.4, 2.6], fov: 45 }} shadows>
+      <Canvas camera={{ position: [2, 1, 15], fov: 11 }} shadows>
         <ambientLight intensity={0.6} />
         <directionalLight position={[5, 5, 5]} intensity={1.1} castShadow />
         <Suspense fallback={null}>

@@ -12,20 +12,26 @@ import {
 } from "framer-motion";
 import { ShoppingCart, Heart, Scale, ArrowDown } from "lucide-react";
 
+const CARD_W = 320;       
+const CARD_MEDIA_H = 180;    
+const CARD_PLACEHOLDER_H = 230; 
+
 /* ---------- Frame ---------- */
 const Frame = ({
   radius = 22,
   className = "",
   children,
   squareBR = false,
+  style,
 }: {
   radius?: number;
   className?: string;
   children: React.ReactNode;
   squareBR?: boolean;
+  style?: React.CSSProperties;
 }) => {
   const inner = Math.max(0, radius - 1);
-  const outerStyle: React.CSSProperties = { borderRadius: radius };
+  const outerStyle: React.CSSProperties = { borderRadius: radius, ...(style ?? {}) };
   const innerStyle: React.CSSProperties = { borderRadius: inner, overflow: "hidden" };
   if (squareBR) {
     outerStyle.borderBottomRightRadius = 0;
@@ -48,10 +54,7 @@ const SPRING_SCROLL = { stiffness: 180, damping: 24, mass: 0.9 } as const;
 const bubbleVariants: Variants = {
   hidden: { opacity: 0, y: 12, scale: 0.985, filter: "blur(3px)" },
   visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    filter: "blur(0px)",
+    opacity: 1, y: 0, scale: 1, filter: "blur(0px)",
     transition: { ...SPRING_BUBBLE, ease: easeOutCubic },
   },
 };
@@ -76,7 +79,7 @@ type Scenario = {
 
 const SCENARIOS: Scenario[] = [
   {
-    userMsgs: [{ id: "s1-u1", role: "user", text: "I’m looking for wireless earbuds — mostly for music while working." }],
+    userMsgs: [{ id: "s1-u1", role: "user", text: "I'm looking for wireless earbuds — mostly for music while working." }],
     assistantText: "Got it ✨ The AirPods Pro 2 are lightweight, with excellent noise cancelling and seamless pairing.",
     products: [
       { image: "/images/airpods-pro.png", title: "Pods Pro 2 (M2)", price: 8990, originalPrice: 11990, stock: 2, category: "Earbuds", specs: ["ANC", "Adaptive Transparency", "MagSafe Case"] },
@@ -89,25 +92,25 @@ const SCENARIOS: Scenario[] = [
   {
     userMsgs: [{ id: "s2-u1", role: "user", text: "Could you show me a simple business chart for this year? I just want a quick overview." }],
     assistantText:
-      "Got it ✨ Here’s a sample chart showing the overall business trend for this year. It’s a simplified view to help you get the big picture at a glance.",
+      "Got it ✨ Here's a sample chart showing the overall business trend for this year. It's a simplified view to help you get the big picture at a glance.",
     product: { image: "/images/imgchat2.png", title: "Business Overview 2023" },
   },
   {
-    userMsgs: [{ id: "s3-u1", role: "user", text: "Could you show me a simple business table for this year? I’d like to see a summary in rows and columns instead of a chart." }],
+    userMsgs: [{ id: "s3-u1", role: "user", text: "Could you show me a simple business table for this year? I'd like to see a summary in rows and columns instead of a chart." }],
     assistantText:
-      "Sure 📋 Here’s a sample business summary table for this year. It’s a compact view so you can quickly compare key metrics side by side.",
+      "Sure 📋 Here's a sample business summary table for this year. It's a compact view so you can quickly compare key metrics side by side.",
     product: { image: "", title: "Business Summary 2023" },
   },
   {
-    userMsgs: [{ id: "s4-u1", role: "user", text: "I’m reviewing some business data and I’d like to see it in a simple chart. Could you show me a bar chart that summarizes this year’s performance overall?" }],
+    userMsgs: [{ id: "s4-u1", role: "user", text: "I'm reviewing some business data and I'd like to see it in a simple chart. Could you show me a bar chart that summarizes this year's performance overall?" }],
     assistantText:
-      "Got it 📊 Here’s a sample bar chart that shows the overall revenue trend for 2025. This gives you a clear quarterly view so you can quickly spot the growth pattern.",
+      "Got it 📊 Here's a sample bar chart that shows the overall revenue trend for 2025. This gives you a clear quarterly view so you can quickly spot the growth pattern.",
     product: { image: "/images/imgchat4.png", title: "Business Summary 2023" },
   },
   {
-    userMsgs: [{ id: "s5-u1", role: "user", text: "I’d like to see how our revenue has been changing throughout the year. Could you provide me with a simple line chart that shows the quarterly trend?" }],
+    userMsgs: [{ id: "s5-u1", role: "user", text: "I'd like to see how our revenue has been changing throughout the year. Could you provide me with a simple line chart that shows the quarterly trend?" }],
     assistantText:
-      "Got it 🧾 Here’s a line chart that illustrates the revenue pattern for 2025. This lets you track the ups and downs across each quarter at a glance.",
+      "Got it 🧾 Here's a line chart that illustrates the revenue pattern for 2025. This lets you track the ups and downs across each quarter at a glance.",
     product: { image: "/images/imgchat5.png", title: "Business Revenue Trend 2025" },
   },
 ];
@@ -115,34 +118,18 @@ const SCENARIOS: Scenario[] = [
 const currencyTHB = (n: number) =>
   n.toLocaleString("th-TH", { style: "currency", currency: "THB", maximumFractionDigits: 0 });
 
-/* ---------- Avatar Rails (ทำให้ avatar จัดแนวเท่ากันเสมอ) ---------- */
+/* ---------- Avatar Rails ---------- */
 const AVATAR_RAIL_W = "w-9 sm:w-10";
-
-function RailAvatarRight({ src, name }: { src: string; name: string }) {
-  return (
-    <div className={`${AVATAR_RAIL_W} justify-self-end hidden sm:block`}>
-      <Avatar
-        className="shadow-lg border rounded-full border-white/20 p-0.5 w-10 h-10"
-        radius="lg"
-        src={src}
-        name={name}
-      />
-    </div>
-  );
-}
-
-function RailAvatarLeft({ src, name }: { src: string; name: string }) {
-  return (
-    <div className={`${AVATAR_RAIL_W} hidden sm:block`}>
-      <Avatar
-        className="shadow-lg border rounded-full border-white/20 p-0.5 w-10 h-10"
-        radius="lg"
-        src={src}
-        name={name}
-      />
-    </div>
-  );
-}
+const RailAvatarRight = ({ src, name }: { src: string; name: string }) => (
+  <div className={`${AVATAR_RAIL_W} justify-self-end hidden sm:block`}>
+    <Avatar className="shadow-lg border rounded-full border-white/20 p-0.5 w-10 h-10" radius="lg" src={src} name={name} />
+  </div>
+);
+const RailAvatarLeft = ({ src, name }: { src: string; name: string }) => (
+  <div className={`${AVATAR_RAIL_W} hidden sm:block`}>
+    <Avatar className="shadow-lg border rounded-full border-white/20 p-0.5 w-10 h-10" radius="lg" src={src} name={name} />
+  </div>
+);
 
 /* ---------- Product mini card ---------- */
 function ProductMiniCard({ p }: { p: ProductInfo }) {
@@ -158,7 +145,6 @@ function ProductMiniCard({ p }: { p: ProductInfo }) {
           <NextUIImage alt={p.title} src={p.image} className="h-full w-full object-contain" />
         </div>
       </div>
-
       <div className="mt-2 space-y-1 text-[11px] leading-snug">
         <div className="line-clamp-2 text-[12px] font-medium text-zinc-100">{p.title}</div>
         {p.specs?.length ? (
@@ -168,7 +154,6 @@ function ProductMiniCard({ p }: { p: ProductInfo }) {
         ) : null}
         {p.stock !== undefined && <div className="text-[10px] text-white/60">มีในสต็อก: {p.stock}</div>}
       </div>
-
       <div className="mt-2 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <button className="grid h-7 w-7 place-items-center rounded-lg bg-white/5"><ShoppingCart className="h-3.5 w-3.5 text-white/85" /></button>
@@ -184,7 +169,7 @@ function ProductMiniCard({ p }: { p: ProductInfo }) {
   );
 }
 
-/* ---------- Strip แนวนอน ---------- */
+/* ---------- Strip ---------- */
 function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -224,8 +209,12 @@ function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
   }, [x, minX]);
 
   return (
-    <div className="p-2">
-      <div ref={wrapRef} className="relative rounded-2xl bg-white/[0.03] p-2 overflow-hidden">
+    <div className="p-2" style={{ width: CARD_W }}>
+      <div
+        ref={wrapRef}
+        className="relative rounded-2xl bg-white/[0.03] p-2 overflow-hidden"
+        style={{ height: CARD_MEDIA_H + 40 }} 
+      >
         <motion.div
           ref={trackRef}
           layout="position"
@@ -242,8 +231,6 @@ function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
     </div>
   );
 }
-
-/* ---------- การ์ด ---------- */
 function ChartCard({ src, title }: { src: string; title?: string }) {
   return (
     <motion.div
@@ -251,10 +238,14 @@ function ChartCard({ src, title }: { src: string; title?: string }) {
       whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
       transition={{ layout: SPRING_LAYOUT }}
       className="p-2"
+      style={{ width: CARD_W }}
     >
       <div className="w-full rounded-2xl bg-white/[0.03] p-2">
-        <div className="flex items-center justify-center overflow-hidden rounded-xl bg-black/10 w-full max-w-[240px] max-h-[160px] mx-auto">
-          <NextUIImage alt={title ?? "chart"} src={src} className="w-full h-full object-contain" loading="lazy" />
+        <div
+          className="flex items-center justify-center overflow-hidden rounded-xl bg-black/10 w-full mx-auto"
+          style={{ height: CARD_MEDIA_H }}
+        >
+          <NextUIImage alt={title ?? "chart"} src={src} className="h-full w-full object-contain" loading="lazy" />
         </div>
         {title ? <div className="mt-2 text-center text-[10px] text-white/70">{title}</div> : null}
       </div>
@@ -275,8 +266,9 @@ function SummaryTableCard({ title }: { title?: string }) {
       whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
       transition={{ layout: SPRING_LAYOUT }}
       className="p-2"
+      style={{ width: CARD_W }}
     >
-      <div className="w-full rounded-2xl bg-white/[0.03] p-2">
+      <div className="w-full rounded-2xl bg-white/[0.03] p-2" style={{ minHeight: CARD_MEDIA_H + 40 }}>
         {title ? <div className="mb-2 text-center text-[10px] font-medium text-white/80">{title}</div> : null}
         <div className="overflow-hidden rounded-lg">
           <table className="w-full min-w-0 text-left text-[10px] text-white/80">
@@ -303,13 +295,47 @@ function SummaryTableCard({ title }: { title?: string }) {
   );
 }
 
-/* ---------- Chat Timeline (Windowed + Seamless Loop) ---------- */
+/* ---------- Typing Dots + Swap ---------- */
+function TypingDots({ className = "", size = 6, gap = 6, duration = 7000 }: { className?: string; size?: number; gap?: number; duration?: number; }) {
+  const style: React.CSSProperties = { "--dot": `${size}px`, "--gap": `${gap}px`, "--dur": `${duration}ms` } as React.CSSProperties;
+  return (
+    <span role="status" aria-label="Typing…" className={`inline-flex items-center ${className}`} style={style}>
+      <span className="dot" /><span className="dot" /><span className="dot" />
+      <style jsx>{`
+        .dot{width:var(--dot);height:var(--dot);border-radius:9999px;background:currentColor;opacity:.6;display:inline-block;margin-right:var(--gap);animation:updown var(--dur) ease-in-out infinite}
+        .dot:nth-child(2){animation-delay:calc(var(--dur)*.15)}
+        .dot:nth-child(3){animation-delay:calc(var(--dur)*.30);margin-right:0}
+        @keyframes updown{0%,100%{transform:translateY(0);opacity:.6}50%{transform:translateY(-28%);opacity:1}}
+      `}</style>
+    </span>
+  );
+}
+
+function BubbleTextSwap({ text, delay = 7000, align = "left", colorClass = "text-white", }: { text: string; delay?: number; align?: "left" | "right"; colorClass?: string; }) {
+  const [showText, setShowText] = useState(false);
+  useEffect(() => { const t = window.setTimeout(() => setShowText(true), Math.max(120, delay)); return () => window.clearTimeout(t); }, [delay]);
+  if (!showText) return <div className={`flex ${align === "right" ? "justify-end" : "justify-start"}`}><TypingDots className="text-white/80" /></div>;
+  return <span className={`${colorClass} ${align === "right" ? "text-right" : "text-left"}`}>{text}</span>;
+}
+
+function BubbleSwap({ children, delay = 7000 }: { children: React.ReactNode; delay?: number; }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => { const t = window.setTimeout(() => setShow(true), Math.max(120, delay)); return () => window.clearTimeout(t); }, [delay]);
+  if (!show) {
+    return (
+      <div className="grid place-items-center" style={{ width: CARD_W, height: CARD_PLACEHOLDER_H }}>
+        <TypingDots className="text-white/80" />
+      </div>
+    );
+  }
+  return <>{children}</>;
+}
+
 type TimelineUser = { kind: "user"; key: string; text: string };
 type TimelineAssistant = { kind: "assistant"; key: string; text: string };
 type TimelineCard = { kind: "card"; key: string; idx: number; scenario: Scenario };
 type TimelineTail = { kind: "tail"; key: string };
 type TimelineDivider = { kind: "divider"; key: string };
-
 type TimelineItem = TimelineUser | TimelineAssistant | TimelineCard | TimelineTail | TimelineDivider;
 
 function useMasterTimeline() {
@@ -327,7 +353,7 @@ function useMasterTimeline() {
 }
 
 const WINDOW = 28;
-const BASE_DELAY = 900;
+const BASE_DELAY = 2000;
 const JITTER = 0.18;
 
 function ScrollableChat() {
@@ -381,7 +407,6 @@ function ScrollableChat() {
       const contentH = ct.scrollHeight;
       const min = Math.min(0, viewportH - contentH);
       setMinY(min);
-
       const cur = y.get();
       if (cur < min) y.set(min);
       if (cur > 0) y.set(0);
@@ -393,58 +418,38 @@ function ScrollableChat() {
     return () => ro.disconnect();
   }, [y, items.length]);
 
-  useEffect(() => {
-    if (autoFollow) y.set(minY);
-  }, [items.length, minY, autoFollow, y]);
+  useEffect(() => { if (autoFollow) y.set(minY); }, [items.length, minY, autoFollow, y]);
 
   useEffect(() => {
     const vp = viewportRef.current;
     if (!vp) return;
-
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const next = Math.max(Math.min(y.get() - e.deltaY, 0), minY);
       y.set(next);
       if (e.deltaY < -2) setAutoFollow(false);
     };
-
     vp.addEventListener("wheel", onWheel, { passive: false });
     return () => vp.removeEventListener("wheel", onWheel);
   }, [y, minY]);
 
   const [showToLatest, setShowToLatest] = useState(false);
   useEffect(() => {
-    const unsub = y.on("change", (val) => {
-      setShowToLatest(Math.abs(val - minY) > 6);
-    });
+    const unsub = y.on("change", (val) => { setShowToLatest(Math.abs(val - minY) > 6); });
     return () => unsub();
   }, [y, minY]);
 
-  const scrollToBottom = () => {
-    setAutoFollow(true);
-    y.set(minY);
-  };
+  const scrollToBottom = () => { setAutoFollow(true); y.set(minY); };
 
-  // ----- Renderer (ใช้ grid 3 คอลัมน์ + ราง avatar คงที่) -----
+  // ----- Renderer -----
   const renderItem = (instKey: string, item: TimelineItem) => {
     if (item.kind === "user") {
       return (
-        <motion.div
-          key={instKey}
-          layout="position"
-          variants={bubbleVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ layout: SPRING_LAYOUT }}
-          className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3"
-          whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
-        >
+        <motion.div key={instKey} layout="position" variants={bubbleVariants} initial="hidden" animate="visible" transition={{ layout: SPRING_LAYOUT }} className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3" whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}>
           <RailAvatarLeft src="/images/user.png" name="You" />
-
-          <div className="max-w-[46rem] justify-self-start rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] leading-relaxed text-white">
-            {item.text}
+          <div className="max-w-[46rem] justify-self-start rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] leading-relaxed">
+            <BubbleTextSwap key={instKey} text={item.text} delay={520} align="left" colorClass="text-white" />
           </div>
-
           <div className={AVATAR_RAIL_W} />
         </motion.div>
       );
@@ -452,22 +457,11 @@ function ScrollableChat() {
 
     if (item.kind === "assistant") {
       return (
-        <motion.div
-          key={instKey}
-          layout="position"
-          variants={bubbleVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ layout: SPRING_LAYOUT }}
-          className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3"
-          whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
-        >
+        <motion.div key={instKey} layout="position" variants={bubbleVariants} initial="hidden" animate="visible" transition={{ layout: SPRING_LAYOUT }} className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3" whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}>
           <div className={AVATAR_RAIL_W} />
-
-          <div className="max-w-[46rem] justify-self-end rounded-[22px] rounded-br-none border border-white/12 bg-gradient-to-b from-white/10 to-white/5 px-5 py-3 text-right text-[15px] leading-relaxed text-white">
-            {item.text}
+          <div className="max-w-[46rem] justify-self-end rounded-[22px] rounded-br-none border border-white/12 bg-gradient-to-b from-white/10 to-white/5 px-5 py-3 text-right text-[15px] leading-relaxed">
+            <BubbleTextSwap key={instKey} text={item.text} delay={720} align="right" colorClass="text-white" />
           </div>
-
           <RailAvatarRight src="/images/starai.png" name="AI" />
         </motion.div>
       );
@@ -476,33 +470,24 @@ function ScrollableChat() {
     if (item.kind === "card") {
       const idx = item.idx;
       const sc = item.scenario;
-      const isFirst = idx === 0;
-
+      // เดิม: isFirst ขยายใหญ่ ตอนนี้ “ทุกการ์ดเท่ากันหมด”
       return (
-        <motion.div
-          key={instKey}
-          layout="position"
-          variants={bubbleVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ layout: SPRING_LAYOUT }}
-          className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3"
-          whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
-        >
+        <motion.div key={instKey} layout="position" variants={bubbleVariants} initial="hidden" animate="visible" transition={{ layout: SPRING_LAYOUT }} className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3" whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}>
           <div className={AVATAR_RAIL_W} />
-
           <div className="justify-self-end">
-            <Frame radius={22} squareBR className={`w-full ${isFirst ? "max-w-[560px]" : "max-w-[260px]"}`}>
-              {isFirst ? (
-                <FirstScenarioProductsStrip products={sc.products ?? [sc.product]} />
-              ) : idx === 1 || idx === 3 || idx === 4 ? (
-                <ChartCard src={sc.product.image} title={sc.product.title} />
-              ) : (
-                <SummaryTableCard title={sc.product.title} />
-              )}
+            <Frame radius={22} squareBR style={{ width: CARD_W }}>
+              {/* รูป/การ์ดทุกอันมีไข่ปลาก่อน และอยู่ในกรอบขนาดเดียวกัน */}
+              <BubbleSwap delay={650}>
+                {idx === 1 || idx === 3 || idx === 4 ? (
+                  <ChartCard src={sc.product.image} title={sc.product.title} />
+                ) : idx === 0 ? (
+                  <FirstScenarioProductsStrip products={sc.products ?? [sc.product]} />
+                ) : (
+                  <SummaryTableCard title={sc.product.title} />
+                )}
+              </BubbleSwap>
             </Frame>
           </div>
-
           <RailAvatarRight src="/images/starai.png" name="AI" />
         </motion.div>
       );
@@ -510,22 +495,11 @@ function ScrollableChat() {
 
     if (item.kind === "tail") {
       return (
-        <motion.div
-          key={instKey}
-          layout="position"
-          variants={bubbleVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ layout: SPRING_LAYOUT }}
-          className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3"
-          whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
-        >
+        <motion.div key={instKey} layout="position" variants={bubbleVariants} initial="hidden" animate="visible" transition={{ layout: SPRING_LAYOUT }} className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3" whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}>
           <RailAvatarLeft src="/images/user.png" name="You" />
-
-          <div className="max-w-[40rem] justify-self-start rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] text-white">
-            Awesome, thanks! That’s exactly what I needed 🙌
+          <div className="max-w-[40rem] justify-self-start rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px]">
+            <BubbleTextSwap key={instKey} text={`Awesome, thanks! That's exactly what I needed 🙌`} delay={520} align="left" colorClass="text-white" />
           </div>
-
           <div className={AVATAR_RAIL_W} />
         </motion.div>
       );
@@ -533,12 +507,7 @@ function ScrollableChat() {
 
     // divider
     return (
-      <motion.div
-        key={instKey}
-        layout="position"
-        className="my-6 flex items-center gap-3"
-        transition={{ layout: SPRING_LAYOUT }}
-      >
+      <motion.div key={instKey} layout="position" className="my-6 flex items-center gap-3" transition={{ layout: SPRING_LAYOUT }}>
         <div className="h-px w-full bg-white/10" />
         <span className="text-[10px] uppercase tracking-widest text-white/40">Next</span>
         <div className="h-px w-full bg-white/10" />
@@ -596,12 +565,8 @@ function ScrollableChat() {
 /* ---------- Page ---------- */
 export default function Page() {
   const prefersReducedMotion = useReducedMotion();
-
   return (
-    <MotionConfig
-      reducedMotion={prefersReducedMotion ? "always" : "never"}
-      transition={SPRING_LAYOUT}
-    >
+    <MotionConfig reducedMotion={prefersReducedMotion ? "always" : "never"} transition={SPRING_LAYOUT}>
       <main className="px-0 mt-40 md:px-0">
         <div className="w-full ">
           <div className="mb-8 text-center">

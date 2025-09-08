@@ -353,12 +353,11 @@ export default function Page() {
                 {/* ใบแรก: ใช้ ShowRoom2 (room2) */}
                 <ScanPhone
                   heading="Face ID"
-                  showroom="card" // <-- ใช้ ShowRoom2
-                  modelUrl="/models/wireframehead.glb"
-                  modelScale={0.75}
+                  imgSrc="/images/face.png" // ← ใส่ path รูปของคุณ
+                  imgAlt="Face ID scanning"
+                  imgPct={65} // ปรับให้สูงเท่าการ์ดอื่น ๆ ได้ (เช่น 60–75)
                   durationMs={2600}
                 />
-                {/* ใบที่สอง: ใช้ ShowRoom (ธรรมดา) */}
                 <ScanPhone
                   heading="Card ID"
                   showroom="head" // <-- ใช้ ShowRoom ธรรมดา

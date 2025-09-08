@@ -326,7 +326,7 @@ export default function Page() {
 
   return (
     <main className="relative z-10 flex w-full items-center justify-center bg-black px-4 text-white sm:px-8">
-      <div className="pointer-events-none w-[30px] h-[40px]">
+      <div className="pointer-events-none">
         <SplashCursor />
       </div>
       <motion.section
