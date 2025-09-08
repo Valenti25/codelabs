@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 import { Mail, Phone, MapPin } from "lucide-react";
 import ModelRot from "../../ModelsObject/ModelRobot";
 import SplashCursor from "@/app/components/ui/SplashCursor";
-
+import Footer from "./Home-Footer";
 /* ---------- Capsule + Hover Light ---------- */
 function HoverPill({
   children,
@@ -326,7 +326,7 @@ export default function Page() {
 
   return (
     <main className="relative z-10 flex w-full items-center justify-center bg-black px-4 text-white sm:px-8">
-      <div className="pointer-events-none">
+      <div className="pointer-events-none w-[30px] h-[40px]">
         <SplashCursor />
       </div>
       <motion.section
@@ -483,6 +483,7 @@ export default function Page() {
               </HoverPill>
             ))}
           </div>
+          <Footer />
         </section>
       </motion.section>
     </main>

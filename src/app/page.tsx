@@ -48,14 +48,6 @@ const ChatsalebyAI = dynamic(
     ),
   { ssr: false },
 );
-const Footer = dynamic(
-  () =>
-    import("./components/pages/Home/Home-Footer").then(
-      (mod) => mod.default,
-    ),
-  { ssr: false },
-);
-
 export default function Home() {
   return (
     <>
@@ -83,7 +75,6 @@ export default function Home() {
         <HomeAIOpticalCharacterRecognition />
         <ChatsalebyAI />
         <HomeUnlockAIPowerforYourBusiness />
-        <Footer />
       </div>
     </>
   );

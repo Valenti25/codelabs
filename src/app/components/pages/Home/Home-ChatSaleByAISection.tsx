@@ -2,7 +2,14 @@
 
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Avatar, Image as NextUIImage } from "@nextui-org/react";
-import { motion, type Variants, useMotionValue } from "framer-motion";
+import {
+  motion,
+  type Variants,
+  useMotionValue,
+  useSpring,
+  MotionConfig,
+  useReducedMotion,
+} from "framer-motion";
 import { ShoppingCart, Heart, Scale, ArrowDown } from "lucide-react";
 
 /* ---------- Frame ---------- */
@@ -31,18 +38,21 @@ const Frame = ({
   );
 };
 
+/* ---------- Motion presets ---------- */
 const easeOutCubic = [0.33, 1, 0.68, 1] as const;
+const SPRING_BUBBLE = { type: "spring", stiffness: 280, damping: 30, mass: 0.9 } as const;
+const SPRING_LAYOUT = { type: "spring", stiffness: 220, damping: 26, mass: 1 } as const;
+const SPRING_SCROLL = { stiffness: 180, damping: 24, mass: 0.9 } as const;
 
-// นุ่มขึ้น + ใช้ layout animation
+/* ---------- Variants ---------- */
 const bubbleVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
+  hidden: { opacity: 0, y: 12, scale: 0.985, filter: "blur(3px)" },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.28,
-      ease: easeOutCubic,
-    },
+    scale: 1,
+    filter: "blur(0px)",
+    transition: { ...SPRING_BUBBLE, ease: easeOutCubic },
   },
 };
 
@@ -105,17 +115,45 @@ const SCENARIOS: Scenario[] = [
 const currencyTHB = (n: number) =>
   n.toLocaleString("th-TH", { style: "currency", currency: "THB", maximumFractionDigits: 0 });
 
+/* ---------- Avatar Rails (ทำให้ avatar จัดแนวเท่ากันเสมอ) ---------- */
+const AVATAR_RAIL_W = "w-9 sm:w-10";
+
+function RailAvatarRight({ src, name }: { src: string; name: string }) {
+  return (
+    <div className={`${AVATAR_RAIL_W} justify-self-end hidden sm:block`}>
+      <Avatar
+        className="shadow-lg border rounded-full border-white/20 p-0.5 w-10 h-10"
+        radius="lg"
+        src={src}
+        name={name}
+      />
+    </div>
+  );
+}
+
+function RailAvatarLeft({ src, name }: { src: string; name: string }) {
+  return (
+    <div className={`${AVATAR_RAIL_W} hidden sm:block`}>
+      <Avatar
+        className="shadow-lg border rounded-full border-white/20 p-0.5 w-10 h-10"
+        radius="lg"
+        src={src}
+        name={name}
+      />
+    </div>
+  );
+}
+
 /* ---------- Product mini card ---------- */
 function ProductMiniCard({ p }: { p: ProductInfo }) {
   return (
     <motion.div
       layout="position"
-      whileHover={{ y: -1 }}
-      transition={{ type: "spring", stiffness: 320, damping: 30, mass: 0.7 }}
+      whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
+      transition={{ layout: SPRING_LAYOUT }}
       className="w-[180px] shrink-0 rounded-xl bg-white/5 p-2"
     >
       <div className="relative rounded-lg p-1.5">
-        {/* ล็อกอัตราส่วนป้องกัน layout shift */}
         <div className="aspect-[4/3] w-full overflow-hidden rounded-md bg-black/10">
           <NextUIImage alt={p.title} src={p.image} className="h-full w-full object-contain" />
         </div>
@@ -196,7 +234,7 @@ function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
           drag="x"
           dragConstraints={{ left: minX, right: 0 }}
           dragElastic={0.02}
-          transition={{ type: "spring", stiffness: 300, damping: 35, mass: 0.9 }}
+          transition={{ layout: SPRING_LAYOUT }}
         >
           {products.map((p, i) => <ProductMiniCard key={i} p={p} />)}
         </motion.div>
@@ -208,15 +246,19 @@ function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
 /* ---------- การ์ด ---------- */
 function ChartCard({ src, title }: { src: string; title?: string }) {
   return (
-    <div className="p-2">
+    <motion.div
+      layout="position"
+      whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
+      transition={{ layout: SPRING_LAYOUT }}
+      className="p-2"
+    >
       <div className="w-full rounded-2xl bg-white/[0.03] p-2">
-        {/* ล็อกกรอบภาพกัน shift */}
         <div className="flex items-center justify-center overflow-hidden rounded-xl bg-black/10 w-full max-w-[240px] max-h-[160px] mx-auto">
           <NextUIImage alt={title ?? "chart"} src={src} className="w-full h-full object-contain" loading="lazy" />
         </div>
         {title ? <div className="mt-2 text-center text-[10px] text-white/70">{title}</div> : null}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -228,7 +270,12 @@ function SummaryTableCard({ title }: { title?: string }) {
     { q: "Q4", rev: "$170", growth: "+13%" },
   ];
   return (
-    <div className="p-2">
+    <motion.div
+      layout="position"
+      whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
+      transition={{ layout: SPRING_LAYOUT }}
+      className="p-2"
+    >
       <div className="w-full rounded-2xl bg-white/[0.03] p-2">
         {title ? <div className="mb-2 text-center text-[10px] font-medium text-white/80">{title}</div> : null}
         <div className="overflow-hidden rounded-lg">
@@ -252,30 +299,21 @@ function SummaryTableCard({ title }: { title?: string }) {
           </table>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-/* ---------- Chat Timeline (Loop + Ultra-smooth) ---------- */
-type TimelineItem =
-  | { kind: "user"; key: string; text: string }
-  | { kind: "assistant"; key: string; text: string }
-  | { kind: "card"; key: string; idx: number; scenario: Scenario }
-  | { kind: "tail"; key: string }
-  | { kind: "divider"; key: string };
+/* ---------- Chat Timeline (Windowed + Seamless Loop) ---------- */
+type TimelineUser = { kind: "user"; key: string; text: string };
+type TimelineAssistant = { kind: "assistant"; key: string; text: string };
+type TimelineCard = { kind: "card"; key: string; idx: number; scenario: Scenario };
+type TimelineTail = { kind: "tail"; key: string };
+type TimelineDivider = { kind: "divider"; key: string };
 
-type InstancedItem = TimelineItem & { instanceId: number }; // key ที่ “เสถียร” ต่อชิ้น
+type TimelineItem = TimelineUser | TimelineAssistant | TimelineCard | TimelineTail | TimelineDivider;
 
-function ScrollableChat() {
-  const viewportRef = useRef<HTMLDivElement | null>(null);
-  const contentRef = useRef<HTMLDivElement | null>(null);
-
-  const y = useMotionValue(0);
-  const [minY, setMinY] = useState(0);
-  const [autoFollow, setAutoFollow] = useState(true);
-
-  // ลิสต์หลัก (ไม่เปลี่ยน) + state แสดงผลแบบ “instance”
-  const MASTER: TimelineItem[] = useMemo(() => {
+function useMasterTimeline() {
+  return useMemo<TimelineItem[]>(() => {
     const arr: TimelineItem[] = [];
     SCENARIOS.forEach((sc, idx) => {
       sc.userMsgs.forEach((m) => arr.push({ kind: "user", key: m.id, text: m.text }));
@@ -286,40 +324,54 @@ function ScrollableChat() {
     });
     return arr;
   }, []);
+}
 
-  const [items, setItems] = useState<InstancedItem[]>([]);
-  const nextIdxRef = useRef(0);
-  const nextInstanceRef = useRef(1);
+const WINDOW = 28;
+const BASE_DELAY = 900;
+const JITTER = 0.18;
+
+function ScrollableChat() {
+  const MASTER = useMasterTimeline();
+  const L = MASTER.length;
+
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+
+  const y = useMotionValue(0);
+  const ySmooth = useSpring(y, SPRING_SCROLL);
+  const [minY, setMinY] = useState(0);
+  const [autoFollow, setAutoFollow] = useState(true);
+
+  const [seq, setSeq] = useState(1);
   const timerRef = useRef<number | null>(null);
 
-  const BASE_DELAY = 900;
-  const VARIANCE = 0.18; // ลด jitter ให้พอดีมือโปร
-
-  const scheduleNext = () => {
-    const jitter = 1 + (Math.random() * 2 - 1) * VARIANCE; // 0.82x - 1.18x
-    const delay = BASE_DELAY * jitter;
-    timerRef.current = window.setTimeout(() => {
-      const base = MASTER[nextIdxRef.current];
-      const instance: InstancedItem = { ...base, instanceId: nextInstanceRef.current++ };
-      setItems((prev) => [...prev, instance]);
-      nextIdxRef.current = (nextIdxRef.current + 1) % MASTER.length; // loop
-      scheduleNext();
-    }, delay) as unknown as number;
-  };
-
-  // เริ่มลูปเติมแบบเนียน ๆ
-  useEffect(() => {
-    if (!items.length) {
-      const first: InstancedItem = { ...MASTER[0], instanceId: nextInstanceRef.current++ };
-      setItems([first]);
-      nextIdxRef.current = 1 % MASTER.length;
-      scheduleNext();
+  const items: Array<{ instKey: string; item: TimelineItem }> = useMemo(() => {
+    const count = Math.min(seq, WINDOW);
+    const out: Array<{ instKey: string; item: TimelineItem }> = [];
+    for (let i = count; i >= 1; i--) {
+      const globalIndex = seq - i;
+      const cycle = Math.floor(globalIndex / L);
+      const idxInMaster = globalIndex % L;
+      const base = MASTER[idxInMaster];
+      const instKey = `${base.key}#${cycle}`;
+      out.push({ instKey, item: base });
     }
+    return out;
+  }, [seq, L, MASTER]);
+
+  useEffect(() => {
+    const schedule = () => {
+      const jitter = 1 + (Math.random() * 2 - 1) * JITTER;
+      const delay = BASE_DELAY * jitter;
+      timerRef.current = window.setTimeout(() => {
+        setSeq((s) => s + 1);
+        schedule();
+      }, delay) as unknown as number;
+    };
+    schedule();
     return () => { if (timerRef.current) window.clearTimeout(timerRef.current); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // คำนวณ bounds ทุกครั้งที่ layout เปลี่ยน
   useLayoutEffect(() => {
     const calc = () => {
       const vp = viewportRef.current;
@@ -341,24 +393,10 @@ function ScrollableChat() {
     return () => ro.disconnect();
   }, [y, items.length]);
 
-  // ออโต้สโครลแบบ “lerp” ลื่นมาก ไม่มีเด้งแรง
   useEffect(() => {
-    if (!autoFollow) return;
-    let raf = 0;
-    const smoothFollow = () => {
-      const current = y.get();
-      const target = minY;
-      // alpha 0.18 = ไล่ช้าแต่นุ่ม (ปรับได้ 0.12–0.25)
-      const alpha = 0.18;
-      const next = current + (target - current) * alpha;
-      y.set(Math.abs(next - target) < 0.2 ? target : next);
-      if (next !== target) raf = requestAnimationFrame(smoothFollow);
-    };
-    raf = requestAnimationFrame(smoothFollow);
-    return () => cancelAnimationFrame(raf);
-  }, [items.length, minY, y, autoFollow]);
+    if (autoFollow) y.set(minY);
+  }, [items.length, minY, autoFollow, y]);
 
-  // เลื่อนด้วยเมาส์: ใกล้ native + ลบ momentum แข็ง ๆ ออก
   useEffect(() => {
     const vp = viewportRef.current;
     if (!vp) return;
@@ -374,112 +412,132 @@ function ScrollableChat() {
     return () => vp.removeEventListener("wheel", onWheel);
   }, [y, minY]);
 
+  const [showToLatest, setShowToLatest] = useState(false);
+  useEffect(() => {
+    const unsub = y.on("change", (val) => {
+      setShowToLatest(Math.abs(val - minY) > 6);
+    });
+    return () => unsub();
+  }, [y, minY]);
+
   const scrollToBottom = () => {
     setAutoFollow(true);
-    // “ติดพื้น” อย่างนุ่มนวลด้วย lerp รอบถัดไป
+    y.set(minY);
   };
 
-  const renderItem = (item: InstancedItem) => {
-    const stableKey = `${item.key}#${item.instanceId}`; // คีย์เสถียร—ไม่มี Math.random
+  // ----- Renderer (ใช้ grid 3 คอลัมน์ + ราง avatar คงที่) -----
+  const renderItem = (instKey: string, item: TimelineItem) => {
     if (item.kind === "user") {
       return (
         <motion.div
-          key={stableKey}
+          key={instKey}
           layout="position"
           variants={bubbleVariants}
           initial="hidden"
           animate="visible"
-          transition={{ layout: { type: "spring", stiffness: 240, damping: 28, mass: 0.9 } }}
-          className="relative flex justify-start"
+          transition={{ layout: SPRING_LAYOUT }}
+          className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3"
+          whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
         >
-          <div className="mt-1 mr-3 hidden sm:block">
-            <Avatar className="shadow-lg border rounded-full border-white/20 p-0.5" radius="lg" size="sm" src="/images/user.png" name="You" />
-          </div>
-          <div className="max-w-[46rem] rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] leading-relaxed text-white">
+          <RailAvatarLeft src="/images/user.png" name="You" />
+
+          <div className="max-w-[46rem] justify-self-start rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] leading-relaxed text-white">
             {item.text}
           </div>
+
+          <div className={AVATAR_RAIL_W} />
         </motion.div>
       );
     }
+
     if (item.kind === "assistant") {
       return (
         <motion.div
-          key={stableKey}
+          key={instKey}
           layout="position"
           variants={bubbleVariants}
           initial="hidden"
           animate="visible"
-          transition={{ layout: { type: "spring", stiffness: 240, damping: 28, mass: 0.9 } }}
-          className="relative mr-2 flex w-full justify-end"
+          transition={{ layout: SPRING_LAYOUT }}
+          className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3"
+          whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
         >
-          <div className="mr-8 w-full max-w-[46rem] rounded-[22px] rounded-br-none border border-white/12 bg-gradient-to-b from-white/10 to-white/5 px-5 py-3 text-right text-[15px] leading-relaxed text-white">
+          <div className={AVATAR_RAIL_W} />
+
+          <div className="max-w-[46rem] justify-self-end rounded-[22px] rounded-br-none border border-white/12 bg-gradient-to-b from-white/10 to-white/5 px-5 py-3 text-right text-[15px] leading-relaxed text-white">
             {item.text}
           </div>
+
+          <RailAvatarRight src="/images/starai.png" name="AI" />
         </motion.div>
       );
     }
+
     if (item.kind === "card") {
       const idx = item.idx;
       const sc = item.scenario;
       const isFirst = idx === 0;
-      const isSecond = idx === 1;
-      const isThird = idx === 2;
-      const isFourth = idx === 3;
-      const isFifth = idx === 4;
 
       return (
         <motion.div
-          key={stableKey}
+          key={instKey}
           layout="position"
           variants={bubbleVariants}
           initial="hidden"
           animate="visible"
-          transition={{ layout: { type: "spring", stiffness: 240, damping: 28, mass: 0.9 } }}
-          className="relative flex w-full justify-end"
+          transition={{ layout: SPRING_LAYOUT }}
+          className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3"
+          whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
         >
-          <Frame radius={22} squareBR className={`w-full ${isFirst ? "max-w-[560px]" : "max-w-[260px]"}`}>
-            {isFirst ? (
-              <FirstScenarioProductsStrip products={sc.products ?? [sc.product]} />
-            ) : isSecond ? (
-              <ChartCard src={sc.product.image} title={sc.product.title} />
-            ) : isThird ? (
-              <SummaryTableCard title={sc.product.title} />
-            ) : isFourth ? (
-              <ChartCard src={sc.product.image} title={sc.product.title} />
-            ) : isFifth ? (
-              <ChartCard src={sc.product.image} title={sc.product.title} />
-            ) : null}
-          </Frame>
+          <div className={AVATAR_RAIL_W} />
+
+          <div className="justify-self-end">
+            <Frame radius={22} squareBR className={`w-full ${isFirst ? "max-w-[560px]" : "max-w-[260px]"}`}>
+              {isFirst ? (
+                <FirstScenarioProductsStrip products={sc.products ?? [sc.product]} />
+              ) : idx === 1 || idx === 3 || idx === 4 ? (
+                <ChartCard src={sc.product.image} title={sc.product.title} />
+              ) : (
+                <SummaryTableCard title={sc.product.title} />
+              )}
+            </Frame>
+          </div>
+
+          <RailAvatarRight src="/images/starai.png" name="AI" />
         </motion.div>
       );
     }
+
     if (item.kind === "tail") {
       return (
         <motion.div
-          key={stableKey}
+          key={instKey}
           layout="position"
           variants={bubbleVariants}
           initial="hidden"
           animate="visible"
-          transition={{ layout: { type: "spring", stiffness: 240, damping: 28, mass: 0.9 } }}
-          className="relative flex w-full justify-start"
+          transition={{ layout: SPRING_LAYOUT }}
+          className="relative grid grid-cols-[auto_1fr_auto] items-start gap-3"
+          whileHover={{ y: -1, boxShadow: "0px 4px 16px rgba(0,0,0,0.12)" }}
         >
-          <div className="mt-1 mr-3 hidden sm:block">
-            <Avatar className="shadow-lg" radius="lg" size="sm" src="/images/user.png" name="You" />
-          </div>
-          <div className="max-w-[40rem] rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] text-white">
+          <RailAvatarLeft src="/images/user.png" name="You" />
+
+          <div className="max-w-[40rem] justify-self-start rounded-[22px] rounded-bl-none border border-white/12 bg-gradient-to-b from-white/8 to-white/4 px-5 py-3 text-[15px] text-white">
             Awesome, thanks! That’s exactly what I needed 🙌
           </div>
+
+          <div className={AVATAR_RAIL_W} />
         </motion.div>
       );
     }
+
     // divider
     return (
       <motion.div
-        key={stableKey}
+        key={instKey}
         layout="position"
         className="my-6 flex items-center gap-3"
-        transition={{ layout: { type: "spring", stiffness: 240, damping: 28, mass: 0.9 } }}
+        transition={{ layout: SPRING_LAYOUT }}
       >
         <div className="h-px w-full bg-white/10" />
         <span className="text-[10px] uppercase tracking-widest text-white/40">Next</span>
@@ -496,30 +554,28 @@ function ScrollableChat() {
           <div ref={viewportRef} className="relative max-h-[560px] overflow-hidden pr-1 md:pr-2">
             <motion.div
               ref={contentRef}
-              layout // เปิด FLIP ทั้งคอลัมน์
+              layout
               className="pb-14 pt-2 space-y-6 will-change-transform"
-              style={{ y }}
+              style={{ y: ySmooth }}
               drag="y"
               dragElastic={0}
+              dragMomentum
+              dragTransition={{ power: 0.15, timeConstant: 280 }}
               onDrag={(e, info) => {
                 const cur = y.get();
                 const next = Math.max(Math.min(cur + info.delta.y, 0), minY);
                 y.set(next);
                 if (info.delta.y > 2) setAutoFollow(false);
               }}
-              onDragEnd={() => {
-                // ปล่อยเฉย ๆ ให้ lerp จบแทน spring กระชาก
-              }}
-              transition={{ layout: { type: "spring", stiffness: 220, damping: 26, mass: 1 } }}
+              transition={{ layout: SPRING_LAYOUT }}
             >
-              {items.map(renderItem)}
+              {items.map(({ instKey, item }) => renderItem(instKey, item))}
             </motion.div>
           </div>
 
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 z-10" />
 
-          {/* ปุ่มกลับไปล่างสุด */}
-          {Math.abs(y.get() - minY) > 6 && (
+          {showToLatest && (
             <button
               onClick={scrollToBottom}
               className="group absolute bottom-4 right-4 z-20 rounded-full bg-white/10 px-3 py-2 backdrop-blur transition hover:bg-white/20"
@@ -539,20 +595,27 @@ function ScrollableChat() {
 
 /* ---------- Page ---------- */
 export default function Page() {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
-    <main className="px-0 mt-40 md:px-0">
-      <div className="w-full ">
-        <div className="mb-8 text-center">
-          <p className="mb-3 font-semibold text-lg text-[#676767] lg:text-xl">The Future of Smart Sales</p>
-          <h2 className="text-xl text-white lg:text-[40px]">Chat sale by AI</h2>
+    <MotionConfig
+      reducedMotion={prefersReducedMotion ? "always" : "never"}
+      transition={SPRING_LAYOUT}
+    >
+      <main className="px-0 mt-40 md:px-0">
+        <div className="w-full ">
+          <div className="mb-8 text-center">
+            <p className="mb-3 font-semibold text-lg text-[#676767] lg:text-xl">The Future of Smart Sales</p>
+            <h2 className="text-xl text-white lg:text-[40px]">Chat sale by AI</h2>
+          </div>
+          <ScrollableChat />
+          <div className="mx-auto mt-10 flex max-w-sm items-center justify-center text-center font-semibold">
+            <p className="text-[#676767]">
+              An AI-powered sales assistant that chats, qualifies, recommends, and helps close deals — 24/7.
+            </p>
+          </div>
         </div>
-        <ScrollableChat />
-        <div className="mx-auto mt-10 flex max-w-sm items-center justify-center text-center font-semibold">
-          <p className="text-[#676767]">
-            An AI-powered sales assistant that chats, qualifies, recommends, and helps close deals — 24/7.
-          </p>
-        </div>
-      </div>
-    </main>
+      </main>
+    </MotionConfig>
   );
 }

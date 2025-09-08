@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import SplashCursor from "@/app/components/ui/SplashCursor";
 import { useState } from "react";
 
 type FooterLink = { label: string; href: string; external?: boolean };
@@ -38,11 +37,6 @@ const legal: FooterLink[] = [
 export default function Footer() {
   return (
     <footer className="relative w-full overflow-hidden text-white/90">
-      {/* กัน SplashCursor ไปกิน hover ของไอคอน */}
-      <div className="pointer-events-none">
-        <SplashCursor />
-      </div>
-
       <div className="mx-auto max-w-7xl px-6 py-14 lg:py-20">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
