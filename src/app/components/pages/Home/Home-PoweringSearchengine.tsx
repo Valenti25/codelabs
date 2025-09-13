@@ -446,8 +446,8 @@ export default function SearchEngineAI() {
         <h1 className="mt-2 text-xl lg:text-[40px]">Powering Search engine</h1>
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 py-10 md:grid md:grid-cols-12 md:gap-12">
-        <div className="md:order-1 md:col-span-4">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 py-10 lg:grid md:grid-cols-1 lg:grid-cols-12 md:gap-12">
+        <div className="md:order-1 md:col-span-4 ">
           <h2 className="text-lg font-semibold text-white">Search engine AI</h2>
           <p className="mt-4 max-w-sm text-xs font-semibold text-[#676767]">
             An AI-powered sales assistant that chats, qualifies, recommends and helps close deals <span className="tabular-nums">24/7</span>.

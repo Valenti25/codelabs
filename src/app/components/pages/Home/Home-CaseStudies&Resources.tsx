@@ -59,7 +59,7 @@ export default function ChatsalebyAI() {
 
       <motion.div
         ref={carouselRef}
-        className="w-full overflow-hidden  cursor-grab px-8"
+        className="w-full overflow-hidden cursor-grab md:px-8"
       >
         <motion.div
           ref={motionRef}
@@ -72,7 +72,7 @@ export default function ChatsalebyAI() {
           {data.map((item, idx) => (
             <div
               key={idx}
-              className="flex-shrink-0  max-w-[370px]"
+              className="flex-shrink-0 md:max-w-[370px] max-w-xs w-full"
             >
               <Card
                 isHoverable

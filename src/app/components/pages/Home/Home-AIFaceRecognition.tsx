@@ -281,7 +281,7 @@ export default function Page() {
             <p className="text-lg text-[#676767]">
               Instant, secure identity check
             </p>
-            <h1 className="mt-2 text-xl lg:text-[40px]">AI Face Recognition</h1>
+            <h1 className="mt-2 text-xl md:text-[40px]">AI Face Recognition</h1>
           </div>
 
           <div className="mx-auto max-w-full gap-12 md:flex-row lg:flex lg:flex-nowrap lg:items-start lg:justify-center">
@@ -346,10 +346,9 @@ export default function Page() {
             </div>
 
             {/* ขวา: การ์ด */}
-            <div className="flex w-full">
+            <div className="md:flex mt-20 md:mt-0 md:w-full flex-row">
               {/* แถวบน: 1–2 */}
-              {/* แถวบน: 1–2 */}
-              <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-8 overflow-x-auto pb-2 lg:flex-nowrap lg:justify-start lg:overflow-visible">
+              <div className="mx-auto flex flex-wrap items-center justify-center gap-8 overflow-x-auto pb-2 lg:flex-nowrap lg:justify-start lg:overflow-visible">
                 {/* ใบแรก: ใช้ ShowRoom2 (room2) */}
                 <ScanPhone
                   heading="Face ID"
@@ -368,9 +367,9 @@ export default function Page() {
               </div>
 
               {/* คั่น */}
-              <div className="mx-auto my-10 flex max-w-3xl items-center gap-3 px-4">
-                <div className="h-px w-full bg-white/10" />
-                <div className="h-px w-full bg-white/10" />
+              <div className="mx-auto md:my-10 my-3 flex max-w-3xl items-center gap-3 px-4">
+                <div className="h-px w-full " />
+                <div className="h-px w-full " />
               </div>
 
               {/* แถวล่าง: การ์ดผลลัพธ์ (สลับ Success/Failed) */}

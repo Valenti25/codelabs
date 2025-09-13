@@ -46,19 +46,19 @@ export default function Footer() {
                 alt="codelabs ai"
                 width={150}
                 height={30}
-                className="h-auto w-[160px]"
+                className="h-auto w-[120px] md:w-[160px]"
                 priority
               />
             </Link>
-            <p className="mt-2 text-xs font-semibold leading-relaxed text-[#676767]">
+            <p className="mt-2 text-xs leading-relaxed font-semibold text-[#676767]">
               Codelabs AI empowers businesses to turn raw data into intelligent
               insights — making decisions faster, smarter, and easier to act on.
             </p>
           </div>
 
           {/* Link columns */}
-          <div className="lg:-mr-14 ml-auto grid grid-cols-4 lg:col-span-8 lg:max-w-xl text-sm lg:text-xs font-semibold">
-            <div className="ml-3 lg:-ml-12 lg:w-[200px]">
+          <div className="ml-auto gap-x-11 gap-5 md:gap-0 grid grid-cols-2 text-sm font-semibold md:grid-cols-4 lg:col-span-8 lg:-mr-14 lg:max-w-xl lg:text-xs">
+            <div className="md:-ml-12 md:w-[200px] w-[200px]">
               <FooterColumn title="Products" links={products} />
             </div>
             <FooterColumn title="Case Studies" links={caseStudies} />
@@ -67,22 +67,28 @@ export default function Footer() {
           </div>
         </div>
 
-        <hr className="my-12 opacity-20" />
+        <hr className="md:my-12 my-10 opacity-20" />
         {/* Bottom bar */}
         <div className="flex flex-col items-start justify-between gap-4 text-sm font-semibold text-[#676767] md:flex-row">
           <p>© 2025 codelabs ai. All rights reserved.</p>
 
-          <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          <nav className="flex flex-wrap items-center md:gap-x-6 gap-3 md:gap-y-2">
             {legal.map((l) => (
               <FooterLegalLink key={l.label} {...l} />
             ))}
           </nav>
         </div>
 
-        <div className="mt-8 flex items-center justify-between">
+        <div className="mt-8 md:flex md:items-center md:justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-[#676767]">Powered by</span>
-            <Link href="/" aria-label="Your Company" className="inline-flex items-center">
+            <span className="text-sm font-semibold text-[#676767]">
+              Powered by
+            </span>
+            <Link
+              href="/"
+              aria-label="Your Company"
+              className="inline-flex items-center"
+            >
               <Image
                 src="/svg/logo-codelab-text-row7.svg"
                 alt="Icon Company"
@@ -93,7 +99,7 @@ export default function Footer() {
             </Link>
           </div>
 
-          <div className="flex gap-5">
+          <div className="flex gap-5 mt-5 md:mt-0">
             <SocialIcon
               href="/"
               label="Discord"

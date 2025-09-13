@@ -274,18 +274,18 @@ const HeroContent = memo(function HeroContentBase({
   line2,
 }: HeroContentProps) {
   return (
-    <div className="relative z-10 mx-auto mt-16 w-full px-4 py-20 sm:px-8 lg:px-28 lg:py-20">
+    <div className="relative z-10 mx-auto mt-16 w-full px-4 md:py-20 lg:px-28 ">
       <section className="grid place-items-center px-6">
-        <h1 className="max-w-5xl text-center text-4xl font-semibold text-white sm:text-6xl lg:text-6xl">
+        <h1 className="max-w-5xl min-w-6xl text-center text-xl font-semibold text-white md:text-4xl lg:text-6xl">
           <span className="block">
             <span className="gradient-text-animated2">
               AI Innovation
-            </span>{" "}
+            </span>
             at the core.
           </span>
 
-          <span className="block mt-4">
-            Turning{" "}
+          <span className="block lg:mt-4">
+            Turning
             <span className="gradient-text-animated2">
               Data → Insight
             </span>
@@ -294,11 +294,11 @@ const HeroContent = memo(function HeroContentBase({
         </h1>
       </section>
 
-      <h1 className="mb-3 pt-6 text-lg leading-tight text-white lg:mt-6 lg:text-[36px]">
+      <h1 className="mb-3 md:pt-6 pt-3 text-sm leading-tight text-white lg:mt-6 md:text-2xl lg:text-4xl">
         {subtitle}
       </h1>
 
-      <div className="mx-auto max-w-6xl text-xs text-neutral-400 lg:text-lg">
+      <div className="mx-auto text-xs text-[#676767] font-semibold md:text-lg">
         <p>{line1}</p>
         <p>{line2}</p>
       </div>
@@ -361,9 +361,9 @@ export default function Hero(): ReactElement {
 
       <form
         onSubmit={onSubmit}
-        className="pointer-events-auto relative z-40 mx-auto mt-3 mb-10 w-full max-w-[min(92vw,48rem)] px-2 sm:-mt-2 sm:mb-14 sm:px-0 md:-mt-10 md:mb-20 lg:-mt-20 lg:mb-24 xl:-mt-28"
+        className="pointer-events-auto relative z-40 mx-auto mt-8 md:mt-3 mb-10 w-full lg:max-w-xl lg:min-w-2xl md:max-w-lg md:min-w-xl"
       >
-        <GlowFrame className="mt-28 rounded-full">
+        <GlowFrame className=" rounded-full">
           <Input
             value={inputText}
             onChange={(e) => SetInputText(e.target.value)}
@@ -376,8 +376,8 @@ export default function Hero(): ReactElement {
             classNames={{
               base: "w-full",
               inputWrapper:
-                "rounded-full shadow-none border-none bg-transparent " +
-                "h-11 sm:h-12 md:h-14 px-2 md:px-3 " +
+                "rounded-full shadow-none border-none bg-transparent" +
+                "h-11 lg:h-14 md:h-12 h-9 px-2 md:px-3" +
                 "data-[hover=true]:bg-transparent group-hover:bg-transparent",
               input: "text-sm md:text-base text-white",
               innerWrapper: "gap-2",
@@ -404,7 +404,7 @@ export default function Hero(): ReactElement {
       </form>
 
       {/* Logos */}
-      <div className="relative z-30 mx-auto w-[80%] lg:mb-28 lg:max-w-5xl">
+      <div className="relative z-30 mx-auto lg:w-[80%] md:w-[60%] lg:mb-20 lg:max-w-5xl">
         <GradientMask>
           <InfiniteMarquee speed={0.7}>
             <LogoGrid />

@@ -153,10 +153,6 @@ function BigTextarea({
     el.style.overflowY = next < el.scrollHeight ? "auto" : "hidden";
   };
 
-  useEffect(() => {
-    autosize();
-  }, []);
-
   return (
     <textarea
       ref={ref}
@@ -333,13 +329,13 @@ export default function Page() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative isolate mx-auto w-full max-w-7xl overflow-visible" // isolate กัน blend/blur แปลกๆ
+        className="relative isolate mx-auto w-full max-w-7xl overflow-visible" 
       >
-        <div className="pointer-events-none mx-auto flex max-w-4xl items-center justify-center">
+        <div className="pointer-events-none mx-auto items-center justify-center flex max-w-3xl">
           <ModelRot />
         </div>
 
-        <h1 className="text-center text-[40px] leading-none font-extrabold tracking-[0.02em] uppercase sm:text-[52px] md:text-[64px]">
+        <h1 className="text-center text-xl font-semibold uppercase md:text-[40px]">
           GET IN TOUCH
         </h1>
         <p className="mt-4 text-center text-base text-white/70 sm:text-lg">
@@ -456,7 +452,7 @@ export default function Page() {
               <HoverPill
                 key={i}
                 rounded="rounded-3xl"
-                className="min-h-[140px]"
+                className="md:min-h-[140px] min-h-[120px]"
               >
                 <a
                   href={href}
@@ -474,7 +470,7 @@ export default function Page() {
                       <div className="text-lg font-medium text-white/90">
                         {title}
                       </div>
-                      <div className="mt-1 text-base leading-relaxed break-words text-white/65">
+                      <div className="mt-1 text-sm leading-relaxed break-words text-white/65">
                         {subtitle}
                       </div>
                     </div>

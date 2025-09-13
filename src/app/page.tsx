@@ -2,11 +2,15 @@
 import Navbar from "./components/Navbar/AppNavbar";
 import Hero from "./components/pages/Home/Home-Hero";
 import dynamic from "next/dynamic";
-import LightRays from "./components/ui/LightRays";
 
 const LandingPage = dynamic(
   () =>
     import("./components/pages/Home/Home-Landing").then((mod) => mod.default),
+  { ssr: false },
+);
+const LightRays = dynamic(
+  () =>
+    import("./components/ui/LightRays").then((mod) => mod.default),
   { ssr: false },
 );
 const HomeAIOpticalCharacterRecognition = dynamic(
