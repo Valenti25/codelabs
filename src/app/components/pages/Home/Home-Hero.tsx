@@ -17,6 +17,8 @@ import content from "@/locales/en/home.json";
 import Meteors from "../../ui/meteors";
 import { SparklesCore } from "../../ui/SparklesCore";
 import { toast } from "sonner";
+import Star from "../../ui/star";
+import Image from "next/image";
 /** ================== Types & Data ================== */
 interface Logo {
   src: string;
@@ -274,31 +276,27 @@ const HeroContent = memo(function HeroContentBase({
   line2,
 }: HeroContentProps) {
   return (
-    <div className="relative z-10 mx-auto mt-16 w-full px-4 md:py-20 lg:px-28 ">
+    <div className="relative z-10 mx-auto mt-16 w-full px-4 md:py-20 lg:px-28">
       <section className="grid place-items-center px-6">
         <h1 className="max-w-5xl min-w-6xl text-center text-xl font-semibold text-white md:text-4xl lg:text-6xl">
           <span className="block">
-            <span className="gradient-text-animated2">
-              AI Innovation
-            </span>
+            <span className="gradient-text-animated2">AI Innovation</span>
             at the core.
           </span>
 
           <span className="block lg:mt-4">
             Turning
-            <span className="gradient-text-animated2">
-              Data → Insight
-            </span>
-            , instantly.
+            <span className="gradient-text-animated2">Data → Insight</span>,
+            instantly.
           </span>
         </h1>
       </section>
 
-      <h1 className="mb-3 md:pt-6 pt-3 text-sm leading-tight text-white lg:mt-6 md:text-2xl lg:text-4xl">
+      <h1 className="mb-3 pt-3 text-sm leading-tight text-white md:pt-6 md:text-2xl lg:mt-6 lg:text-4xl">
         {subtitle}
       </h1>
 
-      <div className="mx-auto text-xs text-[#676767] font-semibold md:text-lg">
+      <div className="mx-auto text-xs font-semibold text-[#676767] md:text-lg">
         <p>{line1}</p>
         <p>{line2}</p>
       </div>
@@ -361,9 +359,9 @@ export default function Hero(): ReactElement {
 
       <form
         onSubmit={onSubmit}
-        className="pointer-events-auto relative z-40 mx-auto mt-8 md:mt-3 mb-10 w-full lg:max-w-xl lg:min-w-2xl md:max-w-lg md:min-w-xl"
+        className="pointer-events-auto relative z-40 mx-auto mt-8 mb-10 w-full md:mt-3 md:max-w-lg md:min-w-xl lg:max-w-xl lg:min-w-2xl"
       >
-        <GlowFrame className=" rounded-full">
+        <GlowFrame className="rounded-full">
           <Input
             value={inputText}
             onChange={(e) => SetInputText(e.target.value)}
@@ -383,28 +381,33 @@ export default function Hero(): ReactElement {
               innerWrapper: "gap-2",
             }}
             startContent={
-              <div className="ml-2 flex items-center gap-3 md:ml-3">
+              <div className="mx-auto mr-1 ml-2 flex items-center justify-between gap-2">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full">
-                  <Plus className="h-4 w-4 text-white/75 md:h-5 md:w-5" />
+                  <Star />
                 </span>
-                <span className="h-4 w-px bg-white/10" />
+                <span className="mr-2 ml-4 h-5 w-px bg-white/10" />
               </div>
             }
             endContent={
-              <button
-                type="submit"
+              <div
                 aria-label="Send"
-                className="mr-2 flex h-8 w-8 items-center justify-center rounded-full"
+                className="mr-5 gap-3 flex h-8 w-8 items-center justify-center rounded-full"
               >
-                <Send className="h-5 w-5 text-white/80 md:h-5 md:w-5" />
-              </button>
+                <Image alt="" src="/svg/plus.svg" width={22} height={22} />
+                <Image
+                  alt=""
+                  src="/svg/Microphone.svg"
+                  width={22}
+                  height={22}
+                />
+              </div>
             }
           />
         </GlowFrame>
       </form>
 
       {/* Logos */}
-      <div className="relative z-30 mx-auto lg:w-[80%] md:w-[60%] lg:mb-20 lg:max-w-5xl">
+      <div className="relative z-30 md:pt-20 mx-auto md:w-[60%] lg:mb-20 lg:w-[80%] lg:max-w-5xl">
         <GradientMask>
           <InfiniteMarquee speed={0.7}>
             <LogoGrid />
