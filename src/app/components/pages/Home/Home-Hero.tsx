@@ -105,21 +105,23 @@ const InfiniteMarquee = memo(function InfiniteMarquee({
 });
 
 function CircleAvatar({
-  className = "p-2", 
+  className = "p-2",
   src,
   alt,
   initials = "AI",
-  size = 32, // เล็กลง + สม่ำเสมอ ทั้งสองฝั่ง
+  size = 32,
 }: {
   src?: string;
   alt?: string;
   initials?: string;
   size?: number;
-  className?: string; 
+  className?: string;
 }) {
   return (
     <div
-      className={"relative rounded-full overflow-hidden bg-white/10 ring-1 ring-white/15 grid place-items-center text-[11px] text-white/80 flex-shrink-0"}
+      className={
+        "relative rounded-full overflow-hidden bg-white/10 ring-1 ring-white/15 grid place-items-center text-[11px] text-white/80 flex-shrink-0"
+      }
       style={{ width: size, height: size }}
       aria-label={alt}
       role="img"
@@ -188,8 +190,10 @@ const GradientMask: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   <div
     className="overflow-visible"
     style={{
-      maskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
-      WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+      maskImage:
+        "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+      WebkitMaskImage:
+        "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
     }}
   >
     {children}
@@ -197,7 +201,7 @@ const GradientMask: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 );
 
 /** ================== GlowFrame (กรอบ input มีแสงตามเมาส์) ================== */
-function GlowFrame({ children, className = "" }: { children: React.ReactNode; className?: string; }) {
+function GlowFrame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -224,15 +228,17 @@ function GlowFrame({ children, className = "" }: { children: React.ReactNode; cl
         }}
         aria-hidden
       />
-      <div className="card-inner-bg card-inner-blur relative z-10 rounded-full">
-        {children}
-      </div>
+      <div className="card-inner-bg card-inner-blur relative z-10 rounded-full">{children}</div>
     </div>
   );
 }
 
 /** ================== ส่วนข้อความหัว (เดิม) ================== */
-interface HeroContentProps { subtitle: string; line1: string; line2: string; }
+interface HeroContentProps {
+  subtitle: string;
+  line1: string;
+  line2: string;
+}
 const HeroContent = memo(function HeroContentBase({ subtitle, line1, line2 }: HeroContentProps) {
   return (
     <div className="relative z-10 mx-auto mt-16 w-full px-4 md:py-20 lg:px-28">
@@ -247,9 +253,7 @@ const HeroContent = memo(function HeroContentBase({ subtitle, line1, line2 }: He
         </h1>
       </section>
 
-      <h1 className="mb-3 pt-3 text-sm leading-tight text-white md:pt-6 md:text-2xl lg:mt-6 lg:text-4xl">
-        {subtitle}
-      </h1>
+      <h1 className="mb-3 pt-3 text-sm leading-tight text-white md:pt-6 md:text-2xl lg:mt-6 lg:text-4xl">{subtitle}</h1>
 
       <div className="mx-auto text-xs font-semibold text-[#676767] md:text-lg">
         <p>{line1}</p>
@@ -259,7 +263,7 @@ const HeroContent = memo(function HeroContentBase({ subtitle, line1, line2 }: He
   );
 });
 
-/** ================== แชท (logic ที่ย่อให้สั้นลง) ================== */
+/** ================== แชท ================== */
 function ChatBubble({
   role,
   text,
@@ -275,9 +279,7 @@ function ChatBubble({
     <div
       className={[
         "flex w-full items-end",
-        // เพิ่ม padding ซ้าย/ขวา เพื่อให้รูป/บับเบิลไม่ชิดกรอบ panel
         "px-2 md:px-3",
-        // เพิ่มช่องไฟระหว่าง avatar และ bubble
         isUser ? "justify-end gap-3 md:gap-4" : "justify-start gap-3 md:gap-4",
       ].join(" ")}
     >
@@ -294,12 +296,8 @@ function ChatBubble({
         className={[
           "max-w-[85%] px-4 py-2 text-sm md:text-base leading-relaxed",
           "rounded-2xl",
-          isUser
-            ? "bg-white/90 text-black shadow"
-            : "bg-white/8 text-white/90 ring-1 ring-white/10 backdrop-blur",
-          // ตัดมุมล่าง: ซ้ายล่าง (assistant) ไม่มน, ขวาล่าง (user) ไม่มน
+          isUser ? "bg-white/90 text-black shadow" : "bg-white/8 text-white/90 ring-1 ring-white/10 backdrop-blur",
           isUser ? "rounded-br-none" : "rounded-bl-none",
-          // เว้นจากขอบ panel ด้านในอีกชั้นนึง
           isUser ? "mr-1" : "ml-1",
         ].join(" ")}
       >
@@ -322,40 +320,52 @@ function ChatPanel({
   open,
   messages,
   scrollRef,
+  variant = "inline",
+  children, // composer (Input) จะถูกส่งมาวางในนี้
 }: {
   open: boolean;
   messages: ChatMsg[];
   scrollRef: React.RefObject<HTMLDivElement>;
+  variant?: "inline" | "floating";
+  children?: React.ReactNode;
 }) {
+  if (!open) return null;
+
+  const ChatBody = (
+    <div className="rounded-3xl backdrop-blur-md ring-1 ring-white/12 shadow-[0_12px_40px_rgba(0,0,0,0.55)]">
+      <div
+        ref={scrollRef}
+        className="max-h-[50vh] overflow-y-auto py-3 md:py-4 space-y-2 md:space-y-3 scroll-smooth"
+      >
+        {messages.length === 0 ? (
+          <div className="text-center text-white/60 text-sm py-8 px-4">เริ่มพิมพ์คำถามด้านบนเพื่อเริ่มแชท</div>
+        ) : (
+          messages.map((m) => <ChatBubble key={m.id} role={m.role} text={m.text} />)
+        )}
+      </div>
+
+      {/* composer อยู่ในแชท */}
+      {children && <div className="border-t border-white/10 p-2 md:p-3">{children}</div>}
+    </div>
+  );
+
+  if (variant === "inline") {
+    // โหมด relative: มีพื้นที่ของตัวเอง ดันเลย์เอาต์จริง
+    return <div className="mt-3">{ChatBody}</div>;
+  }
+
+  // โหมดลอย (ถ้าอยากสลับกลับในอนาคต)
   return (
     <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0, y: -8, scaleY: 0.96 }}
-          animate={{ opacity: 1, y: 0, scaleY: 1 }}
-          exit={{ opacity: 0, y: -8, scaleY: 0.96 }}
-          transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute left-0 right-0 top-full z-50 mt-3"
-        >
-          <div className="rounded-3xl backdrop-blur-md ring-1 ring-white/12 shadow-[0_12px_40px_rgba(0,0,0,0.55)]">
-            <div
-              ref={scrollRef}
-              // เพิ่ม padding รอบๆ ให้เนื้อหา/อวาตาร์ไม่ติดกรอบ
-              className="max-h-[50vh] overflow-y-auto py-3 md:py-4 space-y-2 md:space-y-3 scroll-smooth"
-            >
-              {messages.length === 0 ? (
-                <div className="text-center text-white/60 text-sm py-8 px-4">
-                  เริ่มพิมพ์คำถามด้านบนเพื่อเริ่มแชท
-                </div>
-              ) : (
-                messages.map((m) => (
-                  <ChatBubble key={m.id} role={m.role} text={m.text} />
-                ))
-              )}
-            </div>
-          </div>
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, y: -8, scaleY: 0.96 }}
+        animate={{ opacity: 1, y: 0, scaleY: 1 }}
+        exit={{ opacity: 0, y: -8, scaleY: 0.96 }}
+        transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute left-0 right-0 top-full z-50 mt-3"
+      >
+        {ChatBody}
+      </motion.div>
     </AnimatePresence>
   );
 }
@@ -408,21 +418,31 @@ export default function Hero(): ReactElement {
     });
   }, [messages, chatOpen]);
 
-  const onSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    const text = inputText.trim();
-    if (!text) return;
+  const onSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const text = inputText.trim();
+      if (!text) return;
 
-    setChatOpen(true);
-    setMessages((prev) => [...prev, { id: uid(), role: "user", text }]);
-    setInputText("");
+      setChatOpen(true);
 
-    // ตัวอย่างตอบกลับแบบง่าย (ไม่ต้อง setTimeout ก็ได้)
-    setMessages((prev) => [
-      ...prev,
-      { id: uid(), role: "assistant", text: "นี่คือข้อความตอบกลับตัวอย่าง (demo)." },
-    ]);
-  }, [inputText]);
+      const userMsg: ChatMsg = { id: uid(), role: "user", text };
+      setMessages((prev) => [...prev, userMsg]); // โพสต์ของผู้ใช้หลัง "กดส่ง" เท่านั้น
+
+      setInputText(""); // เคลียร์อินพุต
+
+      // (ออปชัน) ให้บอทตอบเดโม่ตามหลังเล็กน้อย
+      const botMsg: ChatMsg = {
+        id: uid(),
+        role: "assistant",
+        text: "นี่คือข้อความตอบกลับตัวอย่าง (demo).",
+      };
+      setTimeout(() => {
+        setMessages((prev) => [...prev, botMsg]);
+      }, 200);
+    },
+    [inputText]
+  );
 
   return (
     <section className="relative flex flex-col items-center justify-center px-4 text-center">
@@ -448,80 +468,109 @@ export default function Hero(): ReactElement {
       )}
 
       <div className="relative z-20">
-        <HeroContent
-          subtitle={heroText.subtitle}
-          line1={heroText.line1}
-          line2={heroText.line2}
-        />
+        <HeroContent subtitle={heroText.subtitle} line1={heroText.line1} line2={heroText.line2} />
       </div>
 
-      {/* Input + Chat (logic ย่อ + เว้นระยะรูป/กรอบ) */}
-      <form
-        onSubmit={onSubmit}
+      {/* ====== Input + Chat (ย้าย composer เข้าไปอยู่ในแชทเมื่อ open) ====== */}
+      <div
+        ref={chatWrapRef}
         className="pointer-events-auto relative z-40 mx-auto mt-8 mb-10 w-full md:mt-3 md:max-w-lg md:min-w-xl lg:max-w-xl lg:min-w-2xl"
       >
-        <div ref={chatWrapRef} className="relative">
-          <GlowFrame className="rounded-full">
-            <Input
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onFocus={() => setChatOpen(true)}
-              onClick={() => setChatOpen(true)}
-              radius="full"
-              variant="flat"
-              placeholder="Ask me anything"
-              aria-label="Ask me anything"
-              autoComplete="off"
-              spellCheck={false}
-              classNames={{
-                base: "w-full",
-                inputWrapper:
-                  "rounded-full shadow-none border-none bg-transparent " +
-                  "h-11 lg:h-14 md:h-12 px-2 md:px-3 " +
-                  "data-[hover=true]:bg-transparent group-hover:bg-transparent",
-                input: "text-sm md:text-base text-white",
-                innerWrapper: "gap-2",
-              }}
-              startContent={
-                <div className="mx-auto mr-1 ml-2 flex items-center justify-between gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full">
-                    <Star />
-                  </span>
-                  <span className="mr-2 ml-4 h-5 w-px bg-white/10" />
-                </div>
-              }
-              endContent={
-                <div className="mr-5 gap-3 flex h-8 items-center justify-center rounded-full">
-                  {/* คงไอคอนเดิม */}
-                  <button
-                    type="button"
-                    aria-label="Add"
-                    onClick={() => setChatOpen(true)}
-                    className="grid h-8 w-8 place-items-center"
-                  >
-                    <Image alt="plus" src="/svg/plus.svg" width={22} height={22} />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Voice"
-                    onClick={() => setChatOpen(true)}
-                    className="grid h-8 w-8 place-items-center"
-                  >
-                    <Image alt="mic" src="/svg/Microphone.svg" width={22} height={22} />
-                  </button>
-                </div>
-              }
-            />
-          </GlowFrame>
+        {/* แพเนลแชทแบบ inline (relative) — อยู่เหนือ input */}
+        {chatOpen && (
+          <ChatPanel open variant="inline" messages={messages} scrollRef={chatScrollRef}>
+            {/* composer ย้ายมาอยู่ “ในแชท” */}
+            <form onSubmit={onSubmit}>
+              <GlowFrame className="rounded-full">
+                <Input
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  radius="full"
+                  variant="flat"
+                  placeholder="Ask me anything"
+                  aria-label="Ask me anything"
+                  autoComplete="off"
+                  spellCheck={false}
+                  classNames={{
+                    base: "w-full",
+                    inputWrapper:
+                      "rounded-full shadow-none border-none bg-transparent " +
+                      "h-11 lg:h-14 md:h-12 px-2 md:px-3 " +
+                      "data-[hover=true]:bg-transparent group-hover:bg-transparent",
+                    input: "text-sm md:text-base text-white",
+                    innerWrapper: "gap-2",
+                  }}
+                  startContent={
+                    <div className="mx-auto mr-1 ml-2 flex items-center justify-between gap-2">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full">
+                        <Star />
+                      </span>
+                      <span className="mr-2 ml-4 h-5 w-px bg-white/10" />
+                    </div>
+                  }
+                  endContent={
+                    <div className="mr-5 gap-3 flex h-8 items-center justify-center rounded-full">
+                      <button type="button" aria-label="Add" className="grid h-8 w-8 place-items-center">
+                        <Image alt="plus" src="/svg/plus.svg" width={22} height={22} />
+                      </button>
+                      <button type="submit" aria-label="Send" className="grid h-8 w-8 place-items-center">
+                        <Image alt="Microphone" src="/svg/Microphone.svg" width={22} height={22} />
+                      </button>
+                    </div>
+                  }
+                />
+              </GlowFrame>
+            </form>
+          </ChatPanel>
+        )}
 
-          {/* แพเนลแชท (ดรอปลง) */}
-          <ChatPanel
-            open={chatOpen}
-            messages={messages}
-            scrollRef={chatScrollRef}
-          />
-        </div>
-      </form>
+        {/* ถ้ายังไม่เปิดแชท แสดง input เดี่ยว ๆ (คลิก/โฟกัสแล้วเปิดแชทด้านบน) */}
+        {!chatOpen && (
+          <form onSubmit={onSubmit} className="relative">
+            <GlowFrame className="rounded-full">
+              <Input
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onFocus={() => setChatOpen(true)}
+                onClick={() => setChatOpen(true)}
+                radius="full"
+                variant="flat"
+                placeholder="Ask me anything"
+                aria-label="Ask me anything"
+                autoComplete="off"
+                spellCheck={false}
+                classNames={{
+                  base: "w-full",
+                  inputWrapper:
+                    "rounded-full shadow-none border-none bg-transparent " +
+                    "h-11 lg:h-14 md:h-12 px-2 md:px-3 " +
+                    "data-[hover=true]:bg-transparent group-hover:bg-transparent",
+                  input: "text-sm md:text-base text-white",
+                  innerWrapper: "gap-2",
+                }}
+                startContent={
+                  <div className="mx-auto mr-1 ml-2 flex items-center justify-between gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full">
+                      <Star />
+                    </span>
+                    <span className="mr-2 ml-4 h-5 w-px bg-white/10" />
+                  </div>
+                }
+                endContent={
+                  <div className="mr-5 gap-3 flex h-8 items-center justify-center rounded-full">
+                    <button type="button" aria-label="Add" className="grid h-8 w-8 place-items-center">
+                      <Image alt="plus" src="/svg/plus.svg" width={22} height={22} />
+                    </button>
+                    <button type="submit" aria-label="Send" className="grid h-8 w-8 place-items-center">
+                      <Image alt="send" src="/svg/Microphone.svg" width={22} height={22} />
+                    </button>
+                  </div>
+                }
+              />
+            </GlowFrame>
+          </form>
+        )}
+      </div>
 
       {/* แถบโลโก้ (เดิม) */}
       <div className="relative z-30 md:pt-20 mx-auto md:w-[60%] lg:mb-20 lg:w-[80%] lg:max-w-5xl">
