@@ -9,17 +9,21 @@ import React, {
   type ReactElement,
 } from "react";
 import { Input, Image as NextUIImage } from "@nextui-org/react";
-import { motion } from "framer-motion";
-import { Plus, Send } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 import ModelCanvas from "../../ModelsObject/ModelStar";
 import content from "@/locales/en/home.json";
 import Meteors from "../../ui/meteors";
 import { SparklesCore } from "../../ui/SparklesCore";
-import { toast } from "sonner";
 import Star from "../../ui/star";
-import Image from "next/image";
-/** ================== Types & Data ================== */
+
+/** ================== Config: avatar 2 รูป ================== */
+const USER_AVATAR = "/images/user.png";
+const ASSISTANT_AVATAR = "/images/starai.png";
+
+/** ================== Types & Utils ================== */
+type ChatMsg = { id: string; role: "user" | "assistant"; text: string };
 interface Logo {
   src: string;
   hoverSrc?: string;
@@ -30,76 +34,34 @@ interface InfiniteMarqueeProps {
   speed?: number;
   className?: string;
 }
+const uid = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
+/** ================== Logos (เดิม) ================== */
 const LOGO_DATA: Logo[] = [
-  {
-    src: "/images/chatgpt-logo.png",
-    hoverSrc: "/images/chatgpt-hover.png",
-    alt: "ChatGPT",
-  },
-  {
-    src: "/images/gemini-logo.png",
-    hoverSrc: "/images/gemini-hover.png",
-    alt: "Google Gemini",
-  },
-  {
-    src: "/images/poe-logo.png",
-    hoverSrc: "/images/poe-hover.png",
-    alt: "Poe",
-  },
-  {
-    src: "/images/apple-intelligent-logo.png",
-    hoverSrc: "/images/apple_intelligence-hover.png",
-    alt: "Apple Intelligence",
-  },
-  {
-    src: "/images/mistral-ai-logo.png",
-    hoverSrc: "/images/mistral-hover.png",
-    alt: "Mistral AI",
-  },
-  {
-    src: "/images/qwen-logo.png",
-    hoverSrc: "/images/qwen-hover.png",
-    alt: "Qwen",
-  },
-  {
-    src: "/images/union-logo.png",
-    hoverSrc: "/images/grok-hover.png",
-    alt: "Union",
-  },
-  {
-    src: "/images/deepseek-logo.png",
-    hoverSrc: "/images/deepseek-hover.png",
-    alt: "DeepSeek",
-  },
-  {
-    src: "/images/claude-logo.png",
-    hoverSrc: "/images/claude-hover.png",
-    alt: "Claude",
-  },
-  {
-    src: "/images/perplexity-logo.png",
-    hoverSrc: "/images/perplexity-hover.png",
-    alt: "Perplexity",
-  },
-  {
-    src: "/images/microsoft-copilot-logo.png",
-    hoverSrc: "/images/copilot-hover.png",
-    alt: "Microsoft Copilot",
-  },
+  { src: "/images/chatgpt-logo.png", hoverSrc: "/images/chatgpt-hover.png", alt: "ChatGPT" },
+  { src: "/images/gemini-logo.png", hoverSrc: "/images/gemini-hover.png", alt: "Google Gemini" },
+  { src: "/images/poe-logo.png", hoverSrc: "/images/poe-hover.png", alt: "Poe" },
+  { src: "/images/apple-intelligent-logo.png", hoverSrc: "/images/apple_intelligence-hover.png", alt: "Apple Intelligence" },
+  { src: "/images/mistral-ai-logo.png", hoverSrc: "/images/mistral-hover.png", alt: "Mistral AI" },
+  { src: "/images/qwen-logo.png", hoverSrc: "/images/qwen-hover.png", alt: "Qwen" },
+  { src: "/images/union-logo.png", hoverSrc: "/images/grok-hover.png", alt: "Union" },
+  { src: "/images/deepseek-logo.png", hoverSrc: "/images/deepseek-hover.png", alt: "DeepSeek" },
+  { src: "/images/claude-logo.png", hoverSrc: "/images/claude-hover.png", alt: "Claude" },
+  { src: "/images/perplexity-logo.png", hoverSrc: "/images/perplexity-hover.png", alt: "Perplexity" },
+  { src: "/images/microsoft-copilot-logo.png", hoverSrc: "/images/copilot-hover.png", alt: "Microsoft Copilot" },
 ];
-
 const DUPLICATE_COUNT = 2;
 const DEFAULT_SPEED = 0.4;
 
-/** ================== Marquee ================== */
 const InfiniteMarquee = memo(function InfiniteMarquee({
   children,
   speed = DEFAULT_SPEED,
   className = "",
 }: InfiniteMarqueeProps) {
   const [isHovered, setIsHovered] = useState(false);
-
   return (
     <div
       className={`relative overflow-visible ${className}`}
@@ -120,12 +82,8 @@ const InfiniteMarquee = memo(function InfiniteMarquee({
 
       <style jsx global>{`
         @keyframes hero-marquee {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
         .marquee-track {
           width: max-content;
@@ -137,25 +95,54 @@ const InfiniteMarquee = memo(function InfiniteMarquee({
           padding-block: 6px;
           gap: 1rem;
         }
-        .logo-item {
-          position: relative;
-        }
+        .logo-item { position: relative; }
         @media (prefers-reduced-motion: reduce) {
-          .marquee-track {
-            animation: none !important;
-            transform: none !important;
-          }
+          .marquee-track { animation: none !important; transform: none !important; }
         }
       `}</style>
     </div>
   );
 });
 
-/** ================== Logo Item ================== */
+function CircleAvatar({
+  className = "p-2", 
+  src,
+  alt,
+  initials = "AI",
+  size = 32, // เล็กลง + สม่ำเสมอ ทั้งสองฝั่ง
+}: {
+  src?: string;
+  alt?: string;
+  initials?: string;
+  size?: number;
+  className?: string; 
+}) {
+  return (
+    <div
+      className={"relative rounded-full overflow-hidden bg-white/10 ring-1 ring-white/15 grid place-items-center text-[11px] text-white/80 flex-shrink-0"}
+      style={{ width: size, height: size }}
+      aria-label={alt}
+      role="img"
+    >
+      {src ? (
+        <Image
+          src={src}
+          alt={alt ?? ""}
+          fill
+          sizes={`${size}px`}
+          className="object-cover select-none p-1"
+          draggable={false}
+        />
+      ) : (
+        <span className="select-none">{initials}</span>
+      )}
+    </div>
+  );
+}
+
+/** ================== โลโก้เดิม ================== */
 const LogoItem: React.FC<Logo> = ({ src, hoverSrc, alt }) => {
   const [hovered, setHovered] = useState(false);
-
-  // Preload hover image
   useEffect(() => {
     if (!hoverSrc) return;
     const img = new globalThis.Image();
@@ -163,7 +150,6 @@ const LogoItem: React.FC<Logo> = ({ src, hoverSrc, alt }) => {
   }, [hoverSrc]);
 
   const displaySrc = hovered && hoverSrc ? hoverSrc : src;
-
   return (
     <motion.div
       className="logo-item select-none"
@@ -197,35 +183,23 @@ const LogoGrid = memo(function LogoGrid() {
   );
 });
 
-/** ================== Mask ================== */
-const GradientMask: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => (
+/** ================== หน้ากากไล่โทน (เดิม) ================== */
+const GradientMask: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div
     className="overflow-visible"
     style={{
-      maskImage:
-        "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
-      WebkitMaskImage:
-        "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+      maskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+      WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
     }}
   >
     {children}
   </div>
 );
 
-/** ================== GlowFrame (เอากรอบจาก Landing มาใช้กับฟอร์ม) ================== */
-function GlowFrame({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+/** ================== GlowFrame (กรอบ input มีแสงตามเมาส์) ================== */
+function GlowFrame({ children, className = "" }: { children: React.ReactNode; className?: string; }) {
   const ref = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [hover, setHover] = useState(false);
-
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
@@ -236,18 +210,12 @@ function GlowFrame({
     <div
       ref={ref}
       onMouseMove={onMouseMove}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => {
-        setHover(false);
-        setMousePos({ x: 0, y: 0 });
-      }}
       className={[
         "group card-outer-bg card-outer-shadow relative overflow-hidden p-[1px] transition-all duration-300",
         "rounded-full",
         className,
       ].join(" ")}
     >
-      {/* แสงตามเมาส์ */}
       <div
         className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
@@ -263,31 +231,18 @@ function GlowFrame({
   );
 }
 
-/** ================== Hero Content ================== */
-interface HeroContentProps {
-  subtitle: string;
-  line1: string;
-  line2: string;
-}
-
-const HeroContent = memo(function HeroContentBase({
-  subtitle,
-  line1,
-  line2,
-}: HeroContentProps) {
+/** ================== ส่วนข้อความหัว (เดิม) ================== */
+interface HeroContentProps { subtitle: string; line1: string; line2: string; }
+const HeroContent = memo(function HeroContentBase({ subtitle, line1, line2 }: HeroContentProps) {
   return (
     <div className="relative z-10 mx-auto mt-16 w-full px-4 md:py-20 lg:px-28">
       <section className="grid place-items-center px-6">
         <h1 className="max-w-5xl min-w-6xl text-center text-xl font-semibold text-white md:text-4xl lg:text-6xl">
           <span className="block">
-            <span className="gradient-text-animated2">AI Innovation</span>
-            at the core.
+            <span className="gradient-text-animated2">AI Innovation</span> at the core.
           </span>
-
           <span className="block lg:mt-4">
-            Turning
-            <span className="gradient-text-animated2">Data → Insight</span>,
-            instantly.
+            Turning <span className="gradient-text-animated2">Data → Insight</span>, instantly.
           </span>
         </h1>
       </section>
@@ -304,26 +259,170 @@ const HeroContent = memo(function HeroContentBase({
   );
 });
 
-/** ================== Hero ================== */
+/** ================== แชท (logic ที่ย่อให้สั้นลง) ================== */
+function ChatBubble({
+  role,
+  text,
+  name,
+}: {
+  role: "user" | "assistant";
+  text: string;
+  name?: string;
+}) {
+  const isUser = role === "user";
+
+  return (
+    <div
+      className={[
+        "flex w-full items-end",
+        // เพิ่ม padding ซ้าย/ขวา เพื่อให้รูป/บับเบิลไม่ชิดกรอบ panel
+        "px-2 md:px-3",
+        // เพิ่มช่องไฟระหว่าง avatar และ bubble
+        isUser ? "justify-end gap-3 md:gap-4" : "justify-start gap-3 md:gap-4",
+      ].join(" ")}
+    >
+      {!isUser && (
+        <CircleAvatar
+          src={ASSISTANT_AVATAR}
+          alt={name || "Assistant"}
+          initials={(name?.[0] ?? "A").toUpperCase()}
+          size={26}
+        />
+      )}
+
+      <div
+        className={[
+          "max-w-[85%] px-4 py-2 text-sm md:text-base leading-relaxed",
+          "rounded-2xl",
+          isUser
+            ? "bg-white/90 text-black shadow"
+            : "bg-white/8 text-white/90 ring-1 ring-white/10 backdrop-blur",
+          // ตัดมุมล่าง: ซ้ายล่าง (assistant) ไม่มน, ขวาล่าง (user) ไม่มน
+          isUser ? "rounded-br-none" : "rounded-bl-none",
+          // เว้นจากขอบ panel ด้านในอีกชั้นนึง
+          isUser ? "mr-1" : "ml-1",
+        ].join(" ")}
+      >
+        {text}
+      </div>
+
+      {isUser && (
+        <CircleAvatar
+          src={USER_AVATAR}
+          alt={name || "You"}
+          initials={(name?.[0] ?? "Y").toUpperCase()}
+          size={32}
+        />
+      )}
+    </div>
+  );
+}
+
+function ChatPanel({
+  open,
+  messages,
+  scrollRef,
+}: {
+  open: boolean;
+  messages: ChatMsg[];
+  scrollRef: React.RefObject<HTMLDivElement>;
+}) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: -8, scaleY: 0.96 }}
+          animate={{ opacity: 1, y: 0, scaleY: 1 }}
+          exit={{ opacity: 0, y: -8, scaleY: 0.96 }}
+          transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute left-0 right-0 top-full z-50 mt-3"
+        >
+          <div className="rounded-3xl backdrop-blur-md ring-1 ring-white/12 shadow-[0_12px_40px_rgba(0,0,0,0.55)]">
+            <div
+              ref={scrollRef}
+              // เพิ่ม padding รอบๆ ให้เนื้อหา/อวาตาร์ไม่ติดกรอบ
+              className="max-h-[50vh] overflow-y-auto py-3 md:py-4 space-y-2 md:space-y-3 scroll-smooth"
+            >
+              {messages.length === 0 ? (
+                <div className="text-center text-white/60 text-sm py-8 px-4">
+                  เริ่มพิมพ์คำถามด้านบนเพื่อเริ่มแชท
+                </div>
+              ) : (
+                messages.map((m) => (
+                  <ChatBubble key={m.id} role={m.role} text={m.text} />
+                ))
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/** ================== Memo ของเอฟเฟกต์พื้นหลัง ================== */
 const SparklesCoreMemo = memo(SparklesCore);
 const MeteorsMemo = memo(Meteors);
 const ModelCanvasMemo = memo(ModelCanvas);
 
+/** ================== Hero ================== */
 export default function Hero(): ReactElement {
   const heroText = content.hero;
-  const [isModelLoaded, setIsModelLoaded] = useState(false);
-  const [inputText, SetInputText] = useState<string>("");
 
+  // === แชท: state แบบย่อ ===
+  const [chatOpen, setChatOpen] = useState(false);
+  const [messages, setMessages] = useState<ChatMsg[]>([
+    { id: "welcome", role: "assistant", text: "สวัสดี! พิมพ์ถามอะไรก็ได้ 🙂" },
+  ]);
+  const [inputText, setInputText] = useState("");
+
+  // รวม input + panel ไว้ใน ref เดียว (เช็คคลิกนอกเพื่อปิด)
+  const chatWrapRef = useRef<HTMLDivElement>(null);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+
+  // (นอกเหนือจากแชท) โหลดโมเดล
+  const [isModelLoaded, setIsModelLoaded] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setIsModelLoaded(true), 1500);
     return () => clearTimeout(t);
   }, []);
 
+  // ปิดแชทเมื่อคลิกนอกกรอบ
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (chatWrapRef.current && !chatWrapRef.current.contains(target)) {
+        setChatOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, []);
+
+  // เลื่อนลงสุดเมื่อมีข้อความใหม่
+  useEffect(() => {
+    if (!chatOpen) return;
+    chatScrollRef.current?.scrollTo({
+      top: chatScrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages, chatOpen]);
+
   const onSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(`You asked: ${inputText}`);
-    SetInputText(inputText);
-  }, []);
+    const text = inputText.trim();
+    if (!text) return;
+
+    setChatOpen(true);
+    setMessages((prev) => [...prev, { id: uid(), role: "user", text }]);
+    setInputText("");
+
+    // ตัวอย่างตอบกลับแบบง่าย (ไม่ต้อง setTimeout ก็ได้)
+    setMessages((prev) => [
+      ...prev,
+      { id: uid(), role: "assistant", text: "นี่คือข้อความตอบกลับตัวอย่าง (demo)." },
+    ]);
+  }, [inputText]);
 
   return (
     <section className="relative flex flex-col items-center justify-center px-4 text-center">
@@ -342,7 +441,6 @@ export default function Hero(): ReactElement {
       <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-full">
         <MeteorsMemo number={1} className="opacity-40" />
       </div>
-
       {isModelLoaded && (
         <div className="pointer-events-none absolute inset-0 z-20 select-none">
           <ModelCanvasMemo />
@@ -357,56 +455,75 @@ export default function Hero(): ReactElement {
         />
       </div>
 
+      {/* Input + Chat (logic ย่อ + เว้นระยะรูป/กรอบ) */}
       <form
         onSubmit={onSubmit}
         className="pointer-events-auto relative z-40 mx-auto mt-8 mb-10 w-full md:mt-3 md:max-w-lg md:min-w-xl lg:max-w-xl lg:min-w-2xl"
       >
-        <GlowFrame className="rounded-full">
-          <Input
-            value={inputText}
-            onChange={(e) => SetInputText(e.target.value)}
-            radius="full"
-            variant="flat"
-            placeholder="Ask me anything"
-            aria-label="Ask me anything"
-            autoComplete="off"
-            spellCheck={false}
-            classNames={{
-              base: "w-full",
-              inputWrapper:
-                "rounded-full shadow-none border-none bg-transparent" +
-                "h-11 lg:h-14 md:h-12 h-9 px-2 md:px-3" +
-                "data-[hover=true]:bg-transparent group-hover:bg-transparent",
-              input: "text-sm md:text-base text-white",
-              innerWrapper: "gap-2",
-            }}
-            startContent={
-              <div className="mx-auto mr-1 ml-2 flex items-center justify-between gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full">
-                  <Star />
-                </span>
-                <span className="mr-2 ml-4 h-5 w-px bg-white/10" />
-              </div>
-            }
-            endContent={
-              <div
-                aria-label="Send"
-                className="mr-5 gap-3 flex h-8 w-8 items-center justify-center rounded-full"
-              >
-                <Image alt="" src="/svg/plus.svg" width={22} height={22} />
-                <Image
-                  alt=""
-                  src="/svg/Microphone.svg"
-                  width={22}
-                  height={22}
-                />
-              </div>
-            }
+        <div ref={chatWrapRef} className="relative">
+          <GlowFrame className="rounded-full">
+            <Input
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onFocus={() => setChatOpen(true)}
+              onClick={() => setChatOpen(true)}
+              radius="full"
+              variant="flat"
+              placeholder="Ask me anything"
+              aria-label="Ask me anything"
+              autoComplete="off"
+              spellCheck={false}
+              classNames={{
+                base: "w-full",
+                inputWrapper:
+                  "rounded-full shadow-none border-none bg-transparent " +
+                  "h-11 lg:h-14 md:h-12 px-2 md:px-3 " +
+                  "data-[hover=true]:bg-transparent group-hover:bg-transparent",
+                input: "text-sm md:text-base text-white",
+                innerWrapper: "gap-2",
+              }}
+              startContent={
+                <div className="mx-auto mr-1 ml-2 flex items-center justify-between gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full">
+                    <Star />
+                  </span>
+                  <span className="mr-2 ml-4 h-5 w-px bg-white/10" />
+                </div>
+              }
+              endContent={
+                <div className="mr-5 gap-3 flex h-8 items-center justify-center rounded-full">
+                  {/* คงไอคอนเดิม */}
+                  <button
+                    type="button"
+                    aria-label="Add"
+                    onClick={() => setChatOpen(true)}
+                    className="grid h-8 w-8 place-items-center"
+                  >
+                    <Image alt="plus" src="/svg/plus.svg" width={22} height={22} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Voice"
+                    onClick={() => setChatOpen(true)}
+                    className="grid h-8 w-8 place-items-center"
+                  >
+                    <Image alt="mic" src="/svg/Microphone.svg" width={22} height={22} />
+                  </button>
+                </div>
+              }
+            />
+          </GlowFrame>
+
+          {/* แพเนลแชท (ดรอปลง) */}
+          <ChatPanel
+            open={chatOpen}
+            messages={messages}
+            scrollRef={chatScrollRef}
           />
-        </GlowFrame>
+        </div>
       </form>
 
-      {/* Logos */}
+      {/* แถบโลโก้ (เดิม) */}
       <div className="relative z-30 md:pt-20 mx-auto md:w-[60%] lg:mb-20 lg:w-[80%] lg:max-w-5xl">
         <GradientMask>
           <InfiniteMarquee speed={0.7}>
