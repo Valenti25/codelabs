@@ -1426,8 +1426,8 @@ export default function SplashCursor({
 
     window.addEventListener("mousedown", (e) => {
       const pointer = pointers[0];
-      const posX = scaleByPixelRatio(e.clientX);
-      const posY = scaleByPixelRatio(e.clientY);
+     const posX = e.clientX;
+      const posY = e.clientY;
       const containerRect = container.getBoundingClientRect();
       if (
         posX >= containerRect.left &&
@@ -1442,8 +1442,8 @@ export default function SplashCursor({
 
     function handleFirstMouseMove(e: MouseEvent) {
       const pointer = pointers[0];
-      const posX = scaleByPixelRatio(e.clientX);
-      const posY = scaleByPixelRatio(e.clientY);
+      const posX = e.clientX;
+      const posY = e.clientY;
       const containerRect = container.getBoundingClientRect();
       if (
         posX >= containerRect.left &&
@@ -1461,8 +1461,8 @@ export default function SplashCursor({
 
     window.addEventListener("mousemove", (e) => {
       const pointer = pointers[0];
-      const posX = scaleByPixelRatio(e.clientX);
-      const posY = scaleByPixelRatio(e.clientY);
+      const posX = e.clientX;
+      const posY = e.clientY;
       const containerRect = container.getBoundingClientRect();
       if (
         posX >= containerRect.left &&
@@ -1479,8 +1479,8 @@ export default function SplashCursor({
       const touches = e.targetTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
-        const posX = scaleByPixelRatio(touches[i].clientX);
-        const posY = scaleByPixelRatio(touches[i].clientY);
+        const posX = touches[i].clientX;
+        const posY = touches[i].clientY;
         const containerRect = container.getBoundingClientRect();
         if (
           posX >= containerRect.left &&
@@ -1524,8 +1524,8 @@ export default function SplashCursor({
         const touches = e.targetTouches;
         const pointer = pointers[0];
         for (let i = 0; i < touches.length; i++) {
-          const posX = scaleByPixelRatio(touches[i].clientX);
-          const posY = scaleByPixelRatio(touches[i].clientY);
+         const posX = touches[i].clientX;
+          const posY = touches[i].clientY;
           const containerRect = container.getBoundingClientRect();
           if (
             posX >= containerRect.left &&
