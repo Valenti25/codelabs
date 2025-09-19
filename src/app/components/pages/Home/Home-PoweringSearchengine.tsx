@@ -19,6 +19,7 @@ import { Search, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 import { motion, useMotionValue, animate } from "framer-motion";
 import Star from "../../ui/star";
+import { Send, Mic, Plus } from "lucide-react";
 
 type BrandName =
   | "ASUS"
@@ -696,7 +697,7 @@ export default function SearchEngineAI() {
                       "!text-transparent md:text-lg placeholder:text-white/40 caret-violet-400",
                     innerWrapper: "gap-2 relative",
                     inputWrapper:
-                      "h-14 md:h-14 bg-transparent rounded-full shadow-none border-0 !outline-none ring-0 focus:outline-none focus:ring-0",
+                      "bg-transparent rounded-full shadow-none border-0 !outline-none ring-0 focus:outline-none focus:ring-0",
                   }}
                   startContent={
                     <div
@@ -710,19 +711,12 @@ export default function SearchEngineAI() {
                     </div>
                   }
                   endContent={
-                    <div className="mr-3 flex gap-3 h-9 w-9 items-center justify-center rounded-full">
-                      <Image
-                        alt=""
-                        src="/svg/plus.svg"
-                        width={22}
-                        height={22}
-                      />
-                      <Image
-                        alt=""
-                        src="/svg/Microphone.svg"
-                        width={22}
-                        height={22}
-                      />
+                    <div className="mr-3 flex gap-3 items-center justify-center rounded-full">
+                      <div className="border border-[#676767] p-0 rounded-full">
+                        <Plus className="text-[#676767] w-4 h-4 md:w-5 md:h-5" />
+                      </div>
+                      <Mic className="text-[#676767] w-5 h-5 md:w-6 md:h-6" />
+                      <Send className="w-4 h-4 md:hidden lg:hidden text-[#676767]" />
                     </div>
                   }
                   placeholder={`ค้นหา${isBaseNoun(currentNoun) ? " " + currentNoun : ""}…`}
