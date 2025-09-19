@@ -34,6 +34,8 @@ type ScanPhoneProps = {
   modelScale?: number;
   /** เลือกคอมโพเนนต์โชว์รูม: "head" = ShowRoom, "card" = ShowRoom2 */
   showroom?: "head" | "card";
+  /** เพิ่มคลาสสำหรับตัวการ์ด (ใช้กับสแน็ป/กว้าง) */
+  className?: string;
 };
 
 function ScanPhone({
@@ -46,6 +48,7 @@ function ScanPhone({
   modelUrl,
   modelScale = 1,
   showroom = "head",
+  className = "",
 }: ScanPhoneProps) {
   const progress = useMotionValue(0);
 
@@ -63,15 +66,17 @@ function ScanPhone({
   const washOpacity = useTransform(progress, [0, 1], [0.9, 0.18]);
   const barWidth = useTransform(progress, (v) => `${v * 100}%`);
   const [percent, setPercent] = useState(0);
-  useMotionValueEvent(progress, "change", (v) =>
-    setPercent(Math.round(v * 100)),
-  );
+  useMotionValueEvent(progress, "change", (v) => setPercent(Math.round(v * 100)));
 
   // เลือก viewer ตามพร็อพ
   const Viewer = showroom === "card" ? ShowRoom2 : ShowRoom;
 
   return (
-    <Card className="relative mx-auto h-[460px] w-[250px] shrink-0 overflow-hidden rounded-[34px] border-4 border-white/10 bg-neutral-900/60 shadow-xl">
+    <Card
+      className={
+        `relative mx-auto h-[460px] w-[250px] min-w-[250px] shrink-0 flex-none overflow-hidden rounded-[34px] border-4 border-white/10 bg-neutral-900/60 shadow-xl ${className}`
+      }
+    >
       <CardBody className="relative h-full p-4 pt-16 text-center">
         {heading ? (
           <p className="mb-1 text-sm font-semibold text-white">{heading}</p>
@@ -186,6 +191,7 @@ type ResultPhoneProps = {
   failedDesc?: string;
   cycleMs?: number; // ระยะเวลาสลับ (มิลลิวินาที)
   startWith?: "success" | "failed";
+  className?: string;
 };
 
 function SuccessPhone({
@@ -197,6 +203,7 @@ function SuccessPhone({
   failedDesc = "Your identity could not be verified",
   cycleMs = 2600,
   startWith = "success",
+  className = "",
 }: ResultPhoneProps) {
   const [mode, setMode] = useState<"success" | "failed">(startWith);
 
@@ -208,7 +215,9 @@ function SuccessPhone({
   }, [cycleMs]);
 
   return (
-    <Card className="relative mx-auto h-[460px] w-[250px] shrink-0 overflow-hidden rounded-[34px] border-4 border-white/10 bg-neutral-900/60 shadow-xl">
+    <Card
+      className={`relative mx-auto h-[460px] w-[250px] min-w-[250px] shrink-0 flex-none overflow-hidden rounded-[34px] border-4 border-white/10 bg-neutral-900/60 shadow-xl ${className}`}
+    >
       <CardBody className="relative h-full p-4 pt-16 text-center">
         <div className="mb-1 h-5" aria-hidden />
         <div className="absolute top-2 left-1/2 h-1.5 w-20 -translate-x-1/2 rounded-full bg-white/15" />
@@ -233,9 +242,7 @@ function SuccessPhone({
                   draggable={false}
                   priority
                 />
-                <h3 className="mt-6 text-lg font-semibold text-white">
-                  {successTitle}
-                </h3>
+                <h3 className="mt-6 text-lg font-semibold text-white">{successTitle}</h3>
                 <p className="mt-1 text-xs text-white/70">{successDesc}</p>
               </motion.div>
             ) : (
@@ -256,9 +263,7 @@ function SuccessPhone({
                   draggable={false}
                   priority
                 />
-                <h3 className="mt-6 text-lg font-semibold text-white">
-                  {failedTitle}
-                </h3>
+                <h3 className="mt-6 text-lg font-semibold text-white">{failedTitle}</h3>
                 <p className="mt-1 text-xs text-white/70">{failedDesc}</p>
               </motion.div>
             )}
@@ -278,108 +283,128 @@ export default function Page() {
       <main className="overflow-x-hidden bg-black text-white">
         <section className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="mx-auto my-16 text-center">
-            <p className="text-lg text-[#676767]">
-              Instant, secure identity check
-            </p>
+            <p className="text-lg text-[#676767]">Instant, secure identity check</p>
             <h1 className="mt-2 text-xl md:text-[40px]">AI Face Recognition</h1>
           </div>
 
-          <div className="mx-auto max-w-full gap-12 md:flex-row lg:flex lg:flex-nowrap lg:items-start lg:justify-center">
-            {/* ซ้าย: ข้อความ */}
-            <div className="w-full max-w-md md:justify-self-end">
-              <div className="mt-8 sm:mt-10">
-                <h2 className="text-lg font-semibold">
-                  Secure access in one glance
-                </h2>
-                <p className="mt-2 max-w-sm text-xs font-semibold text-[#676767]">
-                  An AI-powered identity system that verifies, secures and
-                  grants access — instantly.
-                </p>
+          {/* ================= Mobile: 3 การ์ดเรียงในแถวเดียว เลื่อนแนวนอน ================= */}
+          <div
+            className="md:hidden px-4 pb-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            aria-label="Face recognition cards scroller"
+          >
+            <div className="flex items-stretch gap-4 justify-start pr-4">
+              <ScanPhone
+                heading="Face ID"
+                imgSrc="/images/face.png"
+                imgAlt="Face ID scanning"
+                imgPct={65}
+                durationMs={2600}
+                className="snap-start"
+              />
+              <ScanPhone
+                heading="Card ID"
+                showroom="head"
+                modelUrl="/models/id_card.glb"
+                modelScale={0.25}
+                durationMs={2600}
+                className="snap-start"
+              />
+              <SuccessPhone
+                successSrc="/images/reslut.png"
+                failedSrc="/images/fail.png"
+                cycleMs={2600}
+                startWith="success"
+                className="snap-start"
+              />
+            </div>
+          </div>
 
-                <div className="mt-8 max-w-xs">
-                  <ul className="space-y-6">
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full">
-                        <CheckCircle2 className="h-4 w-4 opacity-80" />
-                      </span>
-                      <div>
-                        <div className="text-sm font-semibold text-white">
-                          Liveness Detection
+          {/* ================= Desktop / Tablet ขนาด md+: เลย์เอาต์เดิม ================= */}
+          <div className="hidden md:block">
+            <div className="mx-auto max-w-full gap-12 md:flex-row lg:flex lg:flex-nowrap lg:items-start lg:justify-center">
+              {/* ซ้าย: ข้อความ */}
+              <div className="w-full max-w-md md:justify-self-end">
+                <div className="mt-8 sm:mt-10">
+                  <h2 className="text-lg font-semibold">Secure access in one glance</h2>
+                  <p className="mt-2 max-w-sm text-xs font-semibold text-[#676767]">
+                    An AI-powered identity system that verifies, secures and grants access — instantly.
+                  </p>
+
+                  <div className="mt-8 max-w-xs">
+                    <ul className="space-y-6">
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full">
+                          <CheckCircle2 className="h-4 w-4 opacity-80" />
+                        </span>
+                        <div>
+                          <div className="text-sm font-semibold text-white">Liveness Detection</div>
+                          <p className="mt-1 text-xs font-semibold text-[#676767]">
+                            prevents spoofing by detecting real faces vs. photos or videos
+                          </p>
                         </div>
-                        <p className="mt-1 text-xs font-semibold text-[#676767]">
-                          prevents spoofing by detecting real faces vs. photos
-                          or videos
-                        </p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full">
-                        <CheckCircle2 className="h-4 w-4 opacity-80" />
-                      </span>
-                      <div>
-                        <div className="text-sm font-semibold text-white">
-                          Fast Verification
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full">
+                          <CheckCircle2 className="h-4 w-4 opacity-80" />
+                        </span>
+                        <div>
+                          <div className="text-sm font-semibold text-white">Fast Verification</div>
+                          <p className="mt-1 text-xs font-semibold text-[#676767]">
+                            instant recognition within milliseconds for smooth user experience
+                          </p>
                         </div>
-                        <p className="mt-1 text-xs font-semibold text-[#676767]">
-                          instant recognition within milliseconds for smooth
-                          user experience
-                        </p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full">
-                        <CheckCircle2 className="h-4 w-4 opacity-80" />
-                      </span>
-                      <div>
-                        <div className="text-sm font-semibold text-white">
-                          Adaptive Accuracy
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full">
+                          <CheckCircle2 className="h-4 w-4 opacity-80" />
+                        </span>
+                        <div>
+                          <div className="text-sm font-semibold text-white">Adaptive Accuracy</div>
+                          <p className="mt-1 text-xs font-semibold text-[#676767]">
+                            improves over time with AI learning, adapting to different lighting and angles
+                          </p>
                         </div>
-                        <p className="mt-1 text-xs font-semibold text-[#676767]">
-                          improves over time with AI learning, adapting to
-                          different lighting and angles
-                        </p>
-                      </div>
-                    </li>
-                  </ul>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* ขวา: การ์ด */}
-            <div className="md:flex mt-20 md:mt-0 md:w-full flex-row">
-              {/* แถวบน: 1–2 */}
-              <div className="mx-auto flex flex-wrap items-center justify-center gap-8 overflow-x-auto pb-2 lg:flex-nowrap lg:justify-start lg:overflow-visible">
-                {/* ใบแรก: ใช้ ShowRoom2 (room2) */}
-                <ScanPhone
-                  heading="Face ID"
-                  imgSrc="/images/face.png" // ← ใส่ path รูปของคุณ
-                  imgAlt="Face ID scanning"
-                  imgPct={65} // ปรับให้สูงเท่าการ์ดอื่น ๆ ได้ (เช่น 60–75)
-                  durationMs={2600}
-                />
-                <ScanPhone
-                  heading="Card ID"
-                  showroom="head" // <-- ใช้ ShowRoom ธรรมดา
-                  modelUrl="/models/id_card.glb"
-                  modelScale={0.25}
-                  durationMs={2600}
-                />
-              </div>
+              {/* ขวา: การ์ด */}
+              <div className="md:flex mt-20 md:mt-0 md:w-full flex-row">
+                {/* แถวบน: 1–2 */}
+                <div className="mx-auto flex flex-wrap items-center justify-center gap-8 overflow-visible pb-2 lg:flex-nowrap lg:justify-start">
+                  <ScanPhone
+                    heading="Face ID"
+                    imgSrc="/images/face.png"
+                    imgAlt="Face ID scanning"
+                    imgPct={65}
+                    durationMs={2600}
+                  />
+                  <ScanPhone
+                    heading="Card ID"
+                    showroom="head"
+                    modelUrl="/models/id_card.glb"
+                    modelScale={0.25}
+                    durationMs={2600}
+                  />
+                </div>
 
-              {/* คั่น */}
-              <div className="mx-auto md:my-10 my-3 flex max-w-3xl items-center gap-3 px-4">
-                <div className="h-px w-full " />
-                <div className="h-px w-full " />
-              </div>
+                {/* คั่น */}
+                <div className="mx-auto md:my-10 my-3 flex max-w-3xl items-center gap-3 px-4">
+                  <div className="h-px w-full" />
+                  <div className="h-px w-full" />
+                </div>
 
-              {/* แถวล่าง: การ์ดผลลัพธ์ (สลับ Success/Failed) */}
-              <div className="mx-auto flex max-w-7xl items-center justify-center">
-                <SuccessPhone
-                  successSrc="/images/reslut.png"
-                  failedSrc="/images/fail.png"
-                  cycleMs={2600}
-                  startWith="success"
-                />
+                {/* แถวล่าง: การ์ดผลลัพธ์ */}
+                <div className="mx-auto flex max-w-7xl items-center justify-center">
+                  <SuccessPhone
+                    successSrc="/images/reslut.png"
+                    failedSrc="/images/fail.png"
+                    cycleMs={2600}
+                    startWith="success"
+                  />
+                </div>
               </div>
             </div>
           </div>
