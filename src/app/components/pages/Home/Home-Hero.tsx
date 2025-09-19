@@ -614,7 +614,7 @@ export default function Hero(): ReactElement {
       {/* ====== Input + Chat ====== */}
       <div
         ref={chatWrapRef}
-        className="pointer-events-auto relative z-40 px-10 mx-auto mt-8 mb-10 w-full md:mt-3 md:max-w-lg md:min-w-xl lg:max-w-xl lg:min-w-2xl"
+        className="pointer-events-auto relative z-40 px-10 md:px-0 mx-auto mt-8 mb-10 w-full md:mt-3 md:max-w-lg md:min-w-xl lg:max-w-xl lg:min-w-2xl"
       >
         {chatOpen && (
           <ChatPanel open variant="inline" messages={messages} scrollRef={chatScrollRef}>
