@@ -570,7 +570,7 @@ export default function Hero(): ReactElement {
       base: "w-full",
       inputWrapper:
         "rounded-full shadow-none border-none bg-transparent " +
-        "h-11 lg:h-14 md:h-12 px-2 md:px-3 " +
+        "h-10 lg:h-13 md:h-13 px-2 md:px-3 " +
         "data-[hover=true]:bg-transparent group-hover:bg-transparent",
       input: " md:text-base text-white",
       innerWrapper: "gap-2",
@@ -614,7 +614,7 @@ export default function Hero(): ReactElement {
       {/* ====== Input + Chat ====== */}
       <div
         ref={chatWrapRef}
-        className="pointer-events-auto relative z-40 px-10 md:px-0 mx-auto mt-8 mb-10 w-full md:mt-3 md:max-w-lg md:min-w-xl lg:max-w-xl lg:min-w-2xl"
+        className="pointer-events-auto relative z-40 px-5 md:px-0 mx-auto mt-8 mb-10 w-full md:mt-3 md:max-w-lg md:min- w-xl lg:max-w-xl lg:min-w-2xl"
       >
         {chatOpen && (
           <ChatPanel open variant="inline" messages={messages} scrollRef={chatScrollRef}>
