@@ -111,7 +111,7 @@ function MicButton({
       ].join(" ")}
       title={listening ? "Stop voice input" : "Start voice input"}
     >
-      <Mic aria-hidden className="text-white w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
+      <Mic aria-hidden className="text-[#676767] w-5 h-5 md:w-6 md:h-6" />
       <span className="sr-only">
         {listening ? "Stop voice input" : "Start voice input"}
       </span>
@@ -133,13 +133,12 @@ function PlusButton({
       aria-label="Add"
       onClick={onClick}
       className={[
-        "grid place-items-center p-0 bg-transparent text-white hover:opacity-90 transition focus:outline-none",
-        "w-6 h-6 md:w-8 md:h-8 lg:w-9 lg:h-9",
+        "grid place-items-center p-0 border border-[#676767] rounded-full bg-transparent text-white hover:opacity-90 transition focus:outline-none",
         className,
       ].join(" ")}
       title="Add"
     >
-      <Plus aria-hidden className="text-white w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
+      <Plus aria-hidden className="text-[#676767] w-4 h-4 md:w-5 md:h-5" />
       <span className="sr-only">Add</span>
     </button>
   );
@@ -595,7 +594,7 @@ export default function Hero(): ReactElement {
                   {...inputSharedProps}
                   endContent={
                     // ⬇️ ระยะห่างไอคอนชิดลง
-                    <div className="mr-2 flex items-center gap-1">
+                    <div className="mr-2 flex items-center gap-3">
                       <PlusButton />
                       <MicButton listening={isRecording} onToggle={toggleMic} />
                       <SendButton disabled={!inputText.trim()} />
