@@ -11,6 +11,7 @@ import React, {
 import { Input, Image as NextUIImage } from "@nextui-org/react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { Send, Mic, Plus } from "lucide-react";
 
 import ModelCanvas from "../../ModelsObject/ModelStar";
 import content from "@/locales/en/home.json";
@@ -55,6 +56,94 @@ const LOGO_DATA: Logo[] = [
 ];
 const DUPLICATE_COUNT = 2;
 const DEFAULT_SPEED = 0.4;
+
+/** ================== ปุ่มส่ง (มือถือเท่านั้น) ================== */
+function SendButton({
+  disabled,
+  type = "submit",
+  className = "",
+  label = "Send",
+}: {
+  disabled?: boolean;
+  type?: "button" | "submit";
+  className?: string;
+  label?: string;
+}) {
+  return (
+    <button
+      type={type}
+      aria-label={label}
+      disabled={disabled}
+      className={[
+        "md:hidden p-0 bg-transparent text-white",
+        "disabled:opacity-40 disabled:cursor-not-allowed",
+        "hover:opacity-90 transition",
+        className,
+      ].join(" ")}
+      title="Send"
+    >
+      <Send aria-hidden className="text-white w-4 h-4" />
+      <span className="sr-only">{label}</span>
+    </button>
+  );
+}
+
+/** ================== ปุ่มไมค์ (มือถือ/PC) — PC ใหญ่ขึ้น ================== */
+function MicButton({
+  listening,
+  onToggle,
+  className = "",
+}: {
+  listening: boolean;
+  onToggle: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={listening ? "Stop voice input" : "Start voice input"}
+      aria-pressed={listening}
+      onClick={onToggle}
+      className={[
+        "grid place-items-center p-0 bg-transparent text-white hover:opacity-90 transition focus:outline-none",
+        "w-6 h-6 md:w-8 md:h-8 lg:w-9 lg:h-9",
+        className,
+      ].join(" ")}
+      title={listening ? "Stop voice input" : "Start voice input"}
+    >
+      <Mic aria-hidden className="text-white w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
+      <span className="sr-only">
+        {listening ? "Stop voice input" : "Start voice input"}
+      </span>
+    </button>
+  );
+}
+
+/** ================== ปุ่ม + (มือถือ/PC) — PC ใหญ่ขึ้น ================== */
+function PlusButton({
+  onClick,
+  className = "",
+}: {
+  onClick?: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label="Add"
+      onClick={onClick}
+      className={[
+        "grid place-items-center p-0 bg-transparent text-white hover:opacity-90 transition focus:outline-none",
+        "w-6 h-6 md:w-8 md:h-8 lg:w-9 lg:h-9",
+        className,
+      ].join(" ")}
+      title="Add"
+    >
+      <Plus aria-hidden className="text-white w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
+      <span className="sr-only">Add</span>
+    </button>
+  );
+}
 
 const InfiniteMarquee = memo(function InfiniteMarquee({
   children,
@@ -200,7 +289,7 @@ const GradientMask: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   </div>
 );
 
-/** ================== GlowFrame (กรอบ input มีแสงตามเมาส์) ================== */
+/** ================== GlowFrame (เดิม) ================== */
 function GlowFrame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -321,7 +410,7 @@ function ChatPanel({
   messages,
   scrollRef,
   variant = "inline",
-  children, // composer (Input) จะถูกส่งมาวางในนี้
+  children,
 }: {
   open: boolean;
   messages: ChatMsg[];
@@ -344,17 +433,12 @@ function ChatPanel({
         )}
       </div>
 
-      {/* composer อยู่ในแชท */}
       {children && <div className="border-t border-white/10 p-2 md:p-3">{children}</div>}
     </div>
   );
 
-  if (variant === "inline") {
-    // โหมด relative: มีพื้นที่ของตัวเอง ดันเลย์เอาต์จริง
-    return <div className="mt-3">{ChatBody}</div>;
-  }
+  if (variant === "inline") return <div className="mt-3">{ChatBody}</div>;
 
-  // โหมดลอย (ถ้าอยากสลับกลับในอนาคต)
   return (
     <AnimatePresence>
       <motion.div
@@ -386,18 +470,15 @@ export default function Hero(): ReactElement {
   ]);
   const [inputText, setInputText] = useState("");
 
-  // รวม input + panel ไว้ใน ref เดียว (เช็คคลิกนอกเพื่อปิด)
   const chatWrapRef = useRef<HTMLDivElement>(null);
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
-  // (นอกเหนือจากแชท) โหลดโมเดล
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setIsModelLoaded(true), 1500);
     return () => clearTimeout(t);
   }, []);
 
-  // ปิดแชทเมื่อคลิกนอกกรอบ
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
       const target = e.target as Node;
@@ -409,7 +490,6 @@ export default function Hero(): ReactElement {
     return () => document.removeEventListener("mousedown", onDown);
   }, []);
 
-  // เลื่อนลงสุดเมื่อมีข้อความใหม่
   useEffect(() => {
     if (!chatOpen) return;
     chatScrollRef.current?.scrollTo({
@@ -418,6 +498,9 @@ export default function Hero(): ReactElement {
     });
   }, [messages, chatOpen]);
 
+  const [isRecording, setIsRecording] = useState(false);
+  const toggleMic = useCallback(() => setIsRecording((s) => !s), []);
+
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
@@ -425,28 +508,48 @@ export default function Hero(): ReactElement {
       if (!text) return;
 
       setChatOpen(true);
-
       const userMsg: ChatMsg = { id: uid(), role: "user", text };
-      setMessages((prev) => [...prev, userMsg]); // โพสต์ของผู้ใช้หลัง "กดส่ง" เท่านั้น
+      setMessages((prev) => [...prev, userMsg]);
+      setInputText("");
 
-      setInputText(""); // เคลียร์อินพุต
-
-      // (ออปชัน) ให้บอทตอบเดโม่ตามหลังเล็กน้อย
       const botMsg: ChatMsg = {
         id: uid(),
         role: "assistant",
         text: "นี่คือข้อความตอบกลับตัวอย่าง (demo).",
       };
-      setTimeout(() => {
-        setMessages((prev) => [...prev, botMsg]);
-      }, 200);
+      setTimeout(() => setMessages((prev) => [...prev, botMsg]), 200);
     },
     [inputText]
   );
 
+  const inputSharedProps = {
+    radius: "full" as const,
+    variant: "flat" as const,
+    placeholder: "Ask me anything",
+    "aria-label": "Ask me anything",
+    autoComplete: "off",
+    spellCheck: false,
+    classNames: {
+      base: "w-full",
+      inputWrapper:
+        "rounded-full shadow-none border-none bg-transparent " +
+        "h-11 lg:h-14 md:h-12 px-2 md:px-3 " +
+        "data-[hover=true]:bg-transparent group-hover:bg-transparent",
+      input: "text-sm md:text-base text-white",
+      innerWrapper: "gap-2",
+    },
+    startContent: (
+      <div className="mx-auto mr-1 ml-2 flex items-center justify-between gap-2">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full">
+          <Star />
+        </span>
+        <span className="mr-2 ml-4 h-5 w-px bg-white/10" />
+      </div>
+    ),
+  };
+
   return (
     <section className="relative flex flex-col items-center justify-center px-4 text-center">
-      {/* Background */}
       <div className="absolute inset-0 z-0">
         <SparklesCoreMemo
           background="transparent"
@@ -471,51 +574,31 @@ export default function Hero(): ReactElement {
         <HeroContent subtitle={heroText.subtitle} line1={heroText.line1} line2={heroText.line2} />
       </div>
 
-      {/* ====== Input + Chat (ย้าย composer เข้าไปอยู่ในแชทเมื่อ open) ====== */}
+      {/* ====== Input + Chat ====== */}
       <div
         ref={chatWrapRef}
         className="pointer-events-auto relative z-40 mx-auto mt-8 mb-10 w-full md:mt-3 md:max-w-lg md:min-w-xl lg:max-w-xl lg:min-w-2xl"
       >
-        {/* แพเนลแชทแบบ inline (relative) — อยู่เหนือ input */}
         {chatOpen && (
           <ChatPanel open variant="inline" messages={messages} scrollRef={chatScrollRef}>
-            {/* composer ย้ายมาอยู่ “ในแชท” */}
             <form onSubmit={onSubmit}>
               <GlowFrame className="rounded-full">
                 <Input
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  radius="full"
-                  variant="flat"
-                  placeholder="Ask me anything"
-                  aria-label="Ask me anything"
-                  autoComplete="off"
-                  spellCheck={false}
-                  classNames={{
-                    base: "w-full",
-                    inputWrapper:
-                      "rounded-full shadow-none border-none bg-transparent " +
-                      "h-11 lg:h-14 md:h-12 px-2 md:px-3 " +
-                      "data-[hover=true]:bg-transparent group-hover:bg-transparent",
-                    input: "text-sm md:text-base text-white",
-                    innerWrapper: "gap-2",
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+                    }
                   }}
-                  startContent={
-                    <div className="mx-auto mr-1 ml-2 flex items-center justify-between gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full">
-                        <Star />
-                      </span>
-                      <span className="mr-2 ml-4 h-5 w-px bg-white/10" />
-                    </div>
-                  }
+                  {...inputSharedProps}
                   endContent={
-                    <div className="mr-5 gap-3 flex h-8 items-center justify-center rounded-full">
-                      <button type="button" aria-label="Add" className="grid h-8 w-8 place-items-center">
-                        <Image alt="plus" src="/svg/plus.svg" width={22} height={22} />
-                      </button>
-                      <button type="submit" aria-label="Send" className="grid h-8 w-8 place-items-center">
-                        <Image alt="Microphone" src="/svg/Microphone.svg" width={22} height={22} />
-                      </button>
+                    // ⬇️ ระยะห่างไอคอนชิดลง
+                    <div className="mr-2 flex items-center gap-1">
+                      <PlusButton />
+                      <MicButton listening={isRecording} onToggle={toggleMic} />
+                      <SendButton disabled={!inputText.trim()} />
                     </div>
                   }
                 />
@@ -524,7 +607,6 @@ export default function Hero(): ReactElement {
           </ChatPanel>
         )}
 
-        {/* ถ้ายังไม่เปิดแชท แสดง input เดี่ยว ๆ (คลิก/โฟกัสแล้วเปิดแชทด้านบน) */}
         {!chatOpen && (
           <form onSubmit={onSubmit} className="relative">
             <GlowFrame className="rounded-full">
@@ -533,37 +615,19 @@ export default function Hero(): ReactElement {
                 onChange={(e) => setInputText(e.target.value)}
                 onFocus={() => setChatOpen(true)}
                 onClick={() => setChatOpen(true)}
-                radius="full"
-                variant="flat"
-                placeholder="Ask me anything"
-                aria-label="Ask me anything"
-                autoComplete="off"
-                spellCheck={false}
-                classNames={{
-                  base: "w-full",
-                  inputWrapper:
-                    "rounded-full shadow-none border-none bg-transparent " +
-                    "h-11 lg:h-14 md:h-12 px-2 md:px-3 " +
-                    "data-[hover=true]:bg-transparent group-hover:bg-transparent",
-                  input: "text-sm md:text-base text-white",
-                  innerWrapper: "gap-2",
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+                  }
                 }}
-                startContent={
-                  <div className="mx-auto mr-1 ml-2 flex items-center justify-between gap-2">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full">
-                      <Star />
-                    </span>
-                    <span className="mr-2 ml-4 h-5 w-px bg-white/10" />
-                  </div>
-                }
+                {...inputSharedProps}
                 endContent={
-                  <div className="mr-5 gap-3 flex h-8 items-center justify-center rounded-full">
-                    <button type="button" aria-label="Add" className="grid h-8 w-8 place-items-center">
-                      <Image alt="plus" src="/svg/plus.svg" width={22} height={22} />
-                    </button>
-                    <button type="submit" aria-label="Send" className="grid h-8 w-8 place-items-center">
-                      <Image alt="send" src="/svg/Microphone.svg" width={22} height={22} />
-                    </button>
+                  // ⬇️ ระยะห่างไอคอนชิดลง
+                  <div className="mr-2 flex items-center gap-1">
+                    <PlusButton />
+                    <MicButton listening={isRecording} onToggle={toggleMic} />
+                    <SendButton disabled={!inputText.trim()} />
                   </div>
                 }
               />
@@ -572,7 +636,6 @@ export default function Hero(): ReactElement {
         )}
       </div>
 
-      {/* แถบโลโก้ (เดิม) */}
       <div className="relative z-30 md:pt-20 mx-auto md:w-[60%] lg:mb-20 lg:w-[80%] lg:max-w-5xl">
         <GradientMask>
           <InfiniteMarquee speed={0.7}>
