@@ -697,7 +697,8 @@ export default function SearchEngineAI() {
                       "!text-transparent md:text-lg placeholder:text-white/40 caret-violet-400",
                     innerWrapper: "gap-2 relative",
                     inputWrapper:
-                      "bg-transparent rounded-full shadow-none border-0 !outline-none ring-0 focus:outline-none focus:ring-0",
+                      "bg-transparent rounded-full shadow-none border-0 !outline-none ring-0 focus:outline-none focus:ring-0" +
+                      "h-10 lg:h-13 md:h-13 px-2 md:px-3 "
                   }}
                   startContent={
                     <div
