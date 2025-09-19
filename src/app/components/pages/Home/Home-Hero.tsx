@@ -369,7 +369,7 @@ const HeroContent = memo(function HeroContentBase({ subtitle, line1, line2 }: He
   return (
     <div className="relative z-10 mx-auto mt-16 w-full px-4 md:py-20 lg:px-28">
       <section className="grid place-items-center px-6">
-        <h1 className="max-w-5xl min-w-6xl text-center text-2xl font-semibold text-white md:text-4xl lg:text-6xl">
+        <h1 className="max-w-5xl min-w-6xl text-center text-xl font-semibold text-white md:text-4xl lg:text-6xl">
           <span className="block">
             <span className="gradient-text-animated2">AI Innovation</span> at the core.
           </span>
@@ -614,7 +614,7 @@ export default function Hero(): ReactElement {
       {/* ====== Input + Chat ====== */}
       <div
         ref={chatWrapRef}
-        className="pointer-events-auto relative z-40 px-5 md:px-0 mx-auto mt-8 mb-10 w-full md:mt-3 md:max-w-lg md:min- w-xl lg:max-w-xl lg:min-w-2xl"
+        className="pointer-events-auto relative z-40 px-4 md:px-0 mx-auto mt-8 mb-10 w-full max-w-full md:mt-3 md:max-w-lg md:min-w-xl lg:max-w-xl lg:min-w-2xl"
       >
         {chatOpen && (
           <ChatPanel open variant="inline" messages={messages} scrollRef={chatScrollRef}>
