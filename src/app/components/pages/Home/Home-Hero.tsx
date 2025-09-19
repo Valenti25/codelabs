@@ -369,7 +369,7 @@ const HeroContent = memo(function HeroContentBase({ subtitle, line1, line2 }: He
   return (
     <div className="relative z-10 mx-auto mt-16 w-full px-4 md:py-20 lg:px-28">
       <section className="grid place-items-center px-6">
-        <h1 className="max-w-5xl min-w-6xl text-center text-xl font-semibold text-white md:text-4xl lg:text-6xl">
+        <h1 className="max-w-5xl min-w-6xl text-center text-2xl font-semibold text-white md:text-4xl lg:text-6xl">
           <span className="block">
             <span className="gradient-text-animated2">AI Innovation</span> at the core.
           </span>
@@ -379,7 +379,7 @@ const HeroContent = memo(function HeroContentBase({ subtitle, line1, line2 }: He
         </h1>
       </section>
 
-      <h1 className="mb-3 pt-3 text-sm leading-tight text-white md:pt-6 md:text-2xl lg:mt-6 lg:text-4xl">{subtitle}</h1>
+      <h1 className="mb-3 pt-3 text-xl leading-tight text-white md:pt-6 md:text-2xl lg:mt-6 lg:text-4xl">{subtitle}</h1>
 
       <div className="mx-auto text-xs font-semibold text-[#676767] md:text-lg">
         <p>{line1}</p>
@@ -614,7 +614,7 @@ export default function Hero(): ReactElement {
       {/* ====== Input + Chat ====== */}
       <div
         ref={chatWrapRef}
-        className="pointer-events-auto relative z-40 mx-auto mt-8 mb-10 w-full md:mt-3 md:max-w-lg md:min-w-xl lg:max-w-xl lg:min-w-2xl"
+        className="pointer-events-auto relative z-40 px-10 mx-auto mt-8 mb-10 w-full md:mt-3 md:max-w-lg md:min-w-xl lg:max-w-xl lg:min-w-2xl"
       >
         {chatOpen && (
           <ChatPanel open variant="inline" messages={messages} scrollRef={chatScrollRef}>
@@ -652,11 +652,11 @@ export default function Hero(): ReactElement {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onFocus={() => {
-                  disableZoom();           // ⬅️ กันซูมตอนโฟกัส
-                  setChatOpen(true);       // เปิดแชทเหมือนเดิม
+                  disableZoom();          
+                  setChatOpen(true);       
                 }}
                 onClick={() => setChatOpen(true)}
-                onBlur={enableZoom}        // ⬅️ คืนค่าซูมเมื่อ blur (กรณีผู้ใช้กดยกเลิกก่อนส่ง)
+                onBlur={enableZoom}       
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
