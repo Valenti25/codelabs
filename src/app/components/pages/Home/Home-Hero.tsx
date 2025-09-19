@@ -40,6 +40,44 @@ const uid = () =>
     ? crypto.randomUUID()
     : `${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
+/** ================== iOS zoom guard (วิธีเดียวตามที่ขอ) ================== */
+const isiOS =
+  typeof navigator !== "undefined" &&
+  ((/iP(hone|ad|od)/i.test(navigator.userAgent)) ||
+    (/Macintosh/i.test(navigator.userAgent) &&
+      typeof document !== "undefined" &&
+      "ontouchend" in document));
+
+function ensureViewportMeta(): HTMLMetaElement | null {
+  if (typeof document === "undefined") return null;
+  let meta = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.name = "viewport";
+    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
+    document.head.appendChild(meta);
+  }
+  return meta;
+}
+function disableZoom() {
+  if (!isiOS) return;
+  const meta = ensureViewportMeta();
+  if (!meta) return;
+  meta.setAttribute(
+    "content",
+    "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  );
+}
+function enableZoom() {
+  if (!isiOS) return;
+  const meta = ensureViewportMeta();
+  if (!meta) return;
+  meta.setAttribute(
+    "content",
+    "width=device-width, initial-scale=1, viewport-fit=cover"
+  );
+}
+
 /** ================== Logos (เดิม) ================== */
 const LOGO_DATA: Logo[] = [
   { src: "/images/chatgpt-logo.png", hoverSrc: "/images/chatgpt-hover.png", alt: "ChatGPT" },
@@ -534,7 +572,7 @@ export default function Hero(): ReactElement {
         "rounded-full shadow-none border-none bg-transparent " +
         "h-11 lg:h-14 md:h-12 px-2 md:px-3 " +
         "data-[hover=true]:bg-transparent group-hover:bg-transparent",
-      input: "text-sm md:text-base text-white",
+      input: " md:text-base text-white",
       innerWrapper: "gap-2",
     },
     startContent: (
@@ -591,9 +629,10 @@ export default function Hero(): ReactElement {
                       (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
                     }
                   }}
+                  onFocus={disableZoom}    
+                  onBlur={enableZoom}      
                   {...inputSharedProps}
                   endContent={
-                    // ⬇️ ระยะห่างไอคอนชิดลง
                     <div className="mr-2 flex items-center gap-3">
                       <PlusButton />
                       <MicButton listening={isRecording} onToggle={toggleMic} />
@@ -612,8 +651,12 @@ export default function Hero(): ReactElement {
               <Input
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                onFocus={() => setChatOpen(true)}
+                onFocus={() => {
+                  disableZoom();           // ⬅️ กันซูมตอนโฟกัส
+                  setChatOpen(true);       // เปิดแชทเหมือนเดิม
+                }}
                 onClick={() => setChatOpen(true)}
+                onBlur={enableZoom}        // ⬅️ คืนค่าซูมเมื่อ blur (กรณีผู้ใช้กดยกเลิกก่อนส่ง)
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
@@ -622,7 +665,6 @@ export default function Hero(): ReactElement {
                 }}
                 {...inputSharedProps}
                 endContent={
-                  // ⬇️ ระยะห่างไอคอนชิดลง
                   <div className="mr-2 flex items-center gap-1">
                     <PlusButton />
                     <MicButton listening={isRecording} onToggle={toggleMic} />
