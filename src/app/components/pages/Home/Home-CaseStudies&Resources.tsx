@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Card, CardBody } from "@nextui-org/react";
 import Image from "next/image";
 
+
 // ข้อมูลสำหรับแสดงบนการ์ด
 const data = [
   {
@@ -58,9 +59,16 @@ export default function ChatsalebyAI() {
       </div>
 
       <motion.div
-        ref={carouselRef}
-        className="w-full overflow-hidden cursor-grab md:px-8"
-      >
+          ref={motionRef}
+          className="flex gap-8 select-none"        
+          drag="x"
+          dragConstraints={{ right: 0, left: width }}
+          dragElastic={0.2}                       
+          dragMomentum={true}                     
+          dragTransition={{ power: 0.2, timeConstant: 260 }}
+          whileTap={{ cursor: "grabbing" }}
+          style={{ touchAction: "pan-y" }}       
+        >
         <motion.div
           ref={motionRef}
           className="flex gap-8 " // เพิ่มระยะห่างระหว่างการ์ด
