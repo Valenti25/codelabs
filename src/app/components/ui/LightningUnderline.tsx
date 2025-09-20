@@ -1,4 +1,3 @@
-// "@/app/components/ui/LightningUnderline.tsx"
 "use client";
 import * as React from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
@@ -27,10 +26,9 @@ export default function LightningUnderline({
   // ===== springs =====
   const scaleX = useSpring(baseScaleX, { stiffness: 140, damping: 24, mass: 1.2 });
   const scaleY = useSpring(baseScaleY, { stiffness: 160, damping: 26, mass: 1.2 });
-
   const shear = useSpring(0, { stiffness: 220, damping: 20, mass: 0.9 });
 
-  // NOTE: ใช้ target + spring เพื่อแทน setVelocity()
+  // ใช้ spring + target สำหรับ offset (impulse)
   const offsetXTarget = useMotionValue(0);
   const offsetX = useSpring(offsetXTarget, { stiffness: 180, damping: 16, mass: 0.9 });
 
@@ -43,9 +41,19 @@ export default function LightningUnderline({
   const SHEAR_GAIN = 8.5;
   const OFFSET_GAIN = 0.9;
 
+  // ===== Idle fallback: กันค้างนานเกินไป =====
+  const idleTimer = React.useRef<number | null>(null);
+  const armIdleTimer = React.useCallback(() => {
+    if (idleTimer.current) window.clearTimeout(idleTimer.current);
+    // 380ms หลังเริ่มวิ่ง ให้บังคับจบเป็นเส้นขาว (พอดีๆ)
+    idleTimer.current = window.setTimeout(() => setMoving(false), 380);
+  }, []);
+
   // ===== tracking movement =====
   React.useEffect(() => {
     if (!moving) return;
+
+    armIdleTimer(); // เริ่มจับเวลาเมื่อเริ่มวิ่ง
 
     let raf = 0;
     const tick = () => {
@@ -61,25 +69,23 @@ export default function LightningUnderline({
 
           if (Math.abs(dx) > 0.25) setLiveDir(sign > 0 ? "right" : "left");
 
+          // ปั้นหุ่นไฟตอนกำลังวิ่ง
           const targetX = ratio * (1 + STRETCH_GAIN * speed);
           const squash = 1 + Y_SQUASH * (targetX / ratio - 1);
-
           baseScaleX.set(targetX);
           baseScaleY.set(1 / squash);
-
           shear.set(SHEAR_GAIN * speed * sign);
 
-          // ==== แทนที่ setVelocity() ด้วย impulse to spring target ====
+          // impulse สั้นๆ แล้วรีเซ็ต เพื่อไม่ให้แอนิเมชันยาวเกิน
           const impulse = dx * OFFSET_GAIN;
-
-          // กันกรณีมีแอนิเมชันค้าง (ไม่จำเป็นเสมอไป แต่ช่วยให้เสถียร)
           offsetX.stop?.();
-
-          // เตะ target ออกไปหนึ่งเฟรม แล้วดึงกลับศูนย์
           offsetXTarget.set(impulse);
           requestAnimationFrame(() => {
             offsetXTarget.set(0);
           });
+
+          // ถ้า dx เล็กมากๆ ต่อเนื่อง ให้นับเป็น "เข้า idle" เร็วขึ้น
+          if (Math.abs(dx) < 0.2) armIdleTimer();
         }
 
         prevX.current = x;
@@ -88,8 +94,11 @@ export default function LightningUnderline({
     };
 
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [moving, ratio, baseScaleX, baseScaleY, shear, offsetX, offsetXTarget]);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (idleTimer.current) window.clearTimeout(idleTimer.current);
+    };
+  }, [moving, ratio, armIdleTimer, baseScaleX, baseScaleY, shear, offsetX, offsetXTarget]);
 
   // ===== reset เมื่อหยุดเคลื่อน =====
   React.useLayoutEffect(() => {
@@ -112,19 +121,22 @@ export default function LightningUnderline({
       layoutId="tab-underline"
       className="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2"
       style={{ width: idleWidth, height: 22, willChange: "transform" }}
-      transition={{ type: "spring", stiffness: 120, damping: 30, mass: 1.6, restDelta: 0.001, restSpeed: 0.001 }}
-      onLayoutAnimationStart={() => setMoving(true)}
-      onLayoutAnimationComplete={() => setMoving(false)}
+      // ► เปลี่ยน shared-layout ให้เป็น tween จบชัดๆ ไม่รอ rest/settle ของ spring
+      transition={{ type: "tween", ease: [0.22, 1, 0.36, 1], duration: 0.32 }}
+      onLayoutAnimationStart={() => {
+        setMoving(true);
+        armIdleTimer(); // กันยืดเยื้อ
+      }}
+      onLayoutAnimationComplete={() => {
+        if (idleTimer.current) window.clearTimeout(idleTimer.current);
+        setMoving(false);
+      }}
     >
       {/* Static state - simple white line */}
       {!moving && (
         <div
           className="absolute left-0 right-0 top-1/2 -translate-y-1/2 rounded-full"
-          style={{
-            height: 2,
-            background: "#ffffff",
-            opacity: 0.8,
-          }}
+          style={{ height: 2, background: "#ffffff", opacity: 0.8 }}
         />
       )}
 
@@ -174,10 +186,7 @@ export default function LightningUnderline({
           />
 
           {/* Electric crackling */}
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{ mixBlendMode: "screen", opacity: 0.6 }}
-          >
+          <div className="absolute inset-0 overflow-hidden" style={{ mixBlendMode: "screen", opacity: 0.6 }}>
             <div
               className="absolute inset-0 animate-electric-pulse"
               style={{
@@ -191,10 +200,7 @@ export default function LightningUnderline({
           </div>
 
           {/* Moving sweep */}
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{ mixBlendMode: "screen", opacity: 0.3 }}
-          >
+          <div className="absolute inset-0 overflow-hidden" style={{ mixBlendMode: "screen", opacity: 0.3 }}>
             <div className="absolute -inset-x-32 inset-y-[1px] animate-lightning-sweep bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           </div>
         </motion.div>
@@ -207,19 +213,12 @@ export default function LightningUnderline({
           80%  { opacity: 0.8; }
           100% { transform: translateX(100%); opacity: 0; }
         }
-
         @keyframes electric-pulse {
           0%, 100% { opacity: 0.4; filter: blur(0px); }
           50% { opacity: 0.8; filter: blur(0.5px); }
         }
-
-        .animate-lightning-sweep {
-          animation: lightning-sweep 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
-        }
-
-        .animate-electric-pulse {
-          animation: electric-pulse 0.15s ease-in-out infinite alternate;
-        }
+        .animate-lightning-sweep { animation: lightning-sweep 1.2s cubic-bezier(0.22,1,0.36,1) infinite; }
+        .animate-electric-pulse { animation: electric-pulse 0.15s ease-in-out infinite alternate; }
       `}</style>
     </motion.span>
   );
