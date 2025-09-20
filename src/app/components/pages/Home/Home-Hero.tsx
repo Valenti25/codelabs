@@ -517,17 +517,6 @@ export default function Hero(): ReactElement {
   }, []);
 
   useEffect(() => {
-    const onDown = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (chatWrapRef.current && !chatWrapRef.current.contains(target)) {
-        setChatOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, []);
-
-  useEffect(() => {
     if (!chatOpen) return;
     chatScrollRef.current?.scrollTo({
       top: chatScrollRef.current.scrollHeight,
