@@ -255,11 +255,11 @@ function FirstScenarioProductsStrip({ products }: { products: ProductInfo[] }) {
 
   return (
     <CardWrap>
-      <div ref={wrapRef} className="relative z-0 overflow-hidden card-outer-bg border-0 p-[1px] rounded-[25px] card-outer-shadow" style={{ height: CARD_MEDIA_H + 50 }}>
+      <div ref={wrapRef} className="relative rounded-2xl overflow-hidden" style={{ height: CARD_MEDIA_H + 40 }}>
         <motion.div
           ref={trackRef}
           layout="position"
-          className="flex gap-2 card-inner-bg h-full relative z-10 pt-5 px-5 rounded-[24px]  card-inner-blur "
+          className="flex gap-2"
           style={{ x }}
           drag="x"
           dragConstraints={{ left: minX, right: 0 }}
@@ -610,11 +610,11 @@ function ScrollableChat({ scenarios }: { scenarios: Scenario[] }) {
       <section className="card-inner-bg p-5 card-inner-blur relative z-10 h-full rounded-[24px] border-0">
         <div className="relative">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-10 z-10" />
-          <div ref={viewportRef} className="relative  h-[560px] md:h-[600px] overflow-hidden pr-1 md:pr-2">
+          <div ref={viewportRef} className="relative h-[560px] md:h-[600px] overflow-hidden pr-1 md:pr-2">
             <motion.div
               ref={contentRef}
               layout
-              className="min-h-[560px] md:min-h-[600px]  pb-14 pt-2 space-y-6"
+              className="min-h-[560px] md:min-h-[600px] pb-14 pt-2 space-y-6"
               style={{ y: ySmooth }}
               drag="y"
               dragElastic={0}
@@ -672,7 +672,7 @@ function GroupTabs({ value, onChange }: GroupTabsProps) {
 
   return (
     <LayoutGroup id="lightning-tabs">
-      <div role="tablist" aria-label="Chat groups" className="mx-auto mb-6  flex w-full items-center gap-6 justify-center">
+      <div role="tablist" aria-label="Chat groups" className="mx-auto mb-6 flex w-full items-center gap-6 justify-center">
         {CHAT_GROUPS.map(({ key, label, icon: Icon }) => {
           const active = value === key;
           return (
@@ -683,14 +683,14 @@ function GroupTabs({ value, onChange }: GroupTabsProps) {
               aria-controls={`panel-${key}`}
               onClick={() => onChange(key)}
               className={[
-                "relative inline-flex items-center gap-2  rounded-xl py-2 text-sm transition",
+                "relative inline-flex items-center gap-2 rounded-xl py-2 text-[11px] md:text-xs transition",
                 active ? "text-white" : "text-[#676767] hover:text-white/80",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30",
               ].join(" ")}
               title={label}
             >
-              <Icon className="h-4 w-4" />
-              <span className="whitespace-nowrap ">{label}</span>
+              <Icon className="md:h-4 md:w-4 h-3 w-3" />
+              <span className="whitespace-nowrap">{label}</span>
 
               {active && <LightningUnderline dir={dir} idleWidth={48} movingWidth={92} />}
             </button>
