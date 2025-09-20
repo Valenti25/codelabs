@@ -72,7 +72,7 @@ export default function AppNavbar() {
   return (
     <div className="relative no-focus-ring">
       <Navbar
-        className="relative z-50 px-6 py-4 lg:px-12 lg:py-10 backdrop-blur-none"
+        className="relative z-50 px-0 md:px-6 py-4 lg:px-12 lg:py-10 backdrop-blur-none"
         maxWidth="full"
       >
         <NavbarContent className="mx-auto flex w-full max-w-[1400px] items-center justify-between text-white">
