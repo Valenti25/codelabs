@@ -41,8 +41,9 @@ export default function AppNavbar() {
         !resourcesDropdownRef.current.contains(e.target as Node) &&
         resourcesMenuRef.current &&
         !resourcesMenuRef.current.parentElement?.contains(e.target as Node)
-      )
+      ) {
         setActiveDropdown(null);
+      }
     };
 
     onResize();
@@ -54,10 +55,8 @@ export default function AppNavbar() {
     };
   }, []);
 
-  // FIX: ถ้าเปลี่ยนเป็น mobile, ปิด dropdown เดสก์ท็อป
   useEffect(() => {
     if (isMobile) setActiveDropdown(null);
-    // ถ้ากลับเป็นเดสก์ท็อป ปิดเมนูมือถือไว้ด้วย
     if (!isMobile) setIsMenuOpen(false);
   }, [isMobile]);
 
@@ -72,10 +71,14 @@ export default function AppNavbar() {
   return (
     <div className="relative no-focus-ring">
       <Navbar
-        className="relative z-50 px-0 md:px-6 py-4 lg:px-12 lg:py-10 backdrop-blur-none"
         maxWidth="full"
+        classNames={{
+          base: "relative z-50 backdrop-blur-none py-4 mb-5 md:px-12 lg:py-10",
+          wrapper: "!px-0 sm:!px-2 md:!px-4 lg:!px-6",
+        }}
       >
-        <NavbarContent className="mx-auto flex w-full max-w-[1400px] items-center justify-between text-white">
+        {/* ซ้าย: โลโก้ */}
+        <NavbarContent justify="start" className="text-white">
           <NavbarBrand>
             <Image
               src="/images/codelabs-logo.png"
@@ -84,21 +87,80 @@ export default function AppNavbar() {
               height={isMobile ? 45 : 67}
             />
           </NavbarBrand>
+        </NavbarContent>
 
+        {/* กลาง: เมนูเดสก์ท็อป */}
+        {!isMobile && (
+          <NavbarContent
+            justify="start"
+            className="hidden lg:flex gap-10 text-base font-bold text-white"
+          >
+            {/* Products trigger */}
+            <div
+              ref={dropdownContainerRef}
+              className="relative rounded-lg"
+              onMouseEnter={() => handleMouseEnter("products")}
+              onMouseLeave={handleMouseLeave}
+            >
+              <NavbarItem className="relative">
+                <div className="relative z-10 flex cursor-pointer items-center gap-1 text-white/90 transition-colors">
+                  Product
+                </div>
+              </NavbarItem>
+            </div>
+
+            {content.navbar.menuItems
+              .filter((item) => item !== "Product" && item !== "Resources")
+              .map((label) => (
+                <NavbarItem key={label}>
+                  <Link href="#" className="text-white/90">
+                    {label}
+                  </Link>
+                </NavbarItem>
+              ))}
+
+            {/* Resources trigger */}
+            <div
+              ref={resourcesDropdownRef}
+              className="relative rounded-lg"
+              onMouseEnter={() => handleMouseEnter("resources")}
+              onMouseLeave={handleMouseLeave}
+            >
+              <NavbarItem className="relative">
+                <div className="flex cursor-pointer items-center gap-1 leading-tight text-white/90 transition-colors">
+                  Resources
+                </div>
+              </NavbarItem>
+            </div>
+          </NavbarContent>
+        )}
+
+        {/* ขวา: CTA (เดสก์ท็อป) หรือ เมนูมือถือ + CTA (มือถือ) */}
+        <NavbarContent justify="end" className="text-sm">
           {isMobile ? (
-            <div className="relative" ref={menuRef}>
+            // ⬇️ ใส่ CTA ขนาดเล็กไว้ใน navbar มือถือ + ไอคอนแฮมเบอร์เกอร์
+            <div className="relative flex items-center gap-2 mx-1" ref={menuRef}>
+              <Button
+                size="sm"
+                radius="lg"
+                className="h-5 min-w-0 rounded-sm bg-white px-5 py-3 text-xs font-semibold mr-1 text-black shadow"
+              >
+                {content.navbar.buttonText}
+              </Button>
+
               <Button
                 onClick={() => {
-                  setActiveDropdown(null); // FIX: ปิด dropdown เดสก์ท็อปก่อน
-                  setIsMenuOpen(true);     // เปิดเมนูมือถือ
+                  setActiveDropdown(null);
+                  setIsMenuOpen(true);
                 }}
+                isIconOnly
                 className="bg-transparent p-2 text-white"
               >
                 <Image
-                  width={35}
-                  height={35}
+                  width={28}
+                  height={28}
                   src="./svg/hamberger.svg"
-                  alt="hamberger"
+                  alt="Open menu"
                   className="object-contain"
                 />
               </Button>
@@ -112,60 +174,16 @@ export default function AppNavbar() {
               />
             </div>
           ) : (
-            <>
-              <NavbarContent className="hidden gap-10 text-base font-bold lg:flex">
-                {/* Products trigger */}
-                <div
-                  ref={dropdownContainerRef}
-                  className="relative rounded-lg"
-                  onMouseEnter={() => handleMouseEnter("products")}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  <NavbarItem className="relative">
-                    <div className="relative z-10 flex cursor-pointer items-center gap-1 text-white/90 transition-colors">
-                      Product
-                    </div>
-                  </NavbarItem>
-                </div>
-
-                {content.navbar.menuItems
-                  .filter((item) => item !== "Product" && item !== "Resources")
-                  .map((label) => (
-                    <NavbarItem key={label}>
-                      <Link href="#" className="text-white/90">
-                        {label}
-                      </Link>
-                    </NavbarItem>
-                  ))}
-
-                {/* Resources trigger */}
-                <div
-                  ref={resourcesDropdownRef}
-                  className="relative rounded-lg"
-                  onMouseEnter={() => handleMouseEnter("resources")}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  <NavbarItem className="relative">
-                    <div className="flex cursor-pointer items-center gap-1 leading-tight text-white/90 transition-colors">
-                      Resources
-                    </div>
-                  </NavbarItem>
-                </div>
-              </NavbarContent>
-
-              <NavbarContent className="flex text-sm">
-                <NavbarItem className="relative rounded-lg">
-                  <Button className="relative rounded-lg bg-white px-8 py-2 font-semibold text-black">
-                    {content.navbar.buttonText}
-                  </Button>
-                </NavbarItem>
-              </NavbarContent>
-            </>
+            <NavbarItem className="relative rounded-lg">
+              <Button className="relative rounded-lg bg-white px-8 py-2 font-semibold text-black">
+                {content.navbar.buttonText}
+              </Button>
+            </NavbarItem>
           )}
         </NavbarContent>
       </Navbar>
 
-      {/* FIX: render dropdown overlays เฉพาะเดสก์ท็อป และเมื่อไม่เปิดเมนูมือถือ */}
+      {/* dropdown overlays เฉพาะเดสก์ท็อป */}
       {!isMobile && !isMenuOpen && activeDropdown === "products" && (
         <ProductsDropdown
           dropdownData={content.dropdown.products}
