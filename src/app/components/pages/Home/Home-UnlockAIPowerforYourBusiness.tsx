@@ -13,7 +13,7 @@ function HoverPill({
   className = "",
   rounded = "rounded-full",
   glowRadius = 240,
-  overflow = "hidden", // "hidden" | "visible" (ไม่ต้อง visible แล้ว เพราะเราใช้ portal)
+  overflow = "hidden", 
 }: {
   children: React.ReactNode;
   className?: string;
@@ -97,7 +97,7 @@ function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className={[
-        "w-full bg-transparent text-[17px] leading-relaxed outline-none",
+        "w-full bg-transparent text-sm md:text-lg leading-relaxed outline-none",
         "text-white placeholder:text-white/35",
         props.className || "",
       ].join(" ")}
@@ -161,7 +161,7 @@ function BigTextarea({
       onInput={autosize}
       rows={minRows}
       className={[
-        "w-full resize-none bg-transparent text-[17px] leading-relaxed outline-none",
+        "w-full resize-none bg-transparent text-sm md:text-lg leading-relaxed outline-none",
         "text-white placeholder:text-white/35",
         "px-5 py-4 md:px-6 md:py-5",
         className,
@@ -221,7 +221,7 @@ function SubjectSelect({
         <FieldShell small>
           <div
             className={[
-              "w-full text-[17px] leading-relaxed",
+              "w-full text-sm md:text-lg leading-relaxed",
               value ? "text-white" : "text-white/35",
             ].join(" ")}
           >
@@ -230,7 +230,6 @@ function SubjectSelect({
         </FieldShell>
       </div>
 
-      {/* dropdown ลอย (พอร์ทัล) ไม่ทับการ์ดด้านล่าง */}
       {typeof window !== "undefined" &&
         createPortal(
           <AnimatePresence>
@@ -417,7 +416,7 @@ export default function Page() {
             >
               <button
                 type="submit"
-                className="relative z-10 px-12 py-3.5 text-base font-medium"
+                className="relative z-10 px-12 py-3.5 text-sm md:text-lg font-medium"
               >
                 Send
               </button>
@@ -452,7 +451,7 @@ export default function Page() {
               <HoverPill
                 key={i}
                 rounded="rounded-3xl"
-                className="md:min-h-[140px] min-h-[120px]"
+                className="md:min-h-[140px] min-h-[50px]"
               >
                 <a
                   href={href}
@@ -462,15 +461,15 @@ export default function Page() {
                   className="block h-full w-full"
                 >
                   <div className="flex h-full items-center gap-5 p-6 md:p-7">
-                    <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
-                      <Icon className="h-7 w-7 text-white/90" />
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/15 bg-white/5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
+                      <Icon className="h-5 w-5 text-white/90" />
                     </div>
 
                     <div className="min-w-0">
-                      <div className="text-lg font-medium text-white/90">
+                      <div className="text-sm font-medium text-white/90">
                         {title}
                       </div>
-                      <div className="mt-1 text-sm leading-relaxed break-words text-white/65">
+                      <div className="mt-1 text-xs leading-relaxed break-words text-white/65">
                         {subtitle}
                       </div>
                     </div>
