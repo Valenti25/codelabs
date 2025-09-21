@@ -73,7 +73,7 @@ export default function AppNavbar() {
       <Navbar
         maxWidth="full"
         classNames={{
-          base: "relative z-50 backdrop-blur-none py-4 mb-5 md:px-12 lg:py-10",
+          base: "relative z-50 backdrop-blur-none py-4 md:mb-0 mb-5 md:px-12 lg:py-10",
           wrapper: "!px-0 sm:!px-2 md:!px-4 lg:!px-6",
         }}
       >
