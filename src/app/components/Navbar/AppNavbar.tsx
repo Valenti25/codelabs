@@ -15,6 +15,57 @@ import ProductsDropdown from "./ProductsDropdown";
 import ResourcesDropdown from "./ResourcesDropdown";
 import MobileMenu from "./MobileMenu";
 
+/* ================= Framed CTA (เหมือนกรอบการ์ด) ================= */
+function FramedCTA({
+  children,
+  className = "",
+  size = "md",
+  onClick,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  size?: "sm" | "md";
+  onClick?: () => void;
+}) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = wrapRef.current?.getBoundingClientRect();
+    if (!r) return;
+    setPos({ x: e.clientX - r.left, y: e.clientY - r.top });
+  };
+
+  const sizing =
+    size === "sm"
+      ? "px-5 py-2 text-xs"
+      : "px-8 py-2 text-sm md:text-base";
+
+  return (
+    <div
+      ref={wrapRef}
+      onMouseMove={onMove}
+      className="group relative inline-flex overflow-hidden rounded-[14px] p-[1px] card-outer-bg card-outer-shadow"
+    >
+      {/* แสงวิ่งตามเมาส์ */}
+      <span
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background: `radial-gradient(120px circle at ${pos.x}px ${pos.y}px, rgba(255,255,255,0.18), transparent 45%)`,
+        }}
+      />
+      <Button
+        onClick={onClick}
+        radius="lg"
+        className={`relative z-10 rounded-[13px] card-inner-bg card-inner-blur font-semibold text-white ${sizing} ${className}`}
+      >
+        {children}
+      </Button>
+    </div>
+  );
+}
+/* ============================================================== */
+
 export default function AppNavbar() {
   const [isMobile, setIsMobile] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -73,7 +124,7 @@ export default function AppNavbar() {
       <Navbar
         maxWidth="full"
         classNames={{
-          base: "relative z-50 backdrop-blur-none py-4 md:mb-0 mb-5 md:px-12 lg:py-10",
+          base: "relative z-50 backdrop-blur-none py-4 px-1 md:mb-0 mb-5 md:px-12 lg:py-10",
           wrapper: "!px-0 sm:!px-2 md:!px-4 lg:!px-6",
         }}
       >
@@ -135,26 +186,23 @@ export default function AppNavbar() {
           </NavbarContent>
         )}
 
-        {/* ขวา: CTA (เดสก์ท็อป) หรือ เมนูมือถือ + CTA (มือถือ) */}
+        {/* ขวา: CTA */}
         <NavbarContent justify="end" className="text-sm">
           {isMobile ? (
-            // ⬇️ ใส่ CTA ขนาดเล็กไว้ใน navbar มือถือ + ไอคอนแฮมเบอร์เกอร์
-            <div className="relative flex items-center gap-2 mx-1" ref={menuRef}>
-              <Button
-                size="sm"
-                radius="lg"
-                className="h-5 min-w-0 rounded-sm bg-white px-5 py-3 text-xs font-semibold mr-1 text-black shadow"
-              >
+            <div className="relative mx-1 flex items-center gap-2" ref={menuRef}>
+              {/* CTA แบบมีกรอบ (ขนาดเล็ก) */}
+              <FramedCTA className="h-8 w-10 px-16 py-2 text-xs">
                 {content.navbar.buttonText}
-              </Button>
+              </FramedCTA>
 
+              {/* เมนูมือถือ */}
               <Button
                 onClick={() => {
                   setActiveDropdown(null);
                   setIsMenuOpen(true);
                 }}
                 isIconOnly
-                className="bg-transparent p-2 text-white"
+                className="bg-transparent p-2 mr-1 text-white"
               >
                 <Image
                   width={28}
@@ -174,10 +222,9 @@ export default function AppNavbar() {
               />
             </div>
           ) : (
-            <NavbarItem className="relative rounded-lg">
-              <Button className="relative rounded-lg bg-white px-8 py-2 font-semibold text-black">
-                {content.navbar.buttonText}
-              </Button>
+            <NavbarItem className="relative">
+              {/* CTA แบบมีกรอบ (เดสก์ท็อป) */}
+              <FramedCTA>{content.navbar.buttonText}</FramedCTA>
             </NavbarItem>
           )}
         </NavbarContent>
