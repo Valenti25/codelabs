@@ -4,7 +4,6 @@ import React, { useRef } from "react";
 import { Card, CardBody } from "@nextui-org/react";
 import Image from "next/image";
 
-// ข้อมูลสำหรับแสดงบนการ์ด
 const data = [
   {
     category: "Partner",
@@ -38,13 +37,11 @@ export default function ChatsalebyAI() {
 
   return (
     <section className="text-white flex flex-col items-center m-auto py-20 max-w-7xl">
-      {/* ส่วนหัวข้อ */}
       <div className="text-center mb-14 px-4">
         <p className="mb-3 text-lg text-[#676767]">AI-Driven Success Stories</p>
         <h2 className="text-xl lg:text-[40px]">Case Studies & Resources</h2>
       </div>
 
-      {/* เลื่อนแนวนอนได้ทุกขนาดหน้าจอ */}
       <div
         ref={scrollerRef}
         className="w-full px-4 pb-2 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
@@ -59,11 +56,10 @@ export default function ChatsalebyAI() {
             >
               <Card
                 isHoverable
-                className="bg-black rounded-3xl shadow-lg overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                className="bg-black rounded-xl md:rounded-3xl shadow-lg overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                 role="article"
               >
                 <CardBody className="p-0">
-                  {/* รูปภาพ */}
                   <div className="relative bg-[#0B0B0B] w-full h-[200px] md:h-[264px]">
                     <Image
                       fill
@@ -74,7 +70,6 @@ export default function ChatsalebyAI() {
                       priority={idx < 2}
                     />
                   </div>
-                  {/* ข้อความ */}
                   <div className="p-6">
                     <p className="text-sm gradient-text-animated mb-2">
                       {item.category}
