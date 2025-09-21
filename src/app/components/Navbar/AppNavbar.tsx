@@ -45,11 +45,11 @@ function FramedCTA({
     <div
       ref={wrapRef}
       onMouseMove={onMove}
-      className="group relative inline-flex overflow-hidden rounded-[14px] p-[1px] card-outer-bg card-outer-shadow"
+      className="group relative inline-flex overflow-hidden rounded-[21px] opacity-70 p-[1px] border-0 card-outer-bg card-outer-shadow"
     >
       {/* แสงวิ่งตามเมาส์ */}
       <span
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute inset-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
           background: `radial-gradient(120px circle at ${pos.x}px ${pos.y}px, rgba(255,255,255,0.18), transparent 45%)`,
         }}
@@ -57,7 +57,7 @@ function FramedCTA({
       <Button
         onClick={onClick}
         radius="lg"
-        className={`relative z-10 rounded-[13px] card-inner-bg card-inner-blur font-semibold text-white ${sizing} ${className}`}
+        className={`relative z-10 rounded-[20px] card-inner-bg card-inner-blur font-semibold text-white ${sizing} ${className}`}
       >
         {children}
       </Button>
@@ -124,7 +124,7 @@ export default function AppNavbar() {
       <Navbar
         maxWidth="full"
         classNames={{
-          base: "relative z-50 backdrop-blur-none py-4 px-1 md:mb-0 mb-5 md:px-12 lg:py-10",
+          base: "relative z-50 backdrop-blur-none py-4 px-1 md:px-12 lg:py-10",
           wrapper: "!px-0 sm:!px-2 md:!px-4 lg:!px-6",
         }}
       >
