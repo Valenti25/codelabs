@@ -40,7 +40,7 @@ export default function ModelCanvas() {
           </Suspense>
         )}
       </div>
-      <div className="absolute -top-[20%] right-0 pl-8 h-4/5 w-1/2 lg:-top-[5%] lg:right-0 lg:pl-52">
+      <div className="absolute right-0 top-5 pl-36 h-4/5 w-1/2 md:-top-[5%] md:right-0 md:pl-52">
         {isInView && (
           <Suspense>
             <Spline scene="https://prod.spline.design/dIHvXSNd1BJQN7MA/scene.splinecode" />
