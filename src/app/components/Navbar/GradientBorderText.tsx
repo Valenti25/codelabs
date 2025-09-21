@@ -10,7 +10,7 @@ const GradientBorderText = ({
   children: React.ReactNode;
   logo?: string;
 }) => (
-  <div className="gradient relative inline-block rounded-lg backdrop-blur-md">
+  <div className="gradient relative inline-block ">
     <div className="flex items-center gap-1.5 p-2">
       {logo && (
         <Image
@@ -18,7 +18,7 @@ const GradientBorderText = ({
           alt="Category logo"
           width={35}
           height={35}
-          className="flex-shrink-0 object-contain"
+          className="flex-shrink-0  absolute object-contain"
         />
       )}
       {children}
