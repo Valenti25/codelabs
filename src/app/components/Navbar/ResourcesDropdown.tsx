@@ -20,12 +20,12 @@ export default function ResourcesDropdown({
   return (
     <div className="pointer-events-none absolute top-0 right-0 left-0 z-40 flex justify-center pt-20">
       <div className="pointer-events-auto relative">
-        <div className="absolute mt-1 ml-20 flex items-center justify-center rounded-lg border border-black p-[2px] backdrop-blur-md">
+        <div className="absolute mt-1 ml-28 flex items-center justify-center rounded-lg p-[2px] backdrop-blur-md">
           <div
             ref={resourcesMenuRef}
             onMouseEnter={() => handleMouseEnter("resources")}
             onMouseLeave={handleMouseLeave}
-            className="relative w-48 rounded-[inherit] bg-black/20"
+            className="relative w-48 rounded-[inherit]"
           >
             <div className="space-y-3 px-6 py-8">
               {dropdownData.map((item, idx) => (

@@ -5,7 +5,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'codelabs AI',
   icons: {
-    icon: '/codelabs-ai-icon.png',
+    icon: '/codelabs-ai-favicon.ico',
   },
 };
 

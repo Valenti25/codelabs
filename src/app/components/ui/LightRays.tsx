@@ -27,47 +27,24 @@ interface LightRaysProps {
   className?: string;
 }
 
-type Vec2 = [number, number];
-type Vec3 = [number, number, number];
-
-interface Uniforms {
-  iTime: { value: number };
-  iResolution: { value: Vec2 };
-
-  rayPos: { value: Vec2 };
-  rayDir: { value: Vec2 };
-
-  raysColor: { value: Vec3 };
-  raysSpeed: { value: number };
-  lightSpread: { value: number };
-  rayLength: { value: number };
-  pulsating: { value: number };
-  fadeDistance: { value: number };
-  saturation: { value: number };
-  mousePos: { value: Vec2 };
-  mouseInfluence: { value: number };
-  noiseAmount: { value: number };
-  distortion: { value: number };
-}
-
 const DEFAULT_COLOR = "#ffffff";
 
-const hexToRgb = (hex: string): Vec3 => {
+const hexToRgb = (hex: string): [number, number, number] => {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return m
-    ? ([
+    ? [
         parseInt(m[1], 16) / 255,
         parseInt(m[2], 16) / 255,
         parseInt(m[3], 16) / 255,
-      ] as Vec3)
-    : ([1, 1, 1] as Vec3);
+      ]
+    : [1, 1, 1];
 };
 
 const getAnchorAndDir = (
   origin: RaysOrigin,
   w: number,
   h: number
-): { anchor: Vec2; dir: Vec2 } => {
+): { anchor: [number, number]; dir: [number, number] } => {
   const outside = 0.2;
   switch (origin) {
     case "top-left":
@@ -105,12 +82,12 @@ const LightRays: React.FC<LightRaysProps> = ({
   className = "",
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const uniformsRef = useRef<Uniforms | null>(null);
+  const uniformsRef = useRef(null);
   const rendererRef = useRef<Renderer | null>(null);
-  const mouseRef = useRef<{ x: number; y: number }>({ x: 0.5, y: 0.5 });
-  const smoothMouseRef = useRef<{ x: number; y: number }>({ x: 0.5, y: 0.5 });
+  const mouseRef = useRef({ x: 0.5, y: 0.5 });
+  const smoothMouseRef = useRef({ x: 0.5, y: 0.5 });
   const animationIdRef = useRef<number | null>(null);
-  const meshRef = useRef<Mesh | null>(null);
+  const meshRef = useRef(null);
   const cleanupFunctionRef = useRef<(() => void) | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -147,8 +124,8 @@ const LightRays: React.FC<LightRaysProps> = ({
     const initializeWebGL = async () => {
       if (!containerRef.current) return;
 
-      // ปล่อยให้ layout เซ็ตขนาดก่อน
       await new Promise((resolve) => setTimeout(resolve, 10));
+
       if (!containerRef.current) return;
 
       const renderer = new Renderer({
@@ -161,7 +138,6 @@ const LightRays: React.FC<LightRaysProps> = ({
       gl.canvas.style.width = "100%";
       gl.canvas.style.height = "100%";
 
-      // เคลียร์ลูกเดิมใน container
       while (containerRef.current.firstChild) {
         containerRef.current.removeChild(containerRef.current.firstChild);
       }
@@ -269,7 +245,7 @@ void main() {
   gl_FragColor  = color;
 }`;
 
-      const uniforms: Uniforms = {
+      const uniforms = {
         iTime: { value: 0 },
         iResolution: { value: [1, 1] },
 
@@ -300,8 +276,7 @@ void main() {
       meshRef.current = mesh;
 
       const updatePlacement = () => {
-        if (!containerRef.current || !rendererRef.current) return;
-        const renderer = rendererRef.current;
+        if (!containerRef.current || !renderer) return;
 
         renderer.dpr = Math.min(window.devicePixelRatio, 2);
 
@@ -343,11 +318,11 @@ void main() {
         }
 
         try {
-          rendererRef.current.render({ scene: mesh });
+          renderer.render({ scene: mesh });
           animationIdRef.current = requestAnimationFrame(loop);
         } catch (error) {
-          // ป้องกันแครชในบาง GPU/Browser
           console.warn("WebGL rendering error:", error);
+          return;
         }
       };
 
@@ -356,22 +331,18 @@ void main() {
       animationIdRef.current = requestAnimationFrame(loop);
 
       cleanupFunctionRef.current = () => {
-        if (animationIdRef.current !== null) {
+        if (animationIdRef.current) {
           cancelAnimationFrame(animationIdRef.current);
           animationIdRef.current = null;
         }
 
         window.removeEventListener("resize", updatePlacement);
 
-        if (rendererRef.current) {
+        if (renderer) {
           try {
-            const gl = rendererRef.current.gl;
-            const canvas = gl.canvas as HTMLCanvasElement | undefined;
-
-            const loseContextExt = gl.getExtension(
-              "WEBGL_lose_context"
-            ) as { loseContext: () => void } | null;
-
+            const canvas = renderer.gl.canvas;
+            const loseContextExt =
+              renderer.gl.getExtension("WEBGL_lose_context");
             if (loseContextExt) {
               loseContextExt.loseContext();
             }
@@ -390,7 +361,7 @@ void main() {
       };
     };
 
-    void initializeWebGL();
+    initializeWebGL();
 
     return () => {
       if (cleanupFunctionRef.current) {
@@ -469,7 +440,7 @@ void main() {
   return (
     <div
       ref={containerRef}
-      className={`w-full h-full pointer-events-none z-[3] overflow-hidden relative ${className}`}
+      className={`w-full h-full pointer-events-none z-[3] overflow-hidden relative ${className}`.trim()}
     />
   );
 };

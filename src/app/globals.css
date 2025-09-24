@@ -18,6 +18,18 @@ body {
   padding: 0;
   font-family: var(--font-line-regular);
 }
+@layer utilities {
+  .no-focus-ring
+    :is(
+      *:focus,
+      *:focus-visible,
+      [data-focus-visible="true"],
+      [data-focus="true"]
+    ) {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
 
 .gradient-text {
   background: linear-gradient(90deg, #4568dc, #b06ab3);
@@ -28,28 +40,55 @@ body {
 }
 
 img {
-  -webkit-user-drag: none; 
-  user-select: none;      
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .gradient-text-animated {
-  background: linear-gradient(90deg, #4568dc, #b06ab3, #4568dc, #b06ab3);
-  background-size: 400% 400%;
+  background: linear-gradient(
+    90deg,
+    #EDB279,
+    #B542D7,
+    #4514DC,
+    #B542D7,
+    #EDB279
+  );
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradientMove 8s linear infinite;
+
   -webkit-text-stroke-width: 0.2px;
-  -webkit-text-stroke-color: rgba(255, 255, 255, 0.1); /* เส้นขอบสีขาวจางๆ */
+  -webkit-text-stroke-color: rgba(255, 255, 255, 0.1);
+
+  animation: gradientMove 8s linear infinite alternate;
+}
+.gradient-text-animated2 {
+  background: linear-gradient(
+    90deg,
+    #EDB279,
+    #B542D7,
+    #4514DC,
+    #B542D7,
+    #EDB279
+  );
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: gradientMove 8s linear infinite alternate;
 }
 
 @keyframes gradientMove {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 100% 50%;
-  }
+  0%   { background-position:   0% 50%; }
+  100% { background-position: 100% 50%; }
 }
+
 .card-outer-bg {
   background: linear-gradient(
     135deg,
@@ -83,8 +122,8 @@ img {
   display: none; /* Chrome, Safari, Opera */
 }
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE และ Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE และ Edge */
+  scrollbar-width: none; /* Firefox */
 }
 @keyframes meteorEffect {
   0% {
@@ -106,7 +145,5 @@ img {
   }
 }
 .opacity-0 {
-    opacity: 100%;
-  }
-
-  
+  opacity: 100%;
+}
